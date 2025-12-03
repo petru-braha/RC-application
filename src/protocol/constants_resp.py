@@ -1,10 +1,10 @@
-from enum import Enum
+from enum import IntEnum
 
 # RESP data types pointing to their first byte in the RESP_SYMB array.
 # The code usage looks as `RESP_SYMB[SIMPLE_STRINGS]`.
 # Used when encoding user input.
 # To not be confused with Redis data structures as they serve totally different purpose.
-class RespDataType(Enum):
+class RespDataType(IntEnum):
     SIMPLE_STRINGS = 0
     SIMPLE_ERRORS = 1
     INTEGERS = 2
@@ -30,4 +30,7 @@ RESP_SYMB = ( "+", "-", ":", "$", "*", "_", "#", ",", "(", "!", "=", "%", "|", "
 SYMB_TYPE = {symb: idx for idx, symb in enumerate(RESP_SYMB)}
 
 # Standard RESP encoded data suffix.
-CRLF = '\r\n'
+CRLF = "\r\n"
+
+# Standard space constant.
+SPACE = " "
