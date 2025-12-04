@@ -32,5 +32,27 @@ SYMB_TYPE = {symb: idx for idx, symb in enumerate(RESP_SYMB)}
 # Standard RESP encoded data suffix.
 CRLF = "\r\n"
 
-# Standard space constant.
+# Standard input string constant.
 SPACE = " "
+QUOTE_DOUBLE = "\""
+QUOTE_SINGLE = "\'"
+
+# See more: https://redis.io/docs/latest/develop/tools/cli/
+QUOTE_STATES = dict()
+# Supported escape sequences: \", \n, \r, \t, \b, \a, \\, \xhh
+QUOTE_STATES[QUOTE_DOUBLE] = {
+    "\"": "\"",
+    "n": "\n",
+    "r": "\r",
+    "t": "\t",
+    "b": "\b",
+    "a": "\a",
+    "\\": "\\",
+    # "xhh": "\xhh"
+    # Unsupported escape sequence in string literalPylancereportInvalidStringEscapeSequence
+}
+# Supported escape sequences: \', \\
+QUOTE_STATES[QUOTE_SINGLE] = {
+    "\'": "\'",
+    "\\": "\\"
+}
