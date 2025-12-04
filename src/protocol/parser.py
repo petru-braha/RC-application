@@ -65,7 +65,7 @@ def _visit_unquoted(input: str, start_idx: int) -> tuple[str, int]:
 
     return arg, input_len
 
-def _traverse_spaces(input: str, start_idx: int) -> tuple[str, int]:
+def _traverse_arg(input: str, start_idx: int) -> tuple[str, int]:
     """
     Internal method.
     Traverses an quoted/unquoted argument until its end delimiter (which can be either a space or a quote)
@@ -85,7 +85,7 @@ def _traverse_spaces(input: str, start_idx: int) -> tuple[str, int]:
         return arg, idx_new + 1
     return _visit_unquoted(input, start_idx)
 
-def _travese_spaces(input: str, start_idx: int) -> int:
+def _traverse_spaces(input: str, start_idx: int) -> int:
     """
     Internal method.
     Ignores all spaces.
@@ -123,7 +123,7 @@ def _get_argv(input: str, start_idx: int) -> list[str]:
 
     arg_idx = start_idx
     while arg_idx < input_len:
-        arg_idx = _travese_spaces(input, arg_idx)
+        arg_idx = _traverse_spaces(input, arg_idx)
         # Stop if the end was reached.
         if arg_idx == input_len:
             break
@@ -132,7 +132,7 @@ def _get_argv(input: str, start_idx: int) -> list[str]:
         if input[arg_idx - 1] != SPACE:
             raise SpaceError("Arguments must be separated by space.")
         
-        arg, arg_idx = _traverse_spaces(input, arg_idx)
+        arg, arg_idx = _traverse_arg(input, arg_idx)
         
         if arg_idx != input_len and input[arg_idx] != SPACE:
             raise SpaceError("Arguments must be separated by space.")
