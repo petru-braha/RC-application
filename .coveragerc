@@ -1,0 +1,7 @@
+[run]
+source =
+    src
+omit =
+    tst
+    src/**/constants*
+    **/__init__.py
