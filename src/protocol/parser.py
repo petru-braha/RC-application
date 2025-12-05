@@ -124,19 +124,14 @@ def _get_argv(input: str, start_idx: int) -> list[str]:
     arg_idx = start_idx
     while arg_idx < input_len:
         arg_idx = _traverse_spaces(input, arg_idx)
+
         # Stop if the end was reached.
         if arg_idx == input_len:
             break
-        
-        # arg_idx - 1 will never be -1 since the command was already parsed.
-        if input[arg_idx - 1] != SPACE:
-            raise SpaceError("Arguments must be separated by space.")
-        
         arg, arg_idx = _traverse_arg(input, arg_idx)
         
         if arg_idx != input_len and input[arg_idx] != SPACE:
             raise SpaceError("Arguments must be separated by space.")
-
         argv.append(arg)
     return argv
 
@@ -159,16 +154,22 @@ def parser(input: str) -> tuple[str, list[str]]:
 
     # All commands have a length greater of equal to 3.
     if input_len < 3:
-        raise ValueError("The input string must contain at least one command.")
+        raise ValueError("The input string must contain at least one (supported) command.")
     
-    space_idx = input.find(" ")
+    # Skip first idx spaces.
+    idx = 0
+    while idx < input_len and input[idx] == SPACE:
+        idx += 1
+    
+    space_idx = input.find(SPACE, idx)
     
     # Assume that there is only one token - the command.
     # str.find() returns -1 if the substring is not found.
     # The command is updated if a white space was found.
-    cmd = input
-    if space_idx != -1:
-        cmd = input[0:space_idx]
+    if space_idx == -1:
+        return input[idx:input_len], []
+    
+    cmd = input[idx:space_idx]
 
     # space_idx + 1 == next position of a potential non-white-space char.
     argv = _get_argv(input, space_idx + 1)
