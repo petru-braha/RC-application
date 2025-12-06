@@ -113,5 +113,3 @@ Predefined set storing Generic commands.
 
 See more: https://redis.io/docs/latest/commands/redis-8-4-commands//#generic-commands
 """
-
-# todo minimum argument count
