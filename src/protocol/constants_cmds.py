@@ -104,8 +104,7 @@ See more: https://redis.io/docs/latest/commands/redis-8-4-commands//#connection-
 
 GENERIC_CMDS = frozenset([
     "COPY", "DEL", "DUMP", "EXISTS", "EXPIRE", "EXPIREAT", "EXPIRETIME", "KEYS",
-    "MIGRATE", "MOVE", "OBJECT ENCODING", "OBJECT FREQ", "OBJECT IDLETIME",
-    "OBJECT REFCOUNT", "PERSIST", "PEXPIRE", "PEXPIREAT", "PEXPIRETIME",
+    "MIGRATE", "MOVE", "PERSIST", "PEXPIRE", "PEXPIREAT", "PEXPIRETIME",
     "PTTL", "RANDOMKEY", "RENAME", "RENAMENX", "RESTORE",
     "SCAN", "SORT", "SORT_RO", "TOUCH", "TTL", "TYPE", "UNLINK", "WAIT", "WAITAOF"
 ])
