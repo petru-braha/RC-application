@@ -26,6 +26,12 @@ class RespDataType(IntEnum):
     SETS = 13
     PUSHES = 14
 
+# Mapping from first-byte RESP symbol to enum index.
+RespSymbolDict = frozendict[str, int]
+
+# Mapping from quote character \" or \' to their supported escape sequences.
+QuoteEscapeDict = frozendict[str, frozendict[str, str]]
+
 RESP_SYMB = ( "+", "-", ":", "$", "*", "_", "#", ",", "(", "!", "=", "%", "|", "~", ">" )
 """
 Predefined array of symbols containing the first byte of a RESP data type.
@@ -33,7 +39,7 @@ Predefined array of symbols containing the first byte of a RESP data type.
 See more: https://redis.io/docs/latest/develop/reference/protocol-spec/
 """
 
-SYMB_TYPE = frozendict({symb: idx for idx, symb in enumerate(RESP_SYMB)})
+SYMB_TYPE: RespSymbolDict = frozendict({symb: idx for idx, symb in enumerate(RESP_SYMB)})
 """
 Predefined dictionary mapping the first byte of an incoming Redis response to its data type index.
 
@@ -49,7 +55,7 @@ CRLF = "\r\n"
 Standard RESP encoded data suffix.
 """
 
-QUOTE_STATES = frozendict({
+QUOTE_TYPE: QuoteEscapeDict = frozendict({
     # Supported escape sequences: \", \n, \r, \t, \b, \a, \\, \xhh.
     QUOTE_DOUBLE: frozendict({
         "\"": "\"",
