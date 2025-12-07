@@ -1,4 +1,4 @@
-from .constants_resp import SPACE, QUOTE_DOUBLE, QUOTE_SINGLE, QUOTE_STATES
+from .constants_resp import SPACE, QUOTE_DOUBLE, QUOTE_SINGLE, QUOTE_TYPE
 from .exceptions import QuoteError, SpaceError
 
 def _visit_quoted(input: str, start_idx: int, QUOTE: str) -> tuple[str, int]:
@@ -31,7 +31,7 @@ def _visit_quoted(input: str, start_idx: int, QUOTE: str) -> tuple[str, int]:
         
         # If the "\\" byte was encountered check if the next character can escape.
         next = input[idx + 1]
-        escaped = QUOTE_STATES[QUOTE].get(next)
+        escaped = QUOTE_TYPE[QUOTE].get(next)
         if escaped != None:
             arg += escaped
         else:
