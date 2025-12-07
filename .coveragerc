@@ -4,6 +4,5 @@ source =
 omit =
     tst
     src/**/constants*
-    src/protocol/cmds/*
     src/**/exceptions*
     **/__init__.py

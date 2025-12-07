@@ -1,13 +1,6 @@
 from enum import IntEnum
 from frozendict import frozendict
 
-"""
-Throughout this project,
-various enums are represented using integer identifiers.
-This convention is used across the codebase,
-chosen to optimize storage and comparison speed.
-"""
-
 class RespDataType(IntEnum):
     """
     RESP data types pointing to their first byte in the RESP_SYMB array.
@@ -33,12 +26,6 @@ class RespDataType(IntEnum):
     SETS = 13
     PUSHES = 14
 
-# Mapping from first-byte RESP symbol to enum index.
-RespSymbolDict = frozendict[str, RespDataType]
-
-# Mapping from quote character \" or \' to their supported escape sequences.
-QuoteEscapeDict = frozendict[str, frozendict[str, str]]
-
 RESP_SYMB = ( "+", "-", ":", "$", "*", "_", "#", ",", "(", "!", "=", "%", "|", "~", ">" )
 """
 Predefined array of symbols containing the first byte of a RESP data type.
@@ -46,17 +33,11 @@ Predefined array of symbols containing the first byte of a RESP data type.
 See more: https://redis.io/docs/latest/develop/reference/protocol-spec/
 """
 
-SYMB_TYPE: RespSymbolDict = frozendict({symb: idx for idx, symb in enumerate(RESP_SYMB)})
+SYMB_TYPE = frozendict({symb: idx for idx, symb in enumerate(RESP_SYMB)})
 """
 Predefined dictionary mapping the first byte of an incoming Redis response to its data type index.
 
 See more: https://redis.io/docs/latest/develop/reference/protocol-spec/
-"""
-
-NULL_LENGTH = -1
-"""
-RESP2 has no value representing nulls.
-It treats null values as either bulk strings or arrays, both with length -1.
 """
 
 # Standard input string constant.
@@ -64,12 +45,11 @@ SPACE = " "
 QUOTE_DOUBLE = "\""
 QUOTE_SINGLE = "\'"
 CRLF = "\r\n"
-NULL = "null"
 """
 Standard RESP encoded data suffix.
 """
 
-QUOTE_TYPE: QuoteEscapeDict = frozendict({
+QUOTE_STATES = frozendict({
     # Supported escape sequences: \", \n, \r, \t, \b, \a, \\, \xhh.
     QUOTE_DOUBLE: frozendict({
         "\"": "\"",
