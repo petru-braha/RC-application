@@ -20,6 +20,26 @@ The workflow of the application:
 
 the overall purpose is to make indexing work and achieve constant time retrieval of a variable
 
+command elements:
+- cmd
+- key
+- req
+- var
+- opt
+
+merge key into req
+arg var
+opt at the end and between first req
+cmd req opt req var req opt
+
+merge opt and var
+
+
+union, intersection commands (sorted sets)
+
+
+
+
 ## Modules
 
 0. frontend (gui for connecting, terminal, html, files)
