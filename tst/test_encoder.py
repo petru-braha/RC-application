@@ -60,3 +60,42 @@ class TestEncoder(TestCase):
             "$11\r\nhello\nworld\r\n"
         )
         self.assertEqual(actual, expected)
+    
+    def test_args_opts(self):
+        """
+        Tests encoding for a complex ZUNION command including:
+        - multiple keys
+        - WEIGHTS opt key
+        - AGGREGATE opt
+        - WITHSCORES opt
+        """
+        argv = [ "3",
+                 "zset1",
+                 "zset2",
+                 "zset3",
+                 "WEIGHTS",
+                 "2.5",
+                 "1",
+                 "0.1",
+                 "AGGREGATE",
+                 "MAX",
+                 "WITHSCORES" ]
+
+        actual = encoder("ZUNION", argv)
+        expected = (
+            "*12\r\n"
+            "$6\r\nZUNION\r\n"
+            "$1\r\n3\r\n"
+            "$5\r\nzset1\r\n"
+            "$5\r\nzset2\r\n"
+            "$5\r\nzset3\r\n"
+            "$7\r\nWEIGHTS\r\n"
+            "$3\r\n2.5\r\n"
+            "$1\r\n1\r\n"
+            "$3\r\n0.1\r\n"
+            "$9\r\nAGGREGATE\r\n"
+            "$3\r\nMAX\r\n"
+            "$10\r\nWITHSCORES\r\n"
+        )
+
+        self.assertEqual(actual, expected)
