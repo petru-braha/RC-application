@@ -2,6 +2,7 @@ from .constants_resp import RespDataType, RESP_SYMB, CRLF
 
 def _encode_arg(arg: str) -> str:
     """
+    Internal method.
     Encodes an argument as a bulk string.
     """
     encoded = RESP_SYMB[RespDataType.BULK_STRINGS] + str(len(arg)) + CRLF
