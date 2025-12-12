@@ -6,10 +6,6 @@ class TestParser(TestCase):
     """
     We test the parser only.
     Input validation is done within the sanitizer module.
-
-    The command does not need validation directly in here.
-    The encoder retrives command specific data.
-    If it is invalid, the appropriate error is raised (there).
     """
     
     def test_valid_input(self):
