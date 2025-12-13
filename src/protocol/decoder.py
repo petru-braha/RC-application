@@ -1,4 +1,5 @@
 from frozendict import frozendict
+from typing import Callable
 
 from src.constants import NOT_FOUND_INDEX
 
@@ -17,33 +18,21 @@ class _Decoder:
         output_idx (int): The current index during traversal.
         decoded (Output): The fully decoded representation of the input.
     """
+
+    # Static dispatcher mapping RESP data types to traversal methods.
+    # This is a class-level field shared by all instances;
+    # It is initialized exactly once after the class is defined.
+    _TRAVERSERS: frozendict[RespDataType, Callable]
+    """
+    Internal dispatcher.
+
+    Maps RESP3 data types to their traversal functions.
+
+    Used by `_traverser()` to decode values based on type.
+    Each function returns `(decoded_string, next_index)`.
+    """
     
     def __init__(self, output: str) -> None:
-        self._TRAVERSERS = frozendict({
-            RespDataType.SIMPLE_STRINGS: self._traverse_crlf,
-            RespDataType.SIMPLE_ERRORS: self._traverse_crlf,
-            RespDataType.INTEGERS: self._traverse_crlf,
-            RespDataType.BULK_STRINGS: self._traverse_bulk_string,
-            RespDataType.ARRAYS: self._traverse_sequence,
-            RespDataType.NULLS: self._traverse_null,
-            RespDataType.BOOLEANS: self._traverse_crlf,
-            RespDataType.DOUBLES: self._traverse_crlf,
-            RespDataType.BIG_NUMBERS: self._traverse_crlf,
-            RespDataType.BULK_ERRORS: self._traverse_bulk_error,
-            RespDataType.VERBATIM_STRINGS: self._traverse_verbatim_string,
-            RespDataType.MAPS: self._traverse_map,
-            RespDataType.ATTRIBUTES: self._traverse_attribute,
-            RespDataType.SETS: self._traverse_sequence,
-            RespDataType.PUSHES: self._traverse_sequence,
-        })
-        """
-        Internal dispatcher.
-
-        Maps RESP3 data types to their traversal functions.
-
-        Used by `_traverser()` to decode values based on type.
-        Each function returns `(decoded_string, next_index)`.
-        """
         self.output = output
         self.output_idx = 0
         self.decoded = self._traverser()
@@ -64,7 +53,8 @@ class _Decoder:
         data_type = SYMB_TYPE[symb]
 
         # Call the appropriate method for the first byte received.
-        return self._TRAVERSERS[data_type]()
+        traverser = _Decoder._TRAVERSERS[data_type]
+        return traverser(self)
 
     def _traverse_crlf(self) -> OutputStr:
         """
@@ -174,6 +164,24 @@ class _Decoder:
         attributes = self._traverse_map()
         output = self._traverser()
         return OutputAtt(attributes, output)
+
+_Decoder._TRAVERSERS = frozendict({
+    RespDataType.SIMPLE_STRINGS: _Decoder._traverse_crlf,
+    RespDataType.SIMPLE_ERRORS: _Decoder._traverse_crlf,
+    RespDataType.INTEGERS: _Decoder._traverse_crlf,
+    RespDataType.BULK_STRINGS: _Decoder._traverse_bulk_string,
+    RespDataType.ARRAYS: _Decoder._traverse_sequence,
+    RespDataType.NULLS: _Decoder._traverse_null,
+    RespDataType.BOOLEANS: _Decoder._traverse_crlf,
+    RespDataType.DOUBLES: _Decoder._traverse_crlf,
+    RespDataType.BIG_NUMBERS: _Decoder._traverse_crlf,
+    RespDataType.BULK_ERRORS: _Decoder._traverse_bulk_error,
+    RespDataType.VERBATIM_STRINGS: _Decoder._traverse_verbatim_string,
+    RespDataType.MAPS: _Decoder._traverse_map,
+    RespDataType.ATTRIBUTES: _Decoder._traverse_attribute,
+    RespDataType.SETS: _Decoder._traverse_sequence,
+    RespDataType.PUSHES: _Decoder._traverse_sequence,
+})
 
 def decoder(output: str) -> Output:
     """
