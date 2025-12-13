@@ -8,7 +8,7 @@ These classes provide a structured representation of data returned by the Redis 
 They allow recursive nesting to capture arrays, sets, and maps, preserving the hierarchical
 nature of the responses.
 
-OutputType = str | list[OutputType] | dict[OutputType, OutputType]
+OutputType = str | list[OutputType] | dict[OutputType, OutputType] | OutputType, OutputType
 """
 
 class Output:
@@ -25,9 +25,6 @@ class Output:
 class OutputStr(Output):
     """
     Represents a simple string or scalar value returned by Redis.
-
-    Attributes:
-        value (str): The decoded string value.
     """
     value: str
 
@@ -35,19 +32,13 @@ class OutputStr(Output):
 class OutputSeq(Output):
     """
     Represents a list-like collection of Redis outputs (arrays, sets, or pushes).
-
-    Attributes:
-        values (list[Output]): A list of decoded `Output` objects.
     """
     values: tuple[Output, ...]
 
 @dataclass(frozen=True)
 class OutputMap(Output):
     """
-    Represents a key-value mapping of Redis outputs (maps or attributes).
-
-    Attributes:
-        values (dict[Output, Output]): A dictionary of decoded `Output` objects.
+    Represents a key-value mapping of Redis outputs.
     """
     values: frozendict[Output, Output]
 
@@ -55,10 +46,6 @@ class OutputMap(Output):
 class OutputAtt(Output):
     """
     Represents a value decorated with attributes.
-    
-    Attributes:
-        attributes (OutputMap): The key-value map of attributes.
-        value (Output): The actual data payload being decorated.
     """
     attributes: OutputMap
     output: Output
