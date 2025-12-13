@@ -1,4 +1,4 @@
-from constants import NOT_FOUND_INDEX
+from src.constants import NOT_FOUND_INDEX
 
 from .constants_resp import SPACE, QUOTE_DOUBLE, QUOTE_SINGLE, QUOTE_STATES
 from .exceptions import QuoteError, SpaceError

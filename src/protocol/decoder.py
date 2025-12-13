@@ -1,11 +1,11 @@
 from frozendict import frozendict
 
-from constants import NOT_FOUND_INDEX
+from src.constants import NOT_FOUND_INDEX
 
 from .constants_resp import RespDataType, \
                             SYMB_TYPE, NULL_LENGTH, \
                             CRLF, NULL
-from .output import Output, OutputStr, OutputList, OutputDict
+from .output import Output, OutputStr, OutputSeq, OutputMap, OutputAtt
 
 class _Decoder:
     """
@@ -23,18 +23,18 @@ class _Decoder:
             RespDataType.SIMPLE_STRINGS: self._traverse_crlf,
             RespDataType.SIMPLE_ERRORS: self._traverse_crlf,
             RespDataType.INTEGERS: self._traverse_crlf,
-            RespDataType.BULK_STRINGS: self._traverse_bulk_strings,
-            RespDataType.ARRAYS: self._traverse_aggregates,
+            RespDataType.BULK_STRINGS: self._traverse_bulk_string,
+            RespDataType.ARRAYS: self._traverse_sequence,
             RespDataType.NULLS: self._traverse_null,
             RespDataType.BOOLEANS: self._traverse_crlf,
             RespDataType.DOUBLES: self._traverse_crlf,
             RespDataType.BIG_NUMBERS: self._traverse_crlf,
-            RespDataType.BULK_ERRORS: self._traverse_bulk_errors,
-            RespDataType.VERBATIM_STRINGS: self._traverse_verbatim_strings,
-            RespDataType.MAPS: self._traverse_maps,
-            RespDataType.ATTRIBUTES: self._traverse_maps,
-            RespDataType.SETS: self._traverse_aggregates,
-            RespDataType.PUSHES: self._traverse_aggregates,
+            RespDataType.BULK_ERRORS: self._traverse_bulk_error,
+            RespDataType.VERBATIM_STRINGS: self._traverse_verbatim_string,
+            RespDataType.MAPS: self._traverse_map,
+            RespDataType.ATTRIBUTES: self._traverse_attribute,
+            RespDataType.SETS: self._traverse_sequence,
+            RespDataType.PUSHES: self._traverse_sequence,
         })
         """
         Internal dispatcher.
@@ -96,7 +96,7 @@ class _Decoder:
         self._traverse_crlf()
         return OutputStr(NULL)
     
-    def _traverse_bulk_strings(self) -> OutputStr:
+    def _traverse_bulk_string(self) -> OutputStr:
         """
         Internal method.
 
@@ -113,7 +113,7 @@ class _Decoder:
         self.output_idx += length + len(CRLF)
         return OutputStr(value)
 
-    def _traverse_bulk_errors(self) -> OutputStr:
+    def _traverse_bulk_error(self) -> OutputStr:
         """
         Internal method.
 
@@ -122,7 +122,7 @@ class _Decoder:
         _ = self._traverse_crlf()
         return self._traverse_crlf()
 
-    def _traverse_verbatim_strings(self) -> OutputStr:
+    def _traverse_verbatim_string(self) -> OutputStr:
         """
         Internal method.
 
@@ -136,7 +136,7 @@ class _Decoder:
         # 4 bytes are skipped: enconding bytes and the ":" character.
         return OutputStr(value[4:])
     
-    def _traverse_aggregates(self) -> Output:
+    def _traverse_sequence(self) -> OutputSeq:
         """
         Internal method.
 
@@ -146,9 +146,9 @@ class _Decoder:
         """
         length = int(self._traverse_crlf().value)
         elements = tuple(self._traverser() for _ in range(length))
-        return OutputList(elements)
+        return OutputSeq(elements)
 
-    def _traverse_maps(self) -> Output:
+    def _traverse_map(self) -> OutputMap:
         """
         Internal method.
 
@@ -160,7 +160,20 @@ class _Decoder:
             key = self._traverser()
             val = self._traverser()
             result[key] = val
-        return OutputDict(frozendict(result))
+        result = frozendict(result)
+        return OutputMap(result)
+    
+    def _traverse_attribute(self) -> OutputAtt:
+        """
+        Internal method.
+
+        Parses a attributes and message. This consists of:
+        - a key-value map (the attributes)
+        - the actual data payload following the map
+        """
+        attributes = self._traverse_map()
+        output = self._traverser()
+        return OutputAtt(attributes, output)
 
 def decoder(output: str) -> Output:
     """

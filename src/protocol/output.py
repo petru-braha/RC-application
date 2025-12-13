@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from frozendict import frozendict
 
 """
@@ -20,6 +21,7 @@ class Output:
     """
     pass
 
+@dataclass(frozen=True)
 class OutputStr(Output):
     """
     Represents a simple string or scalar value returned by Redis.
@@ -27,27 +29,36 @@ class OutputStr(Output):
     Attributes:
         value (str): The decoded string value.
     """
-    def __init__(self, value: str) -> None:
-        self.value = value
+    value: str
 
-class OutputList(Output):
+@dataclass(frozen=True)
+class OutputSeq(Output):
     """
     Represents a list-like collection of Redis outputs (arrays, sets, or pushes).
 
     Attributes:
         values (list[Output]): A list of decoded `Output` objects.
     """
-    def __init__(self, values: tuple[Output, ...]) -> None:
-        super().__init__()
-        self.values = values
+    values: tuple[Output, ...]
 
-class OutputDict(Output):
+@dataclass(frozen=True)
+class OutputMap(Output):
     """
     Represents a key-value mapping of Redis outputs (maps or attributes).
 
     Attributes:
         values (dict[Output, Output]): A dictionary of decoded `Output` objects.
     """
-    def __init__(self, values: frozendict[Output, Output]) -> None:
-        super().__init__()
-        self.values = values
+    values: frozendict[Output, Output]
+
+@dataclass(frozen=True)
+class OutputAtt(Output):
+    """
+    Represents a value decorated with attributes.
+    
+    Attributes:
+        attributes (OutputMap): The key-value map of attributes.
+        value (Output): The actual data payload being decorated.
+    """
+    attributes: OutputMap
+    output: Output

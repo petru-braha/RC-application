@@ -53,3 +53,45 @@ an issue is complete when the following items are achieved:
 0. tests
 0. errors
 0. documentation
+
+# cool?
+
+```sh
+
+# Activate the project's virtual environment from any path available.
+
+# We need to find the path of the .venv directory.
+# This can be done by analysing the terminal path.
+# The terminal path always end with either bin/build.sh or build.sh.
+
+# First case: the script was lauched from outside of bin.
+# We need to cut the bin/build.sh suffix.
+# Second case: the script was launched from the bin.
+# We assign "../"
+
+terminal_path=$0
+script_suffix="bin/build.sh"
+# 
+# # The script path must be a suffix of the terminal path.
+# # Its length must be smaller or equal than the terminal path.
+# ter_path_len=${#terminal_path}
+# scr_path_len=${#script_suffix}
+# 
+# project_path="./../"
+# 
+# if [ $scr_path_len -gt $ter_path_len ]; then
+#     offset=$ter_path_len - $scr_path_len
+#     project_path=${terminal_path:offset:$ter_path_len}
+# fi
+# 
+# venv_directory=".venv/bin/python3"
+# expected_interpreter="${project_path}${venv_directory}"
+# 
+# actual_interpreter=${which python3}
+# 
+# if [ expected_interpreter -ne actual_interpreter ]; then
+#     source "${project_path}/.venv/bin/activate"
+# fi
+
+
+```
