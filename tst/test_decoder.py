@@ -232,9 +232,6 @@ class TestDecoder(TestCase):
 
     def test_complex_attributes(self):
         """
-        Tests the full Attribute structure, ensuring the attribute map 
-        is correctly separated from the data payload and wrapped in OutputAtt.
-        
         Structure: |1 {source-command: 'GET'} *2 [ %2 {id: 1024, addr: ...}, %2 {id: 1025, addr: ...} ]
         """
         resp_input = (
