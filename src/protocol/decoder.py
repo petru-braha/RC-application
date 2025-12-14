@@ -33,8 +33,8 @@ class _Decoder:
     """
     
     def __init__(self, output: str) -> None:
-        self.output = output
-        self.output_idx = 0
+        self._output = output
+        self._output_idx = 0
         self.decoded = self._traverser()
 
     def _traverser(self) -> Output:
@@ -46,10 +46,10 @@ class _Decoder:
         Raises:
             KeyError: Invalid first byte of an output.
         """
-        symb = self.output[self.output_idx]
+        symb = self._output[self._output_idx]
 
         # idx always points to the not read character.
-        self.output_idx += 1
+        self._output_idx += 1
         data_type = SYMB_TYPE[symb]
 
         # Call the appropriate method for the first byte received.
@@ -67,12 +67,12 @@ class _Decoder:
         Raises:
             ValueError: the output received is invalid and not ended by CRLF.
         """
-        end_idx = self.output.find(CRLF, self.output_idx)
+        end_idx = self._output.find(CRLF, self._output_idx)
         if end_idx == NOT_FOUND_INDEX:
-            raise ValueError("Invalid Redis response.", self.output)
+            raise ValueError("Invalid Redis response.", self._output)
         
-        output = OutputStr(self.output[self.output_idx:end_idx])
-        self.output_idx = end_idx + len(CRLF)
+        output = OutputStr(self._output[self._output_idx:end_idx])
+        self._output_idx = end_idx + len(CRLF)
         return output
 
     def _traverse_null(self) -> OutputStr:
@@ -99,8 +99,8 @@ class _Decoder:
         if length == NULL_LENGTH:
             return OutputStr(NULL)
 
-        value = self.output[self.output_idx:self.output_idx + length]
-        self.output_idx += length + len(CRLF)
+        value = self._output[self._output_idx:self._output_idx + length]
+        self._output_idx += length + len(CRLF)
         return OutputStr(value)
 
     def _traverse_bulk_error(self) -> OutputStr:
