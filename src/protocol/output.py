@@ -48,4 +48,4 @@ class OutputAtt(Output):
     Represents a value decorated with attributes.
     """
     attributes: OutputMap
-    output: Output
+    payload: Output
