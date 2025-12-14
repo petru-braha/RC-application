@@ -63,6 +63,8 @@ class _Decoder:
         Handles simple strings, simple errors, RESP null values, and similar types.
 
         Traverses the Redis output from `start_idx` until the CRLF terminator.
+        
+        Example: Input "+OK\r\n" returns OutputStr("OK").
 
         Raises:
             ValueError: the output received is invalid and not ended by CRLF.
@@ -82,6 +84,8 @@ class _Decoder:
         Parses a RESP null value.
 
         Returns the constant `NULL` and the index after the CRLF.
+        
+        Example: Input "_\r\n" returns OutputStr("NULL").
         """
         self._traverse_crlf()
         return OutputStr(NULL)
@@ -92,6 +96,8 @@ class _Decoder:
 
         Parses a bulk string by first reading its declared length,
         followed by the string content itself.
+        
+        Example: Input "$6\r\nfoobar\r\n" returns OutputStr("foobar").
         """
         length_str = self._traverse_crlf().value
         length = int(length_str)
@@ -108,6 +114,8 @@ class _Decoder:
         Internal method.
 
         Similar to the bulk string traverser.
+        
+        Example: Input "!5\r\nError\r\n" returns OutputStr("Error").
         """
         _ = self._traverse_crlf()
         return self._traverse_crlf()
@@ -120,6 +128,8 @@ class _Decoder:
         - Three bytes specifying the encoding
         - A colon separator
         - The string data
+        
+        Example: Input "=9\r\ntxt:Hello\r\n" returns OutputStr("Hello").
         """
         _ = self._traverse_crlf()
         value = self._traverse_crlf().value
@@ -133,6 +143,8 @@ class _Decoder:
         Parses aggregate RESP types such as arrays, sets, and pushes.
         Although this client does not use commands that emit push messages,
         the decoder can still interpret them.
+        
+        Example: Input "*2\r\n:1\r\n:2\r\n" returns OutputSeq((OutputStr("1"), OutputStr("2"))).
         """
         length = int(self._traverse_crlf().value)
         elements = tuple(self._traverser() for _ in range(length))
@@ -143,6 +155,8 @@ class _Decoder:
         Internal method.
 
         Parses aggregate key-value structures such as RESP maps and attributes.
+        
+        Example: Input "%1\r\n+k\r\n+v\r\n" returns OutputMap({OutputStr("k"): OutputStr("v")}).
         """
         length = int(self._traverse_crlf().value)
         result = {}
@@ -160,6 +174,9 @@ class _Decoder:
         Parses a attributes and message. This consists of:
         - a key-value map (the attributes)
         - the actual data payload following the map
+        
+        Example: Input "|1\r\n+k\r\n+v\r\n:1\r\n" returns
+                 OutputAtt({OutputStr("k"): OutputStr("v")}, OutputStr("1")).
         """
         attributes = self._traverse_map()
         output = self._traverser()
