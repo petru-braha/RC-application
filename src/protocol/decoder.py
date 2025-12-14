@@ -10,6 +10,8 @@ from .output import Output, OutputStr, OutputSeq, OutputMap, OutputAtt
 
 class _Decoder:
     """
+    Internal helper class.
+
     Decodes Redis RESP3/RESP2-encoded strings into structured Output objects,
     preserving the original hierarchical structure.
 
