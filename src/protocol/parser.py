@@ -1,3 +1,5 @@
+from src.constants import NOT_FOUND_INDEX
+
 from .constants_resp import SPACE, QUOTE_DOUBLE, QUOTE_SINGLE, QUOTE_STATES
 from .exceptions import QuoteError, SpaceError
 
@@ -166,7 +168,7 @@ def parser(input: str) -> tuple[str, list[str]]:
     # Assume that there is only one token - the command.
     # str.find() returns -1 if the substring is not found.
     # The command is updated if a white space was found.
-    if space_idx == -1:
+    if space_idx == NOT_FOUND_INDEX:
         return input[idx:input_len], []
     
     cmd = input[idx:space_idx]
