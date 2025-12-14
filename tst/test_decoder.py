@@ -141,7 +141,7 @@ class TestDecoder(TestCase):
 
     def test_recursive_nested_array(self):
         """
-        Structure: [ "Level1", [ "Level2", [ "Level3" ] ] ]
+        Structure: [ "Level1", [ "Level2", [ "Level3" ] ] ].
         """
         resp_input = (
             "*2\r\n"
@@ -166,7 +166,7 @@ class TestDecoder(TestCase):
 
     def test_recursive_map_in_array(self):
         """
-        Structure: [ "Meta", { "Key": "Value" } ]
+        Structure: [ "Meta", { "Key": "Value" } ].
         """
         resp_input = (
             "*2\r\n"
@@ -187,7 +187,7 @@ class TestDecoder(TestCase):
 
     def test_recursive_array_in_map(self):
         """
-        Structure: { "ListKey": [1, 2] }
+        Structure: { "ListKey": [1, 2] }.
         """
         resp_input = (
             "%1\r\n"
@@ -232,7 +232,7 @@ class TestDecoder(TestCase):
 
     def test_complex_attributes(self):
         """
-        Structure: |1 {source-command: 'GET'} *2 [ %2 {id: 1024, addr: ...}, %2 {id: 1025, addr: ...} ]
+        Structure: |1 {source-command: 'GET'} *2 [ %2 {id: 1024, addr: ...}, %2 {id: 1025, addr: ...} ].
         """
         resp_input = (
             "|1\r\n"
