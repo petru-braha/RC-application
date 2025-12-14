@@ -178,6 +178,10 @@ def _format_att(output: OutputAtt, prefix: str) -> str:
     Returns:
         str: A multi-line string separating attributes and payload with headers.
     """
+    # Ignore empty attribute maps.
+    if len(output.attributes.values) < 1:
+        return formatter(output.payload, prefix)
+
     indent_padding = _INDENT_CHAR * len(prefix)
     formatted = _format_str(_ATTR_HEADER, indent_padding)
     formatted += _format_map(output.attributes, indent_padding)
