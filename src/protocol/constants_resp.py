@@ -1,6 +1,13 @@
 from enum import IntEnum
 from frozendict import frozendict
 
+"""
+Throughout this project,
+various enums are represented using integer identifiers.
+This convention is used across the codebase,
+chosen to optimize storage and comparison speed.
+"""
+
 class RespDataType(IntEnum):
     """
     RESP data types pointing to their first byte in the RESP_SYMB array.
@@ -27,7 +34,7 @@ class RespDataType(IntEnum):
     PUSHES = 14
 
 # Mapping from first-byte RESP symbol to enum index.
-RespSymbolDict = frozendict[str, int]
+RespSymbolDict = frozendict[str, RespDataType]
 
 # Mapping from quote character \" or \' to their supported escape sequences.
 QuoteEscapeDict = frozendict[str, frozendict[str, str]]
