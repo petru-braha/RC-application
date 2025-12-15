@@ -1,97 +1,97 @@
 from frozendict import frozendict
-from .types import Args, Opts, OptSet, IntArg, StrArg, OptKeys, CmdDict
-from .string_cmds import GET_KEY
-from .list_cmds import COUNT_KEY
-from .set_cmds import MATCH_KEY, LIMIT_KEY
-from .hash_cmds import EXPIRE_KEYS
 
-DB_KEY: OptKeys = frozenset({"DB"})
-REPLACE_KEY: OptKeys = frozenset({"REPLACE"})
-COPY_KEY: OptKeys = frozenset({"COPY"})
-KEYS_KEY: OptKeys = frozenset({"KEYS"})
-AUTH_KEY: OptKeys = frozenset({"AUTH"})
-AUTH2_KEY: OptKeys = frozenset({"AUTH2"})
-ABSTTL_KEY: OptKeys = frozenset({"ABSTTL"})
-IDLETIME_KEY: OptKeys = frozenset({"IDLETIME"})
-FREQ_KEY: OptKeys = frozenset({"FREQ"})
-TYPE_KEY: OptKeys = frozenset({"TYPE"})
-BY_KEY: OptKeys = frozenset({"BY"})
-ASC_KEYS: OptKeys = frozenset({"ASC", "DESC"})
-ALPHA_KEY: OptKeys = frozenset({"ALPHA"})
-STORE_KEY: OptKeys = frozenset({"STORE"})
-
-KEY_ARG = StrArg("key", "")
-GET_ARG = StrArg("GET")
+from .patterns import CmdDict, \
+                      Vitals, Variadic, KdOpts, OptSet, \
+                      ArgEzz, ArgInt, OptKey, \
+                      GET_ARG, \
+                      COUNT_ARG, \
+                      MATCH_ARG, \
+                      LIMIT_ARG, \
+                      EXPIRE_ARGS, \
+                      DB_ARG, \
+                      REPLACE_ARG, \
+                      COPY_ARG, \
+                      KEY_ARGS, \
+                      KEYS_ARG, \
+                      AUTH_ARG, \
+                      AUTH2_ARG, \
+                      ABSTTL_ARG, \
+                      IDLETIME_ARG, \
+                      FREQ_ARG, \
+                      TYPE_ARG, \
+                      BY_ARG, \
+                      ALPHA_ARG, \
+                      STORE_ARG, \
+                      GET_ARG, \
+                      ASC_ARGS
 
 GENERIC_CMDS: CmdDict = frozendict({
-    "COPY": (Args(None, None),
-             Opts(None, key=DB_KEY),
-             Opts(key=REPLACE_KEY)),
-    "DEL":  (Args(None),
-             Opts(None, is_variadic=True)),
-    "DUMP":  Args(None),
-    "EXISTS": (Args(None),
-               Opts(None, is_variadic=True)),
-    "EXPIRE": (Args(None, IntArg()),
-               Opts(key=EXPIRE_KEYS)),
-    "EXPIREAT":  (Args(None, IntArg()),
-                  Opts(key=EXPIRE_KEYS)),
-    "EXPIRETIME": Args(None),
-    "KEYS": Args(None),
-    "MIGRATE": (Args(None, IntArg(), KEY_ARG, None, IntArg()),
-                Opts(key=COPY_KEY),
-                Opts(key=REPLACE_KEY),
-                OptSet(Opts(None, key=AUTH_KEY),
-                       Opts(None, None, key=AUTH2_KEY)),
-                Opts(None,
-                     Opts(None, is_variadic=True),
-                     key=KEYS_KEY)),
-    "MOVE": Args(None, None),
-    "PERSIST":     Args(None),
-    "PEXPIRE":    (Args(None, IntArg()),
-                   Opts(key=EXPIRE_KEYS)),
-    "PEXPIREAT":  (Args(None, IntArg()),
-                   Opts(key=EXPIRE_KEYS)),
-    "PEXPIRETIME": Args(None),
-    "PTTL": Args(None),
-    "RANDOMKEY": Args(),
-    "RENAME": Args(None, None),
-    "RENAMENX": Args(None, None),
-    "RESTORE": (Args(None, IntArg(), None),
-                Opts(key=REPLACE_KEY),
-                Opts(key=ABSTTL_KEY),
-                Opts(IntArg(), key=IDLETIME_KEY),
-                Opts(IntArg(), key=FREQ_KEY)),
-    "SCAN": (Args(None),
-             Opts(None, key=MATCH_KEY),
-             Opts(IntArg(), key=COUNT_KEY),
-             Opts(None, key=TYPE_KEY)),
-    "SORT": (Args(None),
-             Opts(None, key=BY_KEY),
-             Opts(IntArg(), IntArg(), key=LIMIT_KEY),
-             Opts(None,
-                  Opts(GET_ARG, None, is_variadic=True),
-                  key=GET_KEY),
-              Opts(key=ASC_KEYS),
-              Opts(key=ALPHA_KEY),
-              Opts(None, key=STORE_KEY)),
-    "SORT_RO": (Args(None),
-             Opts(None, key=BY_KEY),
-             Opts(IntArg(), IntArg(), key=LIMIT_KEY),
-             Opts(None,
-                  Opts(GET_ARG, None, is_variadic=True),
-                  key=GET_KEY),
-              Opts(key=ASC_KEYS),
-              Opts(key=ALPHA_KEY),
-              Opts(None, key=STORE_KEY)),
-    "TOUCH": (Args(None),
-              Opts(None, is_variadic=True)),
-    "TTL":  Args(None),
-    "TYPE": Args(None),
-    "UNLINK": (Args(None),
-               Opts(None, is_variadic=True)),
-    "WAIT": Args(IntArg(), IntArg()),
-    "WAITAOF": Args(IntArg(), IntArg(), IntArg()),
+    "COPY": (Vitals(ArgEzz(), ArgEzz()),
+             KdOpts(OptKey(DB_ARG), ArgEzz()),
+             KdOpts(OptKey(REPLACE_ARG))),
+    "DEL":  (Vitals(ArgEzz()),
+             Variadic(ArgEzz())),
+    "DUMP":  Vitals(ArgEzz()),
+    "EXISTS": (Vitals(ArgEzz()),
+               Variadic(ArgEzz())),
+    "EXPIRE": (Vitals(ArgEzz(), ArgInt()),
+               KdOpts(OptKey(EXPIRE_ARGS))),
+    "EXPIREAT":  (Vitals(ArgEzz(), ArgInt()),
+                  KdOpts(OptKey(EXPIRE_ARGS))),
+    "EXPIRETIME": Vitals(ArgEzz()),
+    "KEYS": Vitals(ArgEzz()),
+    "MIGRATE": (Vitals(ArgEzz(), ArgInt(), KEY_ARGS, ArgEzz(), ArgInt()),
+                KdOpts(OptKey(COPY_ARG)),
+                KdOpts(OptKey(REPLACE_ARG)),
+                OptSet(KdOpts(OptKey(AUTH_ARG), ArgEzz()),
+                       KdOpts(OptKey(AUTH2_ARG), ArgEzz(), ArgEzz())),
+                KdOpts(OptKey(KEYS_ARG), ArgEzz(),
+                     Variadic(ArgEzz()))),
+    "MOVE": Vitals(ArgEzz(), ArgEzz()),
+    "PERSIST":     Vitals(ArgEzz()),
+    "PEXPIRE":    (Vitals(ArgEzz(), ArgInt()),
+                   KdOpts(OptKey(EXPIRE_ARGS))),
+    "PEXPIREAT":  (Vitals(ArgEzz(), ArgInt()),
+                   KdOpts(OptKey(EXPIRE_ARGS))),
+    "PEXPIRETIME": Vitals(ArgEzz()),
+    "PTTL": Vitals(ArgEzz()),
+    "RANDOMKEY": Vitals(),
+    "RENAME": Vitals(ArgEzz(), ArgEzz()),
+    "RENAMENX": Vitals(ArgEzz(), ArgEzz()),
+    "RESTORE": (Vitals(ArgEzz(), ArgInt(), ArgEzz()),
+                KdOpts(OptKey(REPLACE_ARG)),
+                KdOpts(OptKey(ABSTTL_ARG)),
+                KdOpts(OptKey(IDLETIME_ARG), ArgInt()),
+                KdOpts(OptKey(FREQ_ARG), ArgInt())),
+    "SCAN": (Vitals(ArgEzz()),
+             KdOpts(OptKey(MATCH_ARG), ArgEzz()),
+             KdOpts(OptKey(COUNT_ARG), ArgInt()),
+             KdOpts(OptKey(TYPE_ARG), ArgEzz())),
+    "SORT": (Vitals(ArgEzz()),
+             KdOpts(OptKey(BY_ARG), ArgEzz()),
+             KdOpts(OptKey(LIMIT_ARG), ArgInt(), ArgInt()),
+             KdOpts(OptKey(GET_ARG),
+                    ArgEzz(),
+                    Variadic(GET_ARG, ArgEzz())),
+              KdOpts(OptKey(ASC_ARGS)),
+              KdOpts(OptKey(ALPHA_ARG)),
+              KdOpts(OptKey(STORE_ARG), ArgEzz())),
+    "SORT_RO": (Vitals(ArgEzz()),
+             KdOpts(OptKey(BY_ARG), ArgEzz()),
+             KdOpts(OptKey(LIMIT_ARG), ArgInt(), ArgInt()),
+             KdOpts(OptKey(GET_ARG),
+                    ArgEzz(),
+                    Variadic(GET_ARG, ArgEzz())),
+              KdOpts(OptKey(ASC_ARGS)),
+              KdOpts(OptKey(ALPHA_ARG))),
+    "TOUCH": (Vitals(ArgEzz()),
+              Variadic(ArgEzz())),
+    "TTL":  Vitals(ArgEzz()),
+    "TYPE": Vitals(ArgEzz()),
+    "UNLINK": (Vitals(ArgEzz()),
+               Variadic(ArgEzz())),
+    "WAIT": Vitals(ArgInt(), ArgInt()),
+    "WAITAOF": Vitals(ArgInt(), ArgInt(), ArgInt()),
 })
 """
 Predefined set storing Generic commands.

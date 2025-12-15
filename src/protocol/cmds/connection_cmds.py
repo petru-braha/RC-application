@@ -1,9 +1,10 @@
 from frozendict import frozendict
-from .types import Args, Opts, CmdDict
+
+from .patterns import CmdDict, Vitals, Opts, ArgEzz
 
 CONNECTION_CMDS: CmdDict = frozendict({
-    "PING": Opts(None),
-    "QUIT": Args()
+    "PING": Opts(ArgEzz()),
+    "QUIT": Vitals()
 })
 """
 Predefined set storing Connection specific commands.

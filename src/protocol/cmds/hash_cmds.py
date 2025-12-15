@@ -1,81 +1,84 @@
 from frozendict import frozendict
-from .types import Args, Opts, OptSet, IntArg, FltArg, StrArg, OptKeys, CmdDict
-from .string_cmds import PERSISTENCE_KEYS, PERSIST_KEY, KEEPTTL_KEY
-from .list_cmds import COUNT_KEY
-from .set_cmds import MATCH_KEY
 
-EXPIRE_KEYS: OptKeys = frozenset({"NX", "XX", "LT", "GT"})
-WITHVALUES_KEY: OptKeys = frozenset({"WITHVALUES"})
-NOVALUES_KEY: OptKeys = frozenset({"NOVALUES"})
-EXPIRE_FIELD_KEYS: OptKeys = frozenset({"FNX", "FXX"})
-
-FIELDS_ARG = StrArg("FIELDS")
+from .patterns import CmdDict, \
+                      Vitals, Opts, Variadic, KdOpts, OptSet, \
+                      ArgEzz, ArgInt, ArgFlt, OptKey, \
+                      PERSISTENCE_ARGS, \
+                      PERSIST_ARG, \
+                      KEEPTTL_ARG, \
+                      COUNT_ARG, \
+                      MATCH_ARG, \
+                      EXPIRE_ARGS, \
+                      EXPIRE_FIELD_ARGS, \
+                      WITHVALUES_ARG, \
+                      NOVALUES_ARG, \
+                      FIELDS_ARG
 
 HASH_CMDS: CmdDict = frozendict({
-    "HDEL": (Args(None, None),
-             Opts(None, is_variadic=True)),
-    "HEXISTS":  Args(None, None),
-    "HEXPIRE": (Args(None, IntArg()),
-                Opts(key=EXPIRE_KEYS),
-                Args(FIELDS_ARG, IntArg(), None),
-                Opts(None, is_variadic=True)),
-    "HEXPIREAT": (Args(None, IntArg()),
-                  Opts(key=EXPIRE_KEYS),
-                  Args(FIELDS_ARG, IntArg(), None),
-                  Opts(None, is_variadic=True)),
-    "HEXPIRETIME": (Args(None, FIELDS_ARG, IntArg(), None),
-                    Opts(None, is_variadic=True)),
-    "HGET": Args(None, None),
-    "HGETALL":  Args(None),
-    "HGETDEL": (Args(None, FIELDS_ARG, IntArg(), None),
-                Opts(None, is_variadic=True)),
-    "HGETEX":  (Args(None),
-                OptSet(Opts(IntArg(), key=PERSISTENCE_KEYS),
-                       Opts(key=PERSIST_KEY)),
-                Args(FIELDS_ARG, IntArg(), None),
-                Opts(None, is_variadic=True)),
-    "HINCRBY":  Args(None, None, IntArg()),
-    "HINCRBYFLOAT": Args(None, None, FltArg()),
-    "HKEYS":  Args(None),
-    "HLEN":   Args(None),
-    "HMGET": (Args(None, None),
-              Opts(None, is_variadic=True)),
-    "HMSET": (Args(None, None, None),
-              Opts(None, None, is_variadic=True)),
-    "HPERSIST": (Args(None, FIELDS_ARG, IntArg(), None),
-                 Opts(None, is_variadic=True)),
-    "HPEXPIRE": (Args(None, IntArg()),
-                 Opts(key=EXPIRE_KEYS),
-                 Args(FIELDS_ARG, IntArg(), None),
-                 Opts(None, is_variadic=True)),
-    "HPEXPIREAT": (Args(None, IntArg()),
-                   Opts(key=EXPIRE_KEYS),
-                   Args(FIELDS_ARG, IntArg(), None),
-                   Opts(None, is_variadic=True)),
-    "HPEXPIRETIME": (Args(None, FIELDS_ARG, IntArg(), None),
-                     Opts(None, is_variadic=True)),
-    "HPTTL": (Args(None, FIELDS_ARG, IntArg(), None),
-              Opts(None, is_variadic=True)),
-    "HRANDFIELD": (Args(None),
-                   Opts(IntArg(),
-                        Opts(key=WITHVALUES_KEY))),
-    "HSCAN": (Args(None, None),
-              Opts(None, key=MATCH_KEY),
-              Opts(IntArg(), key=COUNT_KEY),
-              Opts(key=NOVALUES_KEY)),
-    "HSET":  (Args(None, None, None),
-              Opts(None, None)),
-    "HSETEX": (Args(None),
-               Opts(key=EXPIRE_FIELD_KEYS),
-               OptSet(Opts(IntArg(), key=PERSISTENCE_KEYS),
-                      Opts(key=KEEPTTL_KEY)),
-                Args(FIELDS_ARG, IntArg(), None, None),
-                Opts(None, None, is_variadic=True)),
-    "HSETNX":  Args(None, None, None),
-    "HSTRLEN": Args(None, None),
-    "HTTL": (Args(None, FIELDS_ARG, IntArg(), None),
-             Opts(None, is_variadic=True)),
-    "HVALS": Args(None)
+    "HDEL": (Vitals(ArgEzz(), ArgEzz()),
+             Variadic(ArgEzz())),
+    "HEXISTS":  Vitals(ArgEzz(), ArgEzz()),
+    "HEXPIRE": (Vitals(ArgEzz(), ArgInt()),
+                KdOpts(OptKey(EXPIRE_ARGS)),
+                Vitals(FIELDS_ARG, ArgInt(), ArgEzz()),
+                Variadic(ArgEzz())),
+    "HEXPIREAT": (Vitals(ArgEzz(), ArgInt()),
+                  KdOpts(OptKey(EXPIRE_ARGS)),
+                  Vitals(FIELDS_ARG, ArgInt(), ArgEzz()),
+                  Variadic(ArgEzz())),
+    "HEXPIRETIME": (Vitals(ArgEzz(), FIELDS_ARG, ArgInt(), ArgEzz()),
+                    Variadic(ArgEzz())),
+    "HGET": Vitals(ArgEzz(), ArgEzz()),
+    "HGETALL":  Vitals(ArgEzz()),
+    "HGETDEL": (Vitals(ArgEzz(), FIELDS_ARG, ArgInt(), ArgEzz()),
+                Variadic(ArgEzz())),
+    "HGETEX":  (Vitals(ArgEzz()),
+                OptSet(KdOpts(OptKey(PERSISTENCE_ARGS), ArgInt()),
+                       KdOpts(OptKey(PERSIST_ARG))),
+                Vitals(FIELDS_ARG, ArgInt(), ArgEzz()),
+                Variadic(ArgEzz())),
+    "HINCRBY":  Vitals(ArgEzz(), ArgEzz(), ArgInt()),
+    "HINCRBYFLOAT": Vitals(ArgEzz(), ArgEzz(), ArgFlt()),
+    "HKEYS":  Vitals(ArgEzz()),
+    "HLEN":   Vitals(ArgEzz()),
+    "HMGET": (Vitals(ArgEzz(), ArgEzz()),
+              Variadic(ArgEzz())),
+    "HMSET": (Vitals(ArgEzz(), ArgEzz(), ArgEzz()),
+              Variadic(ArgEzz(), ArgEzz())),
+    "HPERSIST": (Vitals(ArgEzz(), FIELDS_ARG, ArgInt(), ArgEzz()),
+                 Variadic(ArgEzz())),
+    "HPEXPIRE": (Vitals(ArgEzz(), ArgInt()),
+                 KdOpts(OptKey(EXPIRE_ARGS)),
+                 Vitals(FIELDS_ARG, ArgInt(), ArgEzz()),
+                 Variadic(ArgEzz())),
+    "HPEXPIREAT": (Vitals(ArgEzz(), ArgInt()),
+                   KdOpts(OptKey(EXPIRE_ARGS)),
+                   Vitals(FIELDS_ARG, ArgInt(), ArgEzz()),
+                   Variadic(ArgEzz())),
+    "HPEXPIRETIME": (Vitals(ArgEzz(), FIELDS_ARG, ArgInt(), ArgEzz()),
+                     Variadic(ArgEzz())),
+    "HPTTL": (Vitals(ArgEzz(), FIELDS_ARG, ArgInt(), ArgEzz()),
+              Variadic(ArgEzz())),
+    "HRANDFIELD": (Vitals(ArgEzz()),
+                   Opts(ArgInt(),
+                        KdOpts(OptKey(WITHVALUES_ARG)))),
+    "HSCAN": (Vitals(ArgEzz(), ArgEzz()),
+              KdOpts(OptKey(MATCH_ARG), ArgEzz()),
+              KdOpts(OptKey(COUNT_ARG), ArgInt()),
+              KdOpts(OptKey(NOVALUES_ARG))),
+    "HSET":  (Vitals(ArgEzz(), ArgEzz(), ArgEzz()),
+              Opts(ArgEzz(), ArgEzz())),
+    "HSETEX": (Vitals(ArgEzz()),
+               KdOpts(OptKey(EXPIRE_FIELD_ARGS)),
+               OptSet(KdOpts(OptKey(PERSISTENCE_ARGS), ArgInt()),
+                      KdOpts(OptKey(KEEPTTL_ARG))),
+                Vitals(FIELDS_ARG, ArgInt(), ArgEzz(), ArgEzz()),
+                Variadic(ArgEzz(), ArgEzz())),
+    "HSETNX":  Vitals(ArgEzz(), ArgEzz(), ArgEzz()),
+    "HSTRLEN": Vitals(ArgEzz(), ArgEzz()),
+    "HTTL": (Vitals(ArgEzz(), FIELDS_ARG, ArgInt(), ArgEzz()),
+             Variadic(ArgEzz())),
+    "HVALS": Vitals(ArgEzz())
 })
 """
 Predefined set storing Hash specific commands.

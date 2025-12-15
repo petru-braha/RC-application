@@ -1,43 +1,45 @@
 from frozendict import frozendict
-from .types import Args, Opts, IntArg, OptKeys, CmdDict
-from .list_cmds import COUNT_KEY
 
-LIMIT_KEY: OptKeys = frozenset({"LIMIT"})
-MATCH_KEY: OptKeys = frozenset({"MATCH"})
+from .patterns import CmdDict, \
+                      Vitals, Opts, Variadic, KdOpts, \
+                      ArgEzz, ArgInt, OptKey, \
+                      COUNT_ARG, \
+                      LIMIT_ARG, \
+                      MATCH_ARG
 
 SET_CMDS: CmdDict = frozendict({
-    "SADD":  (Args(None, None),
-              Opts(None, is_variadic=True)),
-    "SCARD":  Args(None),
-    "SDIFF": (Args(None),
-              Opts(None, is_variadic=True)),
-    "SDIFFSTORE": (Args(None, None),
-                   Opts(None, is_variadic=True)),
-    "SINTER": (Args(None),
-               Opts(None, is_variadic=True)),
-    "SINTERCARD":  (Args(IntArg(), None),
-                    Opts(None, is_variadic=True),
-                    Opts(IntArg(), key=LIMIT_KEY)),
-    "SINTERSTORE": (Args(None, None),
-                    Opts(None, is_variadic=True)),
-    "SISMEMBER": Args(None, None),
-    "SMEMBERS":  Args(None),
-    "SMISMEMBER": (Args(None, None),
-                   Opts(None, is_variadic=True)),
-    "SMOVE": Args(None, None, None),
-    "SPOP": (Args(None),
-             Opts(IntArg())),
-    "SRANDMEMBER": (Args(None),
-                    Opts(IntArg())),
-    "SREM": (Args(None, None),
-             Opts(None, is_variadic=True)),
-    "SSCAN": (Args(None, None),
-              Opts(None, key=MATCH_KEY),
-              Opts(IntArg(), key=COUNT_KEY)),
-    "SUNION": (Args(None),
-               Opts(None, is_variadic=True)),
-    "SUNIONSTORE": (Args(None, None),
-                    Opts(None, is_variadic=True)),
+    "SADD":  (Vitals(ArgEzz(), ArgEzz()),
+              Variadic(ArgEzz())),
+    "SCARD":  Vitals(ArgEzz()),
+    "SDIFF": (Vitals(ArgEzz()),
+              Variadic(ArgEzz())),
+    "SDIFFSTORE": (Vitals(ArgEzz(), ArgEzz()),
+                   Variadic(ArgEzz())),
+    "SINTER": (Vitals(ArgEzz()),
+               Variadic(ArgEzz())),
+    "SINTERCARD":  (Vitals(ArgInt(), ArgEzz()),
+                    Variadic(ArgEzz()),
+                    KdOpts(OptKey(LIMIT_ARG), ArgInt())),
+    "SINTERSTORE": (Vitals(ArgEzz(), ArgEzz()),
+                    Variadic(ArgEzz())),
+    "SISMEMBER": Vitals(ArgEzz(), ArgEzz()),
+    "SMEMBERS":  Vitals(ArgEzz()),
+    "SMISMEMBER": (Vitals(ArgEzz(), ArgEzz()),
+                   Variadic(ArgEzz())),
+    "SMOVE": Vitals(ArgEzz(), ArgEzz(), ArgEzz()),
+    "SPOP": (Vitals(ArgEzz()),
+             Opts(ArgInt())),
+    "SRANDMEMBER": (Vitals(ArgEzz()),
+                    Opts(ArgInt())),
+    "SREM": (Vitals(ArgEzz(), ArgEzz()),
+             Variadic(ArgEzz())),
+    "SSCAN": (Vitals(ArgEzz(), ArgEzz()),
+              KdOpts(OptKey(MATCH_ARG), ArgEzz()),
+              KdOpts(OptKey(COUNT_ARG), ArgInt())),
+    "SUNION": (Vitals(ArgEzz()),
+               Variadic(ArgEzz())),
+    "SUNIONSTORE": (Vitals(ArgEzz(), ArgEzz()),
+                    Variadic(ArgEzz())),
 })
 """
 Predefined set storing Set specific commands.

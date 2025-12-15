@@ -1,63 +1,64 @@
 from frozendict import frozendict
-from .types import Args, Opts, OptSet, IntArg, FltArg, OptKeys, CmdDict
 
-COMPARISON_KEYS: OptKeys = frozenset({"IFEQ", "IFNE", "IFDEQ", "IFDNE"})
-PERSISTENCE_KEYS: OptKeys = frozenset({"EX", "PX", "EXAT", "PXAT"})
-PRESENCE_KEYS: OptKeys = frozenset({"NX", "XX"})
-
-PERSIST_KEY: OptKeys = frozenset({"PERSIST"})
-LEN_KEY: OptKeys = frozenset({"LEN"})
-IDX_KEY: OptKeys = frozenset({"IDX"})
-MINMATCHLEN_KEY: OptKeys = frozenset({"MINMATCHLEN"})
-WITHMATCHLEN_KEY: OptKeys = frozenset({"WITHMATCHLEN"})
-KEEPTTL_KEY: OptKeys = frozenset({"KEEPTTL"})
-GET_KEY: OptKeys = frozenset({"GET"})
+from .patterns import CmdDict, \
+                      Vitals, Variadic, KdOpts, OptSet, \
+                      ArgEzz, ArgInt, ArgFlt, OptKey, \
+                      COMPARISON_ARGS, \
+                      PERSISTENCE_ARGS, \
+                      PRESENCE_ARGS, \
+                      PERSIST_ARG, \
+                      LEN_ARG, \
+                      IDX_ARG, \
+                      MINMATCHLEN_ARG, \
+                      WITHMATCHLEN_ARG, \
+                      KEEPTTL_ARG, \
+                      GET_ARG
 
 STRING_CMDS: CmdDict = frozendict({
-    "APPEND": Args(None, None),
-    "DECR":   Args(None),
-    "DECRBY": Args(None, None),
-    "DELEX": (Args(None),
-              Opts(IntArg(), key=COMPARISON_KEYS)),
-    "DIGEST": Args(None),
-    "GET":    Args(None),
-    "GETDEL": Args(None),
-    "GETEX": (Args(None),
-              OptSet(Opts(IntArg(), key=COMPARISON_KEYS),
-                     Opts(key=PERSIST_KEY))),
-    "GETRANGE": Args(None, IntArg(), IntArg()),
-    "GETSET": Args(None, None),
-    "INCR":   Args(None),
-    "INCRBY": Args(None, IntArg()),
-    "INCRBYFLOAT": Args(None, FltArg()),
-    "LCS":  (Args(None, None),
-             Opts(key=LEN_KEY),
-             Opts(key=IDX_KEY),
-             Opts(IntArg(), key=MINMATCHLEN_KEY),
-             Opts(key=WITHMATCHLEN_KEY)),
-    "MGET": (Args(None),
-             Opts(None, is_variadic=True)),
-    "MSET": (Args(None, None),
-             Opts(None, None, is_variadic=True)),
-    "MSETEX": (Args(IntArg(), None, None),
-               Opts(None, None, is_variadic=True),
-               Opts(key=PRESENCE_KEYS),
-               OptSet(Opts(IntArg(), key=PERSISTENCE_KEYS),
-                      Opts(key=KEEPTTL_KEY))),
-    "MSETNX": (Args(None, None),
-               Opts(None, None, is_variadic=True)),
-    "PSETEX":  Args(None, IntArg(), None),
-    "SET":    (Args(None, None),
-               OptSet(Opts(key=PRESENCE_KEYS),
-                      Opts(IntArg(), key=COMPARISON_KEYS)),
-               Opts(key=GET_KEY),
-               OptSet(Opts(IntArg(), key=PERSISTENCE_KEYS),
-                      Opts(key=KEEPTTL_KEY))),
-    "SETEX":   Args(None, IntArg(), None),
-    "SETNX":   Args(None, None),
-    "SETRANGE": Args(None, IntArg(), None),
-    "STRLEN":  Args(None),
-    "SUBSTR":  Args(None, IntArg(), IntArg())
+    "APPEND": Vitals(ArgEzz(), ArgEzz()),
+    "DECR":   Vitals(ArgEzz()),
+    "DECRBY": Vitals(ArgEzz(), ArgEzz()),
+    "DELEX": (Vitals(ArgEzz()),
+              KdOpts(OptKey(COMPARISON_ARGS), ArgInt())),
+    "DIGEST": Vitals(ArgEzz()),
+    "GET":    Vitals(ArgEzz()),
+    "GETDEL": Vitals(ArgEzz()),
+    "GETEX": (Vitals(ArgEzz()),
+              OptSet(KdOpts(OptKey(COMPARISON_ARGS), ArgInt()),
+                     KdOpts(OptKey(PERSIST_ARG)))),
+    "GETRANGE": Vitals(ArgEzz(), ArgInt(), ArgInt()),
+    "GETSET": Vitals(ArgEzz(), ArgEzz()),
+    "INCR":   Vitals(ArgEzz()),
+    "INCRBY": Vitals(ArgEzz(), ArgInt()),
+    "INCRBYFLOAT": Vitals(ArgEzz(), ArgFlt()),
+    "LCS":  (Vitals(ArgEzz(), ArgEzz()),
+             KdOpts(OptKey(LEN_ARG)),
+             KdOpts(OptKey(IDX_ARG)),
+             KdOpts(OptKey(MINMATCHLEN_ARG), ArgInt()),
+             KdOpts(OptKey(WITHMATCHLEN_ARG))),
+    "MGET": (Vitals(ArgEzz()),
+             Variadic(ArgEzz())),
+    "MSET": (Vitals(ArgEzz(), ArgEzz()),
+             Variadic(ArgEzz(), ArgEzz())),
+    "MSETEX": (Vitals(ArgInt(), ArgEzz(), ArgEzz()),
+               Variadic(ArgEzz(), ArgEzz()),
+               KdOpts(OptKey(PRESENCE_ARGS)),
+               OptSet(KdOpts(OptKey(PERSISTENCE_ARGS), ArgInt()),
+                      KdOpts(OptKey(KEEPTTL_ARG)))),
+    "MSETNX": (Vitals(ArgEzz(), ArgEzz()),
+               Variadic(ArgEzz(), ArgEzz())),
+    "PSETEX":  Vitals(ArgEzz(), ArgInt(), ArgEzz()),
+    "SET":    (Vitals(ArgEzz(), ArgEzz()),
+               OptSet(KdOpts(OptKey(PRESENCE_ARGS)),
+                      KdOpts(OptKey(COMPARISON_ARGS), ArgInt())),
+               KdOpts(OptKey(GET_ARG)),
+               OptSet(KdOpts(OptKey(PERSISTENCE_ARGS), ArgInt()),
+                      KdOpts(OptKey(KEEPTTL_ARG)))),
+    "SETEX": Vitals(ArgEzz(), ArgInt(), ArgEzz()),
+    "SETNX": Vitals(ArgEzz(), ArgEzz()),
+    "SETRANGE": Vitals(ArgEzz(), ArgInt(), ArgEzz()),
+    "STRLEN": Vitals(ArgEzz()),
+    "SUBSTR": Vitals(ArgEzz(), ArgInt(), ArgInt())
 })
 """
 Predefined set storing String specific commands.

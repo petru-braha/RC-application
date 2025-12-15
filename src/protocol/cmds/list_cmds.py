@@ -1,58 +1,59 @@
 from frozendict import frozendict
-from .types import Args, Opts, IntArg, StrArg, OptKeys, CmdDict
 
-DIRECTION_ARG = StrArg("LEFT", "RIGHT")
-POSITION_ARG = StrArg("BEFORE", "AFTER")
-
-COUNT_KEY: OptKeys = frozenset({"COUNT"})
-RANK_KEY: OptKeys = frozenset({"RANK"})
-MAXLEN_KEY: OptKeys = frozenset({"MAXLEN"})
+from .patterns import CmdDict, \
+                      Vitals, Opts, Variadic, KdOpts, \
+                      ArgEzz, ArgInt, OptKey, \
+                      DIRECTION_ARGS, \
+                      POSITION_ARGS, \
+                      COUNT_ARG, \
+                      RANK_ARG, \
+                      MAXLEN_ARG
 
 LIST_CMDS: CmdDict = frozendict({
-    "BLMOVE": Args(None, None,
-                   DIRECTION_ARG,
-                   DIRECTION_ARG,
-                   IntArg()),
-    "BLMPOP": (Args(IntArg(), IntArg(), None),
-               Opts(None, is_variadic=True),
-               DIRECTION_ARG,
-               Opts(IntArg(), key=COUNT_KEY)),
-    "BLPOP":  (Args(None),
-               Opts(None, is_variadic=True),
-               Args(IntArg())),
-    "BRPOP":  (Args(None),
-               Opts(None, is_variadic=True),
-               Args(IntArg())),
-    "BRPOPLPUSH": Args(None, None, IntArg()),
-    "LINDEX":  Args(None, IntArg()),
-    "LINSERT": Args(None, POSITION_ARG, IntArg(), None),
-    "LLEN":    Args(None),
-    "LMOVE":   Args(None, None, DIRECTION_ARG, DIRECTION_ARG),
-    "LMPOP":  (Args(IntArg(), None),
-               Opts(None, is_variadic=True),
-               DIRECTION_ARG,
-               Opts(IntArg(), key=COUNT_KEY)),
-    "LPOP":   (Args(None),
-               Opts(IntArg())),
-    "LPOS":   (Args(None, None),
-               Opts(IntArg(), key=RANK_KEY),
-               Opts(IntArg(), key=COUNT_KEY),
-               Opts(IntArg(), key=MAXLEN_KEY)),
-    "LPUSH":  (Args(None, None),
-               Opts(None, is_variadic=True)),
-    "LPUSHX": (Args(None, None),
-               Opts(None, is_variadic=True)),
-    "LRANGE":  Args(None, IntArg(), IntArg()),
-    "LREM": Args(None, IntArg(), None),
-    "LSET": Args(None, IntArg(), None),
-    "LTRIM": Args(None, IntArg(), IntArg()),
-    "RPOP": (Args(None),
-             Opts(IntArg())),
-    "RPOPLPUSH": Args(None, None),
-    "RPUSH":  (Args(None, None),
-               Opts(None, is_variadic=True)),
-    "RPUSHX": (Args(None, None),
-               Opts(None, is_variadic=True)),
+    "BLMOVE": Vitals(ArgEzz(), ArgEzz(),
+                   DIRECTION_ARGS,
+                   DIRECTION_ARGS,
+                   ArgInt()),
+    "BLMPOP": (Vitals(ArgInt(), ArgInt(), ArgEzz()),
+               Variadic(ArgEzz()),
+               DIRECTION_ARGS,
+               KdOpts(OptKey(COUNT_ARG), ArgInt())),
+    "BLPOP":  (Vitals(ArgEzz()),
+               Variadic(ArgEzz()),
+               Vitals(ArgInt())),
+    "BRPOP":  (Vitals(ArgEzz()),
+               Variadic(ArgEzz()),
+               Vitals(ArgInt())),
+    "BRPOPLPUSH": Vitals(ArgEzz(), ArgEzz(), ArgInt()),
+    "LINDEX":  Vitals(ArgEzz(), ArgInt()),
+    "LINSERT": Vitals(ArgEzz(), POSITION_ARGS, ArgInt(), ArgEzz()),
+    "LLEN":    Vitals(ArgEzz()),
+    "LMOVE":   Vitals(ArgEzz(), ArgEzz(), DIRECTION_ARGS, DIRECTION_ARGS),
+    "LMPOP":  (Vitals(ArgInt(), ArgEzz()),
+               Variadic(ArgEzz()),
+               DIRECTION_ARGS,
+               KdOpts(OptKey(COUNT_ARG), ArgInt())),
+    "LPOP":   (Vitals(ArgEzz()),
+               Opts(ArgInt())),
+    "LPOS":   (Vitals(ArgEzz(), ArgEzz()),
+               KdOpts(OptKey(RANK_ARG), ArgInt()),
+               KdOpts(OptKey(COUNT_ARG), ArgInt()),
+               KdOpts(OptKey(MAXLEN_ARG), ArgInt())),
+    "LPUSH":  (Vitals(ArgEzz(), ArgEzz()),
+               Variadic(ArgEzz())),
+    "LPUSHX": (Vitals(ArgEzz(), ArgEzz()),
+               Variadic(ArgEzz())),
+    "LRANGE":  Vitals(ArgEzz(), ArgInt(), ArgInt()),
+    "LREM": Vitals(ArgEzz(), ArgInt(), ArgEzz()),
+    "LSET": Vitals(ArgEzz(), ArgInt(), ArgEzz()),
+    "LTRIM": Vitals(ArgEzz(), ArgInt(), ArgInt()),
+    "RPOP": (Vitals(ArgEzz()),
+             Opts(ArgInt())),
+    "RPOPLPUSH": Vitals(ArgEzz(), ArgEzz()),
+    "RPUSH":  (Vitals(ArgEzz(), ArgEzz()),
+               Variadic(ArgEzz())),
+    "RPUSHX": (Vitals(ArgEzz(), ArgEzz()),
+               Variadic(ArgEzz())),
 })
 """
 Predefined set storing List specific commands.
