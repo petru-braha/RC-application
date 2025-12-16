@@ -10,4 +10,5 @@ Represents an empty string literal.
 
 STRING_TRAVERSAL_STRIDE = 1
 """
+How many characters must be processed at once when traversing a string.
 """
