@@ -42,7 +42,7 @@ class _Decoder:
         decoded (Output): The fully decoded representation of the input.
     """
 
-    _VERBATIM_HEADER_SIZE = 4
+    _VERBATIM_HEADER_SIZE: int = 4
     """
     Internal constant.
     Specifies the length of the verbatim string header.

@@ -53,18 +53,18 @@ Predefined dictionary mapping the first byte of an incoming Redis response to it
 See more: https://redis.io/docs/latest/develop/reference/protocol-spec/
 """
 
-NULL_LENGTH = -1
+NULL_LENGTH: int = -1
 """
 RESP2 has no value representing nulls.
 It treats null values as either bulk strings or arrays, both with length -1.
 """
 
 # Standard input string constant.
-SPACE = " "
-QUOTE_DOUBLE = "\""
-QUOTE_SINGLE = "\'"
-CRLF = "\r\n"
-NULL = "null"
+SPACE: str = " "
+QUOTE_DOUBLE: str = "\""
+QUOTE_SINGLE: str = "\'"
+CRLF: str = "\r\n"
+NULL: str = "null"
 """
 Standard RESP encoded data suffix.
 """
