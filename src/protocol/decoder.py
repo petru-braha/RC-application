@@ -1,12 +1,33 @@
 from frozendict import frozendict
 from typing import Callable
 
-from src.constants import NOT_FOUND_INDEX
+from src.constants import NOT_FOUND_INDEX, STRING_TRAVERSAL_STRIDE
 
 from .constants_resp import RespDataType, \
                             SYMB_TYPE, NULL_LENGTH, \
                             CRLF, NULL
 from .output import Output, OutputStr, OutputSeq, OutputMap, OutputAtt
+
+def decoder(output: str) -> Output:
+    """
+    Decodes a RESP-encoded Redis response.
+
+    The input is assumed to be well-formed according to RESP rules.
+
+    Parameters:
+        output (str): The raw RESP-encoded (Redis) response string.
+
+    Returns:
+        str: The decoded value, represented as a string.
+
+    Raises:
+        RuntimeError: Unexpected exceptions.
+    """
+    try:
+        decoder = _Decoder(output)
+        return decoder.decoded
+    except BaseException as e:
+        raise RuntimeError("Decoder failure.") from e
 
 class _Decoder:
     """
@@ -19,6 +40,13 @@ class _Decoder:
         output (str): The raw RESP3 string to decode.
         output_idx (int): The current index during traversal.
         decoded (Output): The fully decoded representation of the input.
+    """
+
+    _VERBATIM_HEADER_SIZE = 4
+    """
+    Internal constant.
+    Specifies the length of the verbatim string header.
+    The header consists of the verbatim string type followed by a colon (e.g., "type:").
     """
 
     # Static dispatcher mapping RESP data types to traversal methods.
@@ -51,7 +79,7 @@ class _Decoder:
         symb = self._output[self._output_idx]
 
         # idx always points to the not read character.
-        self._output_idx += 1
+        self._output_idx += STRING_TRAVERSAL_STRIDE
         data_type = SYMB_TYPE[symb]
 
         # Call the appropriate method for the first byte received.
@@ -107,7 +135,8 @@ class _Decoder:
         if length == NULL_LENGTH:
             return OutputStr(NULL)
 
-        value = self._output[self._output_idx:self._output_idx + length]
+        end_idx = self._output_idx + length
+        value = self._output[self._output_idx:end_idx]
         self._output_idx += length + len(CRLF)
         return OutputStr(value)
 
@@ -136,7 +165,7 @@ class _Decoder:
         _ = self._traverse_crlf()
         value = self._traverse_crlf().value
         # 4 bytes are skipped: enconding bytes and the ":" character.
-        return OutputStr(value[4:])
+        return OutputStr(value[_Decoder._VERBATIM_HEADER_SIZE:])
     
     def _traverse_sequence(self) -> OutputSeq:
         """
@@ -201,24 +230,3 @@ _Decoder._TRAVERSERS = frozendict({
     RespDataType.SETS: _Decoder._traverse_sequence,
     RespDataType.PUSHES: _Decoder._traverse_sequence,
 })
-
-def decoder(output: str) -> Output:
-    """
-    Decodes a RESP-encoded Redis response.
-
-    The input is assumed to be well-formed according to RESP rules.
-
-    Parameters:
-        output (str): The raw RESP-encoded (Redis) response string.
-
-    Returns:
-        str: The decoded value, represented as a string.
-
-    Raises:
-        RuntimeError: Unexpected exceptions.
-    """
-    try:
-        decoder = _Decoder(output)
-        return decoder.decoded
-    except BaseException as e:
-        raise RuntimeError("Decoder failure.") from e
