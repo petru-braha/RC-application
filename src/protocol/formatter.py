@@ -32,7 +32,7 @@ def formatter(output: Output, prefix: str = EMPTY_STR) -> str:
     assert isinstance(output, OutputAtt)
     return _format_att(output, prefix)
 
-_PAIR_SIZE = 2
+_PAIR_SIZE: int = 2
 """
 Internal constant.
 
@@ -40,35 +40,35 @@ Defines the number of items in a key-value pair (key + value).
 Used for calculating indices in map formatting.
 """
 
-_INDENT_CHAR = " "
+_INDENT_CHAR: str = " "
 """
 Internal constant.
 
 Represents a single space character used for indentation padding.
 """
 
-_EMPTY_SEQ_MSG = "(empty sequence)"
+_EMPTY_SEQ_MSG: str = "(empty sequence)"
 """
 Internal constant.
 
 Message displayed when formatting an empty sequence output.
 """
 
-_EMPTY_MAP_MSG = "(empty map)"
+_EMPTY_MAP_MSG: str = "(empty map)"
 """
 Internal constant.
 
 Message displayed when formatting an empty map output.
 """
 
-_ATTR_HEADER = "Attributes:"
+_ATTR_HEADER: str = "Attributes:"
 """
 Internal constant.
 
 Header text displayed before the attributes section of an Attributed output.
 """
 
-_PAYLOAD_HEADER = "Payload:"
+_PAYLOAD_HEADER: str = "Payload:"
 """
 Internal constant.
 
