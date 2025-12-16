@@ -1,4 +1,4 @@
-from src.constants import EMPTY_STR, STRING_TRAVERSAL_STRIDE
+from src.constants import EMPTY_STR, STR_TRAVERSAL_STRIDE
 
 from .constants_resp import CRLF
 from .output import Output, OutputStr, OutputSeq, OutputMap, OutputAtt
@@ -133,7 +133,7 @@ def _format_seq(output: OutputSeq, prefix: str) -> str:
     
     for idx in range(1, values_len):
         value = output.values[idx]
-        display_idx = idx + STRING_TRAVERSAL_STRIDE
+        display_idx = idx + STR_TRAVERSAL_STRIDE
         val_prefix = _set_prefix(indent_padding, display_idx)
         formatted += formatter(value, val_prefix)
     
@@ -169,12 +169,12 @@ def _format_map(output: OutputMap, prefix: str) -> str:
         display_idx = idx * _PAIR_SIZE
 
         # Format Key.
-        display_idx += STRING_TRAVERSAL_STRIDE
+        display_idx += STR_TRAVERSAL_STRIDE
         key_prefix = _set_prefix(key_prefix, display_idx)
         formatted += formatter(key, key_prefix)
 
         # Format Value.
-        display_idx += STRING_TRAVERSAL_STRIDE
+        display_idx += STR_TRAVERSAL_STRIDE
         val_prefix = _set_prefix(indent_padding, display_idx)
         formatted += formatter(val, val_prefix)
 
