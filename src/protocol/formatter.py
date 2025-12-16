@@ -1,5 +1,36 @@
+from src.constants import EMPTY_STR, STRING_TRAVERSAL_STRIDE
+
 from .constants_resp import CRLF
 from .output import Output, OutputStr, OutputSeq, OutputMap, OutputAtt
+
+def formatter(output: Output, prefix: str = EMPTY_STR) -> str:
+    """
+    Formats a decoded RESP Output object into a human-readable string.
+
+    Entry point for traversal.
+    Dispatches aggregate types to their specific formatting methods.
+
+    Parameters:
+        output: The Output object (Str, Seq, Map, or Att) to format.
+        prefix (str): Optional indentation string. Defaults to empty string.
+
+    Returns:
+        str: The fully formatted, human-readable string representation of the output.
+
+    Raises:
+        AssertionError: If the output type is NOT one of the expected Output subclasses.
+    """
+    # Strings (leaf nodes). No recursive calls are performed here.
+    if isinstance(output, OutputStr):
+        return _format_str(output.value, prefix)
+    
+    # Aggregate types. Potentially contain recursive calls.
+    if isinstance(output, OutputSeq):
+        return _format_seq(output, prefix)
+    if isinstance(output, OutputMap):
+        return _format_map(output, prefix)
+    assert isinstance(output, OutputAtt)
+    return _format_att(output, prefix)
 
 _PAIR_SIZE = 2
 """
@@ -7,20 +38,6 @@ Internal constant.
 
 Defines the number of items in a key-value pair (key + value).
 Used for calculating indices in map formatting.
-"""
-
-_INCREMENT_STEP = 1
-"""
-Internal constant.
-
-Defines the standard increment step for loop counters and index displays.
-"""
-
-_EMPTY_STR = ""
-"""
-Internal constant.
-
-Represents an empty string literal.
 """
 
 _INDENT_CHAR = " "
@@ -116,7 +133,7 @@ def _format_seq(output: OutputSeq, prefix: str) -> str:
     
     for idx in range(1, values_len):
         value = output.values[idx]
-        display_idx = idx + _INCREMENT_STEP
+        display_idx = idx + STRING_TRAVERSAL_STRIDE
         val_prefix = _set_prefix(indent_padding, display_idx)
         formatted += formatter(value, val_prefix)
     
@@ -140,7 +157,7 @@ def _format_map(output: OutputMap, prefix: str) -> str:
     if values_len < 1:
         return _format_str(_EMPTY_MAP_MSG, prefix)
 
-    formatted = _EMPTY_STR
+    formatted = EMPTY_STR
     # Indentation for all pairs except the first one.
     indent_padding = _INDENT_CHAR * len(prefix)
 
@@ -152,12 +169,12 @@ def _format_map(output: OutputMap, prefix: str) -> str:
         display_idx = idx * _PAIR_SIZE
 
         # Format Key.
-        display_idx += _INCREMENT_STEP
+        display_idx += STRING_TRAVERSAL_STRIDE
         key_prefix = _set_prefix(key_prefix, display_idx)
         formatted += formatter(key, key_prefix)
 
         # Format Value.
-        display_idx += _INCREMENT_STEP
+        display_idx += STRING_TRAVERSAL_STRIDE
         val_prefix = _set_prefix(indent_padding, display_idx)
         formatted += formatter(val, val_prefix)
 
@@ -190,32 +207,3 @@ def _format_att(output: OutputAtt, prefix: str) -> str:
     # It should not use the actual prefix.
     formatted += formatter(output.payload, prefix)
     return formatted
-
-def formatter(output: Output, prefix: str = _EMPTY_STR) -> str:
-    """
-    Formats a decoded RESP Output object into a human-readable string.
-
-    Entry point for traversal.
-    Dispatches aggregate types to their specific formatting methods.
-
-    Parameters:
-        output: The Output object (Str, Seq, Map, or Att) to format.
-        prefix (str): Optional indentation string. Defaults to empty string.
-
-    Returns:
-        str: The fully formatted, human-readable string representation of the output.
-
-    Raises:
-        AssertionError: If the output type is NOT one of the expected Output subclasses.
-    """
-    # Strings (leaf nodes). No recursive calls are performed here.
-    if isinstance(output, OutputStr):
-        return _format_str(output.value, prefix)
-    
-    # Aggregate types. Potentially contain recursive calls.
-    if isinstance(output, OutputSeq):
-        return _format_seq(output, prefix)
-    if isinstance(output, OutputMap):
-        return _format_map(output, prefix)
-    assert isinstance(output, OutputAtt)
-    return _format_att(output, prefix)
