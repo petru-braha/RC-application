@@ -1,8 +1,8 @@
 from frozendict import frozendict
 
 from .patterns import CmdDict, \
-                      Vitals, Opts, Variadic, KdOpts, \
-                      ArgEzz, ArgInt, OptKey, \
+                      Vitals, Opts, Variadic, Opts, \
+                      ArgEzz, ArgInt, \
                       COUNT_ARG, \
                       LIMIT_ARG, \
                       MATCH_ARG
@@ -19,7 +19,7 @@ SET_CMDS: CmdDict = frozendict({
                Variadic(ArgEzz())),
     "SINTERCARD":  (Vitals(ArgInt(), ArgEzz()),
                     Variadic(ArgEzz()),
-                    KdOpts(OptKey(LIMIT_ARG), ArgInt())),
+                    Opts(LIMIT_ARG, ArgInt())),
     "SINTERSTORE": (Vitals(ArgEzz(), ArgEzz()),
                     Variadic(ArgEzz())),
     "SISMEMBER": Vitals(ArgEzz(), ArgEzz()),
@@ -34,8 +34,8 @@ SET_CMDS: CmdDict = frozendict({
     "SREM": (Vitals(ArgEzz(), ArgEzz()),
              Variadic(ArgEzz())),
     "SSCAN": (Vitals(ArgEzz(), ArgEzz()),
-              KdOpts(OptKey(MATCH_ARG), ArgEzz()),
-              KdOpts(OptKey(COUNT_ARG), ArgInt())),
+              Opts(MATCH_ARG, ArgEzz()),
+              Opts(COUNT_ARG, ArgInt())),
     "SUNION": (Vitals(ArgEzz()),
                Variadic(ArgEzz())),
     "SUNIONSTORE": (Vitals(ArgEzz(), ArgEzz()),

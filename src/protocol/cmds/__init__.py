@@ -16,12 +16,12 @@ All comands in a single variable.
 
 __all__ = ["RequiredPattern", "OptionalPattern", "StrictPattern",
            "Argument",
-           "ArgEzz", "ArgInt", "ArgFlt", "ArgStr", "ArgSet", "OptKey",
+           "ArgEzz", "ArgInt", "ArgFlt", "ArgStr", "ArgSet", "VariadicKey",
            
            "Section",
            "RequiredSect", "Vitals",
            "OptionalSect", "Optionals", "KeyedOptionals",
-           "Opts", "KdOpts", "Variadic", "KdVariadic", "OptSet",
+           "Opts", "Opts", "Variadic", "KdVariadic", "OptSet",
            
            "CMDS",
            "STRING_CMDS", "LIST_CMDS",

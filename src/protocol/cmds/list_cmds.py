@@ -1,8 +1,8 @@
 from frozendict import frozendict
 
 from .patterns import CmdDict, \
-                      Vitals, Opts, Variadic, KdOpts, \
-                      ArgEzz, ArgInt, OptKey, \
+                      Vitals, Opts, Variadic, Opts, \
+                      ArgEzz, ArgInt, \
                       DIRECTION_ARGS, \
                       POSITION_ARGS, \
                       COUNT_ARG, \
@@ -17,7 +17,7 @@ LIST_CMDS: CmdDict = frozendict({
     "BLMPOP": (Vitals(ArgInt(), ArgInt(), ArgEzz()),
                Variadic(ArgEzz()),
                DIRECTION_ARGS,
-               KdOpts(OptKey(COUNT_ARG), ArgInt())),
+               Opts(COUNT_ARG, ArgInt())),
     "BLPOP":  (Vitals(ArgEzz()),
                Variadic(ArgEzz()),
                Vitals(ArgInt())),
@@ -32,13 +32,13 @@ LIST_CMDS: CmdDict = frozendict({
     "LMPOP":  (Vitals(ArgInt(), ArgEzz()),
                Variadic(ArgEzz()),
                DIRECTION_ARGS,
-               KdOpts(OptKey(COUNT_ARG), ArgInt())),
+               Opts(COUNT_ARG, ArgInt())),
     "LPOP":   (Vitals(ArgEzz()),
                Opts(ArgInt())),
     "LPOS":   (Vitals(ArgEzz(), ArgEzz()),
-               KdOpts(OptKey(RANK_ARG), ArgInt()),
-               KdOpts(OptKey(COUNT_ARG), ArgInt()),
-               KdOpts(OptKey(MAXLEN_ARG), ArgInt())),
+               Opts(RANK_ARG, ArgInt()),
+               Opts(COUNT_ARG, ArgInt()),
+               Opts(MAXLEN_ARG, ArgInt())),
     "LPUSH":  (Vitals(ArgEzz(), ArgEzz()),
                Variadic(ArgEzz())),
     "LPUSHX": (Vitals(ArgEzz(), ArgEzz()),

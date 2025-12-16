@@ -1,7 +1,7 @@
 from src.immutable import Immutable
 
 from .interfaces import RequiredPattern, OptionalPattern
-from .types import OptKey
+from .types import VariadicKey
 
 class Section(Immutable):
     """
@@ -43,6 +43,20 @@ class OptionalSect(Section, OptionalPattern):
     """
     pass
 
+class OptSet(OptionalSect):
+    """
+    Represents a set of independent keyed options.
+    
+    Used for groups of options where order is irrelevant, or to define 
+    mutually exclusive sets of flags.
+    
+    Attributes:
+        patterns (set): An immutable set of available keyed options.
+    """
+    def __init__(self, *optionals: OptionalSect) -> None:
+        super().__init__()
+        self.patterns = frozenset(optionals)
+
 class Optionals(OptionalSect):
     """
     Base abstract class for a collection of optional patterns.
@@ -59,8 +73,7 @@ class Opts(Optionals):
     """
     Represents a linear sequence of optional arguments.
     
-    Used for standard optional segments that do not require a specific 
-    prefixing key (flag).
+    A user provided a correct option section if all patterns are matched.
     """
     def __init__(self, *patterns: OptionalPattern) -> None:
         super().__init__(tuple(patterns))
@@ -80,56 +93,13 @@ class Variadic(Opts):
     def __init__(self, *patterns: OptionalPattern) -> None:
         super().__init__(*patterns)
 
-class KeyedOptionals(Optionals):
-    """
-    Abstract base class for optional arguments prefixed by a specific key.
-    
-    Represents options that consist of a strict identifier (e.g., a flag 
-    like 'LIMIT') followed by one or more associated values.
-
-    The subclasses contain an additional layer of validation.
-    For instance, if the client input contains the key,
-    then the other section patterns are expected to be observed as well.
-    
-    Attributes:
-        key (OptKey): The strict pattern acting as the identifier/flag.
-    """
-    def __init__(self, key: OptKey,
-                 patterns: tuple[OptionalPattern, ...]) -> None:
-        super().__init__(patterns)
-        self.key = key
-
-class KdOpts(KeyedOptionals):
-    """
-    Represents a keyed option with a fixed sequence of arguments.
-    
-    Example: 'LIMIT <offset> <count>' where 'LIMIT' is the key and 
-    offset/count are the patterns.
-    """
-    def __init__(self, key: OptKey,
-                 *patterns: OptionalPattern) -> None:
-        super().__init__(key, tuple(patterns))
-
-class KdVariadic(KdOpts):
+class KeyedVariadic(Variadic):
     """
     Represents a keyed option that accepts a variadic number of arguments.
     
     Example: A flag followed by an arbitrary list of values.
     """
-    def __init__(self, key: OptKey,
+    def __init__(self, key: VariadicKey,
                  *patterns: OptionalPattern) -> None:
-        super().__init__(key, *patterns)
-
-class OptSet(OptionalSect):
-    """
-    Represents a set of independent keyed options.
-    
-    Used for groups of options where order is irrelevant, or to define 
-    mutually exclusive sets of flags.
-    
-    Attributes:
-        patterns (set): An immutable set of available keyed options.
-    """
-    def __init__(self, *kd_opts: KeyedOptionals) -> None:
-        super().__init__()
-        self.patterns = frozenset(kd_opts)
+        super().__init__(*patterns)
+        self.key = key

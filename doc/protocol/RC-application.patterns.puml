@@ -30,10 +30,10 @@ class ArgStr {
 }
 
 class ArgSet {
-  +patterns : frozenset[str]
+  +patterns : frozenset[Argument]
 }
 
-class OptKey {
+class VariadicKey {
   +pattern : StrictPattern
 }
 
@@ -51,6 +51,10 @@ class Vitals {
 interface OptionalSect {
 }
 
+class OptSet {
+  +patterns : frozenset[OptionalSect]
+}
+
 abstract class Optionals {
   +patterns : tuple[OptionalPattern]
 }
@@ -61,18 +65,8 @@ class Opts {
 class Variadic {
 }
 
-abstract class KeyedOptionals {
-  +key : OptKey
-}
-
-class KdOpts {
-}
-
-class KdVariadic {
-}
-
-class OptSet {
-  +patterns : frozenset[KeyedOptionals]
+class KeyedVariadic {
+  +key : VariadicKey
 }
 
 ' --- Type Inheritance Relationships ---
@@ -88,7 +82,7 @@ StrictPattern <|-- ArgStr
 Argument <|-- ArgSet
 StrictPattern <|-- ArgSet
 
-StrictPattern <|-- OptKey
+StrictPattern <|-- VariadicKey
 
 ' --- Section Inheritance Relationships ---
 
@@ -102,22 +96,20 @@ OptionalSect <|-- OptSet
 
 Optionals <|-- Opts
 Opts <|-- Variadic
-Optionals <|-- KeyedOptionals
-KeyedOptionals <|-- KdOpts
-KdOpts <|-- KdVariadic
+Variadic <|-- KeyedVariadic
 
 ' --- Type Association Relationships ---
 
-OptKey o-up- "1" StrictPattern : pattern
+VariadicKey o-up- "1" StrictPattern : pattern
+
+ArgSet o-up- "*" Argument : patterns
 
 ' --- Section Association Relationships ---
 
 Vitals o-up- "*" RequiredPattern : patterns
 
+OptSet o-up- "*" OptionalSect : patterns
+
 Optionals o-up- "*" OptionalPattern : patterns
-
-KeyedOptionals o-up- "1" OptKey : key
-
-OptSet o-up- "*" KeyedOptionals : patterns
 
 @enduml

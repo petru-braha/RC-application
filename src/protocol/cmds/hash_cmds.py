@@ -1,8 +1,8 @@
 from frozendict import frozendict
 
 from .patterns import CmdDict, \
-                      Vitals, Opts, Variadic, KdOpts, OptSet, \
-                      ArgEzz, ArgInt, ArgFlt, OptKey, \
+                      Vitals, Opts, Variadic, Opts, OptSet, \
+                      ArgEzz, ArgInt, ArgFlt, \
                       PERSISTENCE_ARGS, \
                       PERSIST_ARG, \
                       KEEPTTL_ARG, \
@@ -19,11 +19,11 @@ HASH_CMDS: CmdDict = frozendict({
              Variadic(ArgEzz())),
     "HEXISTS":  Vitals(ArgEzz(), ArgEzz()),
     "HEXPIRE": (Vitals(ArgEzz(), ArgInt()),
-                KdOpts(OptKey(EXPIRE_ARGS)),
+                Opts(EXPIRE_ARGS),
                 Vitals(FIELDS_ARG, ArgInt(), ArgEzz()),
                 Variadic(ArgEzz())),
     "HEXPIREAT": (Vitals(ArgEzz(), ArgInt()),
-                  KdOpts(OptKey(EXPIRE_ARGS)),
+                  Opts(EXPIRE_ARGS),
                   Vitals(FIELDS_ARG, ArgInt(), ArgEzz()),
                   Variadic(ArgEzz())),
     "HEXPIRETIME": (Vitals(ArgEzz(), FIELDS_ARG, ArgInt(), ArgEzz()),
@@ -33,8 +33,8 @@ HASH_CMDS: CmdDict = frozendict({
     "HGETDEL": (Vitals(ArgEzz(), FIELDS_ARG, ArgInt(), ArgEzz()),
                 Variadic(ArgEzz())),
     "HGETEX":  (Vitals(ArgEzz()),
-                OptSet(KdOpts(OptKey(PERSISTENCE_ARGS), ArgInt()),
-                       KdOpts(OptKey(PERSIST_ARG))),
+                OptSet(Opts(PERSISTENCE_ARGS, ArgInt()),
+                       Opts(PERSIST_ARG)),
                 Vitals(FIELDS_ARG, ArgInt(), ArgEzz()),
                 Variadic(ArgEzz())),
     "HINCRBY":  Vitals(ArgEzz(), ArgEzz(), ArgInt()),
@@ -48,11 +48,11 @@ HASH_CMDS: CmdDict = frozendict({
     "HPERSIST": (Vitals(ArgEzz(), FIELDS_ARG, ArgInt(), ArgEzz()),
                  Variadic(ArgEzz())),
     "HPEXPIRE": (Vitals(ArgEzz(), ArgInt()),
-                 KdOpts(OptKey(EXPIRE_ARGS)),
+                 Opts(EXPIRE_ARGS),
                  Vitals(FIELDS_ARG, ArgInt(), ArgEzz()),
                  Variadic(ArgEzz())),
     "HPEXPIREAT": (Vitals(ArgEzz(), ArgInt()),
-                   KdOpts(OptKey(EXPIRE_ARGS)),
+                   Opts(EXPIRE_ARGS),
                    Vitals(FIELDS_ARG, ArgInt(), ArgEzz()),
                    Variadic(ArgEzz())),
     "HPEXPIRETIME": (Vitals(ArgEzz(), FIELDS_ARG, ArgInt(), ArgEzz()),
@@ -61,17 +61,17 @@ HASH_CMDS: CmdDict = frozendict({
               Variadic(ArgEzz())),
     "HRANDFIELD": (Vitals(ArgEzz()),
                    Opts(ArgInt(),
-                        KdOpts(OptKey(WITHVALUES_ARG)))),
+                        Opts(WITHVALUES_ARG))),
     "HSCAN": (Vitals(ArgEzz(), ArgEzz()),
-              KdOpts(OptKey(MATCH_ARG), ArgEzz()),
-              KdOpts(OptKey(COUNT_ARG), ArgInt()),
-              KdOpts(OptKey(NOVALUES_ARG))),
+              Opts(MATCH_ARG, ArgEzz()),
+              Opts(COUNT_ARG, ArgInt()),
+              Opts(NOVALUES_ARG)),
     "HSET":  (Vitals(ArgEzz(), ArgEzz(), ArgEzz()),
               Opts(ArgEzz(), ArgEzz())),
     "HSETEX": (Vitals(ArgEzz()),
-               KdOpts(OptKey(EXPIRE_FIELD_ARGS)),
-               OptSet(KdOpts(OptKey(PERSISTENCE_ARGS), ArgInt()),
-                      KdOpts(OptKey(KEEPTTL_ARG))),
+               Opts(EXPIRE_FIELD_ARGS),
+               OptSet(Opts(PERSISTENCE_ARGS, ArgInt()),
+                      Opts(KEEPTTL_ARG)),
                 Vitals(FIELDS_ARG, ArgInt(), ArgEzz(), ArgEzz()),
                 Variadic(ArgEzz(), ArgEzz())),
     "HSETNX":  Vitals(ArgEzz(), ArgEzz(), ArgEzz()),

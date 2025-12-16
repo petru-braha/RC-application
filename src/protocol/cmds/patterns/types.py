@@ -59,11 +59,18 @@ class ArgSet(Argument, StrictPattern):
     Attributes:
         patterns (frozenset): An immutable set of allowed string patterns.
     """
-    def __init__(self, *patterns: str) -> None:
+    def __init__(self, *patterns: Argument | str) -> None:
         super().__init__()
-        self.patterns = frozenset({patterns})
+        # Allow client code to simple type in strings.
+        # This avoids defining AtrStr for each string needed.
+        arg_set: set[Argument] = set()
+        for pattern in patterns:
+            if isinstance(pattern, str):
+                pattern = ArgStr(pattern)
+            arg_set.add(pattern)
+        self.patterns = frozenset(arg_set)
 
-class OptKey(StrictPattern):
+class VariadicKey(StrictPattern):
     """
     Represents a prefix component for option sections.
     
