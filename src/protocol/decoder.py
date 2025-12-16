@@ -1,7 +1,7 @@
 from frozendict import frozendict
 from typing import Callable
 
-from src.constants import NOT_FOUND_INDEX, STRING_TRAVERSAL_STRIDE
+from src.constants import NOT_FOUND_INDEX, STR_TRAVERSAL_STRIDE
 
 from .constants_resp import RespDataType, \
                             SYMB_TYPE, NULL_LENGTH, \
@@ -79,7 +79,7 @@ class _Decoder:
         symb = self._output[self._output_idx]
 
         # idx always points to the not read character.
-        self._output_idx += STRING_TRAVERSAL_STRIDE
+        self._output_idx += STR_TRAVERSAL_STRIDE
         data_type = SYMB_TYPE[symb]
 
         # Call the appropriate method for the first byte received.
