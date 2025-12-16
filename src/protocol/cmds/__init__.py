@@ -20,8 +20,8 @@ __all__ = ["RequiredPattern", "OptionalPattern", "StrictPattern",
            
            "Section",
            "RequiredSect", "Vitals",
-           "OptionalSect", "Optionals", "KeyedOptionals",
-           "Opts", "Opts", "Variadic", "KdVariadic", "OptSet",
+           "OptionalSect", "Optionals", "OptSet",
+           "Opts", "Variadic", "KeyedVariadic",
            
            "CMDS",
            "STRING_CMDS", "LIST_CMDS",
