@@ -1,8 +1,14 @@
 from frozendict import frozendict
 
-from .patterns import CmdDict, Vitals, Opts, ArgEzz
+from .patterns import CmdDict, Vitals, Opts, ArgEzz, ArgInt, \
+                      AUTH_ARG, \
+                      SETNAME_ARG
 
 CONNECTION_CMDS: CmdDict = frozendict({
+    "HELLO": (Vitals(),
+              Opts(ArgInt(),
+                   Opts(AUTH_ARG, ArgEzz(), ArgEzz()),
+                   Opts(SETNAME_ARG, ArgEzz()))),
     "PING": Opts(ArgEzz()),
     "QUIT": Vitals()
 })
