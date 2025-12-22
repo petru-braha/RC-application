@@ -1,6 +1,6 @@
 from src.constants import NOT_FOUND_INDEX, EMPTY_STR, STR_TRAVERSAL_STRIDE
 
-from .constants_resp import SPACE, QUOTE_DOUBLE, QUOTE_SINGLE, QUOTE_TYPE
+from .constants_resp import SPACE, QUOTE_DOUBLE, QUOTE_SINGLE
 from .exceptions import QuoteError, SpaceError
 
 _MIN_CMD_LEN: int = 3
