@@ -1,6 +1,6 @@
 from src.constants import NOT_FOUND_INDEX, EMPTY_STR, STR_TRAVERSAL_STRIDE
 
-from .constants_resp import SPACE, QUOTE_DOUBLE, QUOTE_SINGLE
+from .constants_resp import SPACE, QUOTE_DOUBLE, QUOTE_SINGLE, QUOTE_TYPE
 from .exceptions import QuoteError, SpaceError
 
 _MIN_CMD_LEN: int = 3
@@ -153,7 +153,7 @@ class _ArgumentParser:
             
             # If the "\\" byte was encountered check if the next character can escape.
             next_char = self._input[self._idx + STR_TRAVERSAL_STRIDE]
-            escaped = QUOTE_STATES[QUOTE].get(next_char)
+            escaped = QUOTE_TYPE[QUOTE].get(next_char)
             if escaped is not None:
                 arg += escaped
             else:
