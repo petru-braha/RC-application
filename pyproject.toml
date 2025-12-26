@@ -1,0 +1,28 @@
+[project]
+name = "RC-application"
+version = "0.1.0"
+description = "A structured, quality-driven Redis GUI client built with Flet."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    { name = "Petru Braha", email = "petrubraha@gmail.com" }
+]
+keywords = ["redis", "client", "gui", "flet", "database", "RESP3"]
+dependencies = [
+  "flet>=0.80.0"
+]
+
+[dependency-groups]
+dev = [
+  "flet[all]>=0.80.0",
+]
+
+[tool.flet]
+org = "com.petrubraha"
+product = "RC-application"
+company = "Petru Braha"
+copyright = "Copyright (C) 2026 by Petru Braha"
+
+[tool.flet.app]
+path = "src"

@@ -1,0 +1,115 @@
+@startuml
+skinparam classAttributeIconSize 0
+set namespaceSeparator none
+
+interface RequiredPattern {
+}
+
+interface OptionalPattern {
+}
+
+interface StrictPattern {
+}
+
+' --- Pattern Types ---
+
+interface Argument {
+}
+
+class ArgEzz {
+}
+
+class ArgInt {
+}
+
+class ArgFlt {
+}
+
+class ArgStr {
+  +pattern : str
+}
+
+class ArgSet {
+  +patterns : frozenset[Argument]
+}
+
+class VariadicKey {
+  +pattern : StrictPattern
+}
+
+' --- Pattern Section Classes ---
+interface Section {
+}
+
+interface RequiredSect {
+}
+
+class Vitals {
+  +patterns : tuple[RequiredPattern]
+}
+
+interface OptionalSect {
+}
+
+class OptSet {
+  +patterns : frozenset[OptionalSect]
+}
+
+abstract class Optionals {
+  +patterns : tuple[OptionalPattern]
+}
+
+class Opts {
+}
+
+class Variadic {
+}
+
+class KeyedVariadic {
+  +key : VariadicKey
+}
+
+' --- Type Inheritance Relationships ---
+
+RequiredPattern <|-- Argument
+OptionalPattern <|-- Argument
+
+Argument <|-- ArgEzz
+Argument <|-- ArgInt
+Argument <|-- ArgFlt
+Argument <|-- ArgStr
+StrictPattern <|-- ArgStr
+Argument <|-- ArgSet
+StrictPattern <|-- ArgSet
+
+StrictPattern <|-- VariadicKey
+
+' --- Section Inheritance Relationships ---
+
+Section <|-- RequiredSect
+Section <|-- OptionalSect
+OptionalPattern <|-- OptionalSect
+
+RequiredSect <|-- Vitals
+OptionalSect <|-- Optionals
+OptionalSect <|-- OptSet
+
+Optionals <|-- Opts
+Opts <|-- Variadic
+Variadic <|-- KeyedVariadic
+
+' --- Type Association Relationships ---
+
+VariadicKey o-up- "1" StrictPattern : pattern
+
+ArgSet o-up- "*" Argument : patterns
+
+' --- Section Association Relationships ---
+
+Vitals o-up- "*" RequiredPattern : patterns
+
+OptSet o-up- "*" OptionalSect : patterns
+
+Optionals o-up- "*" OptionalPattern : patterns
+
+@enduml
