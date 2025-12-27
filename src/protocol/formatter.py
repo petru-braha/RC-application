@@ -1,7 +1,7 @@
 from src.constants import EMPTY_STR, STR_TRAVERSAL_STRIDE
+from src.output import Output, OutputStr, OutputSeq, OutputMap, OutputAtt
 
 from .constants_resp import CRLF
-from .output import Output, OutputStr, OutputSeq, OutputMap, OutputAtt
 
 def formatter(output: Output, prefix: str = EMPTY_STR) -> str:
     """

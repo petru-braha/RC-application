@@ -2,11 +2,11 @@ from frozendict import frozendict
 from typing import Callable
 
 from src.constants import NOT_FOUND_INDEX
+from src.output import Output, OutputStr, OutputSeq, OutputMap, OutputAtt
 
 from .constants_resp import RespDataType, \
                             SYMB_TYPE, NULL_LENGTH, \
                             CRLF, NULL
-from .output import Output, OutputStr, OutputSeq, OutputMap, OutputAtt
 
 class _Decoder:
     """
