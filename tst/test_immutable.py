@@ -1,9 +1,8 @@
 from unittest import TestCase
 
 from src.exceptions import AssignmentError
-from src.immutable import Immutable
+from src.util import Immutable
 
-        
 class TestImmutable(TestCase):
 
     class TestObject(Immutable):

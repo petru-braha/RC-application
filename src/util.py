@@ -1,6 +1,24 @@
 from typing import Any
 
+from .protocol import parser, encoder
+
 from .exceptions import AssignmentError
+
+def join_cmd_argv(cmd: str, argv: list[str]) -> str:
+    """
+    Concatenates a command name and its arguments into a space-separated string.
+
+    Returns:
+        str: The formatted command string.
+    """
+    fragments = [cmd]
+    fragments.extend(argv)
+    return " ".join(fragments)
+
+def prepare_cmd(cmd: str) -> bytes:
+    cmd, argv = parser(cmd)
+    encoded = encoder(cmd, argv)
+    return encoded.encode("ascii")
 
 class Immutable:
     """
