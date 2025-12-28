@@ -1,6 +1,6 @@
 from unittest import TestCase
-from src.protocol.parser import parser
-from src.protocol.exceptions import QuoteError, SpaceError, ParserError
+from protocol.parser import parser
+from protocol.exceptions import QuoteError, SpaceError, ParserError
 
 class TestParser(TestCase):
     """

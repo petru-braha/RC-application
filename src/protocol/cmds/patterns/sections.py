@@ -1,4 +1,4 @@
-from src.immutable import Immutable
+from immutable import Immutable
 
 from .interfaces import RequiredPattern, OptionalPattern
 from .types import VariadicKey

@@ -16,10 +16,10 @@ class Connection(Identification):
     # since clients might be intersted in typing them manually, can not generalize them.
     def __init__(self,
                  host: str | None = None,
-                 port: int | None = None,
+                 port: str | None = None,
                  user: str | None = None,
                  pasw: str | None = None,
-                 db_idx: int | None = None) -> None:
+                 db_idx: str | None = None) -> None:
         super().__init__(host, port, user, pasw)
         self.db_idx = Connection.DEFAULT_DB if db_idx == None else db_idx
 

@@ -1,7 +1,7 @@
 from unittest import TestCase
 from frozendict import frozendict
 
-from src.output import OutputStr, OutputSeq, OutputMap
+from output import OutputStr, OutputSeq, OutputMap
 
 class TestOutput(TestCase):
     

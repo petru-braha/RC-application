@@ -1,4 +1,4 @@
-from src.constants import NOT_FOUND_INDEX, EMPTY_STR, STR_TRAVERSAL_STRIDE
+from constants import NOT_FOUND_INDEX, EMPTY_STR, STR_TRAVERSAL_STRIDE
 
 from .constants_resp import SPACE, QUOTE_DOUBLE, QUOTE_SINGLE, QUOTE_TYPE
 from .exceptions import QuoteError, SpaceError

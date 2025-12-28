@@ -1,5 +1,5 @@
-from src.constants import EMPTY_STR
-from src.network.types import Address
+from constants import EMPTY_STR
+from structs import Address
 
 from .sock import Sock
 
@@ -16,7 +16,7 @@ class Identification(Sock):
     """
     Default host used for Redis servers.
     """
-    DEFAULT_PORT: int = 6379
+    DEFAULT_PORT: str = "6379"
     """
     Default port used for Redis servers.
     """
@@ -27,7 +27,7 @@ class Identification(Sock):
 
     def __init__(self,
                  host: str | None = None,
-                 port: int | None = None,
+                 port: str | None = None,
                  user: str | None = None,
                  pasw: str | None = None) -> None:
         host = Identification.DEFAULT_HOST if host == None else host

@@ -1,5 +1,5 @@
-from src.constants import EMPTY_STR, STR_TRAVERSAL_STRIDE
-from src.output import Output, OutputStr, OutputSeq, OutputMap, OutputAtt
+from constants import EMPTY_STR, STR_TRAVERSAL_STRIDE
+from output import Output, OutputStr, OutputSeq, OutputMap, OutputAtt
 
 from .constants_resp import CRLF
 

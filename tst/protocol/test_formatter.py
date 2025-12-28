@@ -1,8 +1,8 @@
 from unittest import TestCase
 from frozendict import frozendict
 
-from src.protocol.formatter import formatter
-from src.output import Output, OutputStr, OutputSeq, OutputMap, OutputAtt
+from protocol.formatter import formatter
+from output import Output, OutputStr, OutputSeq, OutputMap, OutputAtt
 
 class TestFormatter(TestCase):
 

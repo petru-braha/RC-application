@@ -1,12 +1,49 @@
-# Redis Client application
+<div align="center">
 
-A structured, quality-driven Redis GUI client built with a development approach that values planning, testing, and clarity.
+  <img src="./doc/RC-application.logo.jpg" alt="logo" width="200" height="auto" />
+  <h1>RC-Application</h1>
+  
+  <p>
+    A structured, quality-driven Redis GUI client built with rigourous planning, testing, and documentation in mind.
+  </p>
 
-Development time: 02.12.2025 - 06.01.2026
+<p>
+  <a href="https://github.com/petru-braha/RC-application/graphs/contributors">
+    <img src="https://img.shields.io/github/contributors/petru-braha/RC-application" alt="contributors" />
+  </a>
+  <a href="">
+    <img src="https://img.shields.io/github/last-commit/petru-braha/RC-application" alt="last update" />
+  </a>
+  <a href="https://github.com/petru-braha/RC-application/network/members">
+    <img src="https://img.shields.io/github/forks/petru-braha/RC-application" alt="forks" />
+  </a>
+  <a href="https://github.com/petru-braha/RC-application/stargazers">
+    <img src="https://img.shields.io/github/stars/petru-braha/RC-application" alt="stars" />
+  </a>
+  <a href="https://github.com/petru-braha/RC-application/issues/">
+    <img src="https://img.shields.io/github/issues/petru-braha/RC-application" alt="open issues" />
+  </a>
+  <a href="https://github.com/petru-braha/RC-application/blob/master/LICENSE">
+    <img src="https://img.shields.io/github/license/petru-braha/RC-application.svg" alt="license" />
+  </a>
+</p>
+   
+<h4>
+    <a href="./doc/demo.mp4">View Demo</a>
+  <span> · </span>
+    <a href="./doc/requirements.md">System requirments</a>
+  <span> · </span>
+    <a href="https://github.com/petru-braha/RC-application/issues/">Report Bug</a>
+  <span> · </span>
+    <a href="https://github.com/petru-braha/RC-application/issues/">Request Feature</a>
+  </h4>
+</div>
 
 ---
 
 ## ✨ Features
+
+Main development time: 02.12.2025 - 06.01.2026
 
 - **Modern UI**: A responsive desktop and web interface built with **Flet**.
 - **Non-Blocking Architecture**: High-performance network layer using the **Reactor Pattern** for efficient I/O multiplexing.

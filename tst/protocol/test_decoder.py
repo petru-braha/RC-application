@@ -1,9 +1,9 @@
 from unittest import TestCase
 from frozendict import frozendict
 
-from src.protocol.constants_resp import NULL
-from src.protocol.decoder import decoder
-from src.output import OutputStr, OutputSeq, OutputMap, OutputAtt
+from protocol.constants_resp import NULL
+from protocol.decoder import decoder
+from output import OutputStr, OutputSeq, OutputMap, OutputAtt
 
 class TestDecoder(TestCase):
     

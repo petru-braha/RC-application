@@ -1,11 +1,11 @@
 import selectors
 
-from .network import Sock
-from .transport import Receiver, Sender
+from network import Connection
+from transport import Receiver, Sender
 
-from .app_state import _AppState
+from app_state import AppState
 
-class AppReactor(_AppState):
+class AppReactor(AppState):
     """
     Event loop manager using the most efficient I/O multiplexing mechanism
     available on the system (epoll, kqueue, select, etc.).
@@ -28,7 +28,7 @@ class AppReactor(_AppState):
         AppReactor._SELECTOR.close()
 
     @staticmethod
-    def register(sock: Sock) -> None:
+    def register(sock: Connection) -> None:
         """
         Registers a created socket to be monitored for both readability and writability.
         """
@@ -38,7 +38,7 @@ class AppReactor(_AppState):
         Sender.register(sock)
 
     @staticmethod
-    def unregister(sock: Sock) -> None:
+    def unregister(sock: Connection) -> None:
         """
         Unregisters a socket from monitoring.
         """
@@ -55,7 +55,7 @@ class AppReactor(_AppState):
             pass
 
     @staticmethod
-    def caputure_cmd(sock: Sock, msg: str):
+    def caputure_cmd(sock: Connection, msg: str):
         Sender.append_cmd(sock, msg)
 
     @staticmethod
@@ -70,7 +70,7 @@ class AppReactor(_AppState):
         for key, mask in events:
             
             sock = key.fileobj
-            assert isinstance(sock, Sock)
+            assert isinstance(sock, Connection)
             
             if mask & selectors.EVENT_READ:
                 AppReactor._handle_read(sock)
@@ -78,17 +78,35 @@ class AppReactor(_AppState):
                 AppReactor._handle_write(sock)
 
     @staticmethod
-    def _handle_read(sock: Sock) -> None:
-        pass
-        # Receiver.consume() # tries to decode
-        # Receiver.recv() # if decoder fails
-        # try to decode
-        # update history
-        # Page.update()
+    def _handle_read(conn: Connection) -> None:
+        """
+        Args:
+            conn (obj): A connection that MUST be read ready. 
+        """
+        is_empty = conn.empty_buf()
+        conn.recv()
+        #  if not is_empty
+        #    bytes => str
+        #    decoder
+        #    assert bytes is empty
+        #    add to history
+        #    remove from pending
 
+        
     @staticmethod
     def _handle_write(sock: Sock) -> None:
+        #   get first pending
+        #   sendall
+        #   you can not remove first pending - data needed for read
+
         # takes the first message to queue
         msg = ''
         bytes = msg.encode("ascii")
         sock.sendall(bytes)
+
+handle_read
+ 
+---
+is thread safe
+GUI reads history
+appends to pending - thread safe

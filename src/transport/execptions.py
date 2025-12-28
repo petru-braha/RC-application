@@ -1,4 +1,4 @@
-from src.exceptions import RCException
+from exceptions import RCException
 
 #! network errors
 class TransportError(RCException):

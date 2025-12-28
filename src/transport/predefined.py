@@ -1,5 +1,5 @@
-# from src.protocol.cmds import AUTH_ARG
-# from src.output import OutputStr, OutputMap
+# from protocol.cmds import AUTH_ARG
+# from output import OutputStr, OutputMap
 # 
 # 
 # _SELECT_CMD: str = "SELECT"
