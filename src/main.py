@@ -1,8 +1,7 @@
 import flet as ft
 
+from core import SelectorHolder, Reactor
 from frontend import Layout
-
-from core.reactor import Reactor
 
 def main(page: ft.Page):
 
@@ -11,6 +10,7 @@ def main(page: ft.Page):
     # page.badge
     page.add(Layout())
 
-Reactor.open()
+SelectorHolder.open()
+Reactor.start()
 ft.run(main)
-Reactor.close()
+SelectorHolder.close()

@@ -2,6 +2,7 @@ from core.config import MAX_CONNECTIONS, get_logger
 from core.exceptions import ConnectionCountError
 
 from .database_link import DatabaseLink
+from .selectable import Selectable
 
 logger = get_logger(__name__)
 

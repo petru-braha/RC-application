@@ -1,30 +1,37 @@
 import selectors
+import threading
 
-# Avoid circular import by importing inside methods or using string type hints if possible
-# But here we need isinstance check.
-# The user moved Connection to src/network/connection.py
-# Reactor is in src/core/reactor.py
-# So we import from network
-from network import Connection
+from network import Connection, Receiver, Sender
 
 from .specs import Specs
-from .selector import Selector
+from .selector_holder import SelectorHolder
 
-class Reactor(Specs, Selector):
+class Reactor(Specs):
     """
     Event loop manager using the most efficient I/O multiplexing mechanism
     available on the system (epoll, kqueue, select, etc.).
     """
 
     @staticmethod
-    def tick(timeout: float | None = None) -> None:
+    def start() -> None:
+        def run():
+            while True:
+                try:
+                    Reactor._tick(timeout=1)
+                except Exception as e:
+                    print(f"Reactor loop error: {e}")
+        
+        threading.Thread(target=run, daemon=True).start()
+
+    @staticmethod
+    def _tick(timeout: float | None = None) -> None:
         """
         Polls for I/O events and dispatches them to the registered handlers.
         
         Args:
             timeout: The maximum time to wait for events. None to wait indefinitely.
         """
-        events = Reactor._SELECTOR.select(timeout=timeout)
+        events = SelectorHolder.SELECTOR.select(timeout=timeout)
         for key, mask in events:
             
             conn = key.fileobj
@@ -36,7 +43,7 @@ class Reactor(Specs, Selector):
                 Reactor._handle_write(conn)
 
     @staticmethod
-    def _handle_read(conn: Connection) -> None:
+    def _handle_read(conn: Receiver) -> None:
         """
         Reads from the socket, decodes data, and updates history.
         """
@@ -57,7 +64,7 @@ class Reactor(Specs, Selector):
                 pass
 
     @staticmethod
-    def _handle_write(conn: Connection) -> None:
+    def _handle_write(conn: Sender) -> None:
         """
         Sends pending commands to the socket.
         """
