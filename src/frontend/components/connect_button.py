@@ -1,8 +1,6 @@
 import flet as ft
 from typing import Callable
 
-from .modal import Modal
-
 class ConnectButton(ft.Button):
 
     def __init__(self, on_click: Callable) -> None:

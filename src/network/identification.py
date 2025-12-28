@@ -1,9 +1,9 @@
 from constants import EMPTY_STR
 from structs import Address
 
-from .sock import Sock
+from .transport import Archiver, Receiver, Sender
 
-class Identification(Sock):
+class Identification(Archiver, Receiver, Sender):
     """
     Attributes:
         addr (obj): The address object consisting of the host and port.
@@ -33,8 +33,15 @@ class Identification(Sock):
         host = Identification.DEFAULT_HOST if host == None else host
         port = Identification.DEFAULT_PORT if port == None else port
         addr = Address(host, port)
-        super().__init__(addr)
-        
+
         user = Identification.DEFAULT_USER if user == None else user
-        self.user = user
-        self.pasw = EMPTY_STR if pasw == None else pasw
+        pasw = EMPTY_STR if pasw == None else pasw
+
+        Archiver.__init__(self)
+        Receiver.__init__(self, addr)
+        Sender.__init__(self, addr)
+    
+    def say_hello(self):
+        # todo Implementation of sending HELLO command
+        pass
+

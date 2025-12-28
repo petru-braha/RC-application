@@ -16,7 +16,7 @@ def display_env_variables(filepath="./.env"):
         print(f"Warning: No variables found in {filepath} (or file does not exist).")
         return
 
-class AppConfig:
+class Specs:
     
     _DEFAULT_CONN_LIMIT: int = 1024
     """
@@ -35,7 +35,7 @@ class AppConfig:
 
         if conn_count_limit < 1:
             raise ValueError("Connection limit must be at least 1.")
-        if conn_count_limit > AppConfig._DEFAULT_CONN_LIMIT:
+        if conn_count_limit > Config._DEFAULT_CONN_LIMIT:
             raise ValueError("Connection limit can not exceed 1024.")
         
         self.client_config = self.read_dot_env()
@@ -47,7 +47,7 @@ class AppConfig:
         self.conn_count_limit = conn_count_limit
 
     def read_dot_env(self):
-        self.config = dotenv_values(AppConfig._DOT_ENV_PATH)
+        self.config = dotenv_values(Config._DOT_ENV_PATH)
     
         if not self.client_config:
             # todo warning

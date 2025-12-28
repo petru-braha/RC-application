@@ -2,7 +2,7 @@ import flet as ft
 
 from network import Connection
 
-from .members import ConnectionBox
+from .connection_context import ConnectionContext
 
 class ConnectionList(ft.Column):
     def __init__(self):
@@ -18,11 +18,11 @@ class ConnectionList(ft.Column):
         )
 
     def insert_connection(self, connection: Connection):
-        box = ConnectionBox(connection, self.remove_connection)
-        self.list_view.controls.append(box)
+        connection_context = ConnectionContext(connection, self.remove_connection)
+        self.list_view.controls.append(connection_context.connection_box)
         self.list_view.update()
 
-    def remove_connection(self, connection_box: ConnectionBox):
-        assert connection_box in self.list_view.controls
-        self.list_view.controls.remove(connection_box)
+    def remove_connection(self, connection_context: ConnectionContext) -> None:
+        assert connection_context in self.list_view.controls
+        self.list_view.controls.remove(connection_context)
         self.list_view.update()
