@@ -1,3 +1,4 @@
 frozendict
 coverage
 flet[all]
+python-dotenv

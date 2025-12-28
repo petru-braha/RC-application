@@ -31,27 +31,29 @@ class Specs:
     def __init__(self,
                  stage: Stage = Stage.DEV,
                  tls_enforced: bool = False,
+                 gui_enabled: bool = True,
                  conn_count_limit: int = _DEFAULT_CONN_LIMIT):
 
         if conn_count_limit < 1:
             raise ValueError("Connection limit must be at least 1.")
-        if conn_count_limit > Config._DEFAULT_CONN_LIMIT:
+        if conn_count_limit > Specs._DEFAULT_CONN_LIMIT:
             raise ValueError("Connection limit can not exceed 1024.")
         
-        self.client_config = self.read_dot_env()
-
         self.stage = stage
-        # This has to be determined in another way.
         self.gui_enabled = gui_enabled
         self.tls_enforced = tls_enforced
         self.conn_count_limit = conn_count_limit
 
+        self.client_config = self.read_dot_env()
+
     def read_dot_env(self):
-        self.config = dotenv_values(Config._DOT_ENV_PATH)
+        config = dotenv_values(Specs._DOT_ENV_PATH)
     
-        if not self.client_config:
+        if not config:
             # todo warning
-            print(f"Warning: No variables found in {filepath} (or file does not exist).")
+            print(f"Warning: No variables found in {Specs._DOT_ENV_PATH} (or file does not exist).")
+            
+        return config
 
 
 
