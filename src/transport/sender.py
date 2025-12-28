@@ -1,6 +1,6 @@
 from collections import deque
 
-from src.network import Sock
+from network import Sock
     
 class Sender:
 
@@ -26,7 +26,7 @@ class Sender:
         Actually called by
         """
         dialogue = Dialogue(encoded, None)
-        _AppState.get_history[connection].append(dialogue)
+        AppState.get_history[connection].append(dialogue)
 
     @staticmethod
     def handle_write(connection: Connection) -> bool:

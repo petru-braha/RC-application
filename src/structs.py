@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from .output import Output
+from output import Output
 
 @dataclass(frozen=True)
 class Address:
@@ -8,7 +8,7 @@ class Address:
     Server address composed of host and port.
     """
     host: str
-    port: int
+    port: str
 
 @dataclass()
 class Dialogue:

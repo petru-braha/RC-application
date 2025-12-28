@@ -1,8 +1,8 @@
-from .network import Sock
+from network import Sock
 
-from .types import History
+from structs import History
 
-class _AppState:
+class AppState:
     """
     """
     

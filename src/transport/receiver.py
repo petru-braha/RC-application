@@ -1,7 +1,7 @@
 import socket
 
-from src.protocol.constants_resp import CRLF
-from src.network import Sock
+from protocol.constants_resp import CRLF
+from network import Sock
 
 class Receiver:
     """

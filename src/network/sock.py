@@ -1,6 +1,6 @@
 import socket
 
-from src.types import Address
+from structs import Address
 
 class Sock(socket.socket):
     """

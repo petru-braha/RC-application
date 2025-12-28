@@ -1,8 +1,8 @@
 from typing import Any
 
-from .protocol import parser, encoder
+from protocol import parser, encoder
 
-from .exceptions import AssignmentError
+from exceptions import AssignmentError
 
 def join_cmd_argv(cmd: str, argv: list[str]) -> str:
     """
