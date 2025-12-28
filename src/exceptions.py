@@ -15,3 +15,10 @@ class RCException(Exception):
 
 class AssignmentError(RCException):
     MSG_PREFIX = "Immutable Exception"
+
+#! Network errors.
+class NetworkError(RCException):
+    MSG_PREFIX = "Network Exception"
+
+class PartialResponseError(NetworkError):
+    pass

@@ -6,12 +6,12 @@ class LeftPannel(ft.Container):
     def __init__(self):
         connection_list = ConnectionList()
         modal = Modal(on_insert=connection_list.insert_connection)
-        connect_btn = ConnectButton(on_click=modal.open_dialog)
+        connect_button = ConnectButton(on_click=modal.open_dialog)
         
         content = ft.Column([
             connection_list,
             ft.Divider(),
-            ft.Row([connect_btn], alignment=ft.MainAxisAlignment.CENTER),
+            ft.Row([connect_button], alignment=ft.MainAxisAlignment.CENTER),
         ], expand=True)
 
         super().__init__(

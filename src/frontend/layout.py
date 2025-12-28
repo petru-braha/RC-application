@@ -5,7 +5,7 @@ from .right_panel import RightPanel
 
 class Layout(ft.Stack):
     def __init__(self) -> None:
-        controls = [
+        controls: list[ft.Control] = [
             ft.Row([
                 LeftPannel(),
                 RightPanel()],

@@ -10,6 +10,9 @@ class Address:
     host: str
     port: str
 
+    def __str__(self) -> str:
+        return f"{self.host}:{self.port}"
+
 @dataclass()
 class Dialogue:
     """

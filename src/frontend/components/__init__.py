@@ -1,7 +1,6 @@
-from .chat_history import ChatHistory
-from .chat_textbox import ChatTextbox
-from .connect_btn import ConnectButton
+from .connect_button import ConnectButton
+from .connection_context import ConnectionContext
 from .connection_list import ConnectionList
 from .modal import Modal
 
-__all__ = ["ChatHistory", "ChatTextbox", "ConnectButton", "ConnectionList", "Modal"]
+__all__ = ["ConnectButton", "ConnectionContext", "ConnectionList", "Modal"]
