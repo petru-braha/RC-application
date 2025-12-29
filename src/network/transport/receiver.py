@@ -32,6 +32,15 @@ class Receiver(Communicator):
         """
         return self._idx >= len(self._buf)
 
+    def empty_buf(self) -> bool:
+        """
+        Checks if the internal buffer is empty.
+
+        Returns:
+            bool: True if buffer is empty, False otherwise.
+        """
+        return len(self._buf) == EMPTY_LEN
+
     def consume(self, bufsize: int) -> str:
         """
         Consumes a specific number of bytes from the buffer.
