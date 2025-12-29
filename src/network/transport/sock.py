@@ -2,11 +2,16 @@ import socket
 
 from structs import Address
 
-class Sock(socket.socket):
+class Sock:
     """
     Establishes a TCP connection to a Redis server instance.
     """
-
+    
+    _DEFAULT_OPT_VALUE: int = 1
+    """
+    Default integer value to enable socket options.
+    """
+    
     def __init__(self, addr: Address) -> None:
         """
         Iterates through the available address families (IPv4/IPv6) returned 
@@ -14,7 +19,7 @@ class Sock(socket.socket):
         Configures the socket with KEEPALIVE and TCP_NODELAY
         for optimal performance.
 
-        Args:
+        Parameters:
             addr (Address): The address (host, port) to connect to.
 
         Raises:
@@ -31,27 +36,35 @@ class Sock(socket.socket):
                 f"Failed to resolve address {addr.host}:{addr.port}.") from e
 
         for family, socktype, prot, _, sockaddr in addr_infos:
+            sock = None
             try:
-                super().__init__(family, socktype, prot)
-                
-                # To detect if the server has crashed or disconnected.
-                self.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-                # Disables Nagle's algorithm to ensure small latency.
-                self.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-                
-                self.connect(sockaddr)
-                self.setblocking(False)
-                self.addr = addr
-                return
+                sock = socket.socket(family, socktype, prot)
+            except socket.error:
+                if sock:
+                    sock.close()
 
-            except socket.error as e:
-                self.close()
-                continue
+        if sock == None:
+            # No address available.
+            raise ConnectionError(f"Failed to connect to {addr.host}:{addr.port}.")
+                
+        # To detect if the server has crashed or disconnected.
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, Sock._DEFAULT_OPT_VALUE)
+        # Disables Nagle's algorithm to ensure small latency.
+        sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, Sock._DEFAULT_OPT_VALUE)
+        # Enable multiplexing.
+        sock.setblocking(False)
         
-        # No address available.
-        raise ConnectionError(f"Failed to connect to {addr.host}:{addr.port}.")
-    
-    def try_close(self) -> None:
+        try:
+            sock.connect(sockaddr)
+        except InterruptedError:
+            pass
+        # Initially, Sock was planned to inherit from socket.socket.
+        # This can't be possible: "The newly created socket is non-inheritable".
+        # https://docs.python.org/3/library/socket.html
+        self._sock = sock
+        self.addr = addr
+        
+    def close(self) -> None:
         """
         Gracefully shuts down and closes the TCP connection.
 
@@ -59,13 +72,13 @@ class Sock(socket.socket):
         then releases the local socket resources.
         If the socket is already closed, the method returns silently.
         """
-        if self._closed:
+        if self._sock._closed:
             return
         
         try:
-            self.shutdown(socket.SHUT_RDWR)
+            self._sock.shutdown(socket.SHUT_RDWR)
         except OSError:
             # The socket might be broken or closed by the peer first.
             pass
         finally:
-            self.close()
+            self._sock.close()

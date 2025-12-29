@@ -20,4 +20,4 @@ class DatabaseLink(Identification):
             self.say_select(db_idx)
 
     def say_select(self, db_idx):
-        self.append_cmd(f"SELECT {db_idx}")
+        self.add_encoded(f"SELECT {db_idx}")

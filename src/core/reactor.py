@@ -68,14 +68,4 @@ class Reactor(Specs):
         """
         Sends pending commands to the socket.
         """
-        # 1. Get first pending command
-        cmd = conn.get_pending_cmd()
-        # Requirement: "you can not remove first pending - data needed for read"
-        
-        if cmd:
-            # 2. Convert to bytes (RESP protocol encoding)
-            # For now, just sending raw
-            data = cmd.encode('ascii') 
-            
-            # 3. Send
-            conn.send_data(data)
+        conn.send_first()
