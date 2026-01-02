@@ -23,7 +23,7 @@ class CmdTextbox(ft.TextField):
         pass
 
 class HistoryBox(ft.Container):
-    def __init__(self):
+    def __init__(self, sidebar_context: ft.Stack):
         self.dialogue_list = DialogueList(expand=True)
         self.cmd_textbox = CmdTextbox()
 
@@ -41,6 +41,7 @@ class HistoryBox(ft.Container):
             padding=10,
             expand=True,
         )
+        sidebar_context.controls.append(self)
 
     def update_history(self, hist: History):
         self.dialogue_list.set_hist(hist)

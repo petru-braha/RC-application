@@ -1,5 +1,3 @@
-from .components import *
-from .left_panel import LeftPannel
-from .layout import Layout
+from .flet import open_window
 
-__all__ = ["LeftPannel", "Layout"]
+__all__ = ["open_window"]

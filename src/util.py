@@ -1,8 +1,10 @@
 from typing import Any
+from urllib.parse import urlparse
 
 from protocol import parser, encoder
 
 from exceptions import AssignmentError
+from constants import EMPTY_STR, SCHEME_LIST, ASCII_ENC
 
 def join_cmd_argv(cmd: str, argv: list[str]) -> str:
     """
@@ -15,64 +17,48 @@ def join_cmd_argv(cmd: str, argv: list[str]) -> str:
     fragments.extend(argv)
     return " ".join(fragments)
 
-def url_to_address(url: str) -> Address:
-from urllib.parse import urlparse, unquote
-
-class UrlConnection(Connection):
+def process_redis_url(url: str) -> tuple:
     """
-    A specialized Connecter class that initializes via a Redis URL string.
+    Processes and extracts data from a Redis URL string (e.g., 'redis://user:password@host:port').
+    
+    Args:
+        url: A string representing the Redis connection URL
+        (format: redis[s]://[[username][:password]@][host][:port][/db-number]).
+    
+    Returns: A five-string tuple contaning the connection information.
 
-    This class parses a standard Redis URL (e.g., 'redis://user:password@host:port/db')
-    to extract connection parameters and passes them to the base Connecter logic.
-    It supports authentication credentials and logical database selection.
-
-    Supported formats:
-        redis[s]://[[username][:password]@][host][:port][/db-number]
+    Raises:
+        ValueError: If the URL scheme is not 'redis' or if the URL is malformed.
+        ConnecterError: If the connection to the server fails.
     """
+    parsed = urlparse(url)
 
-    _SCHEME_LIST: tuple[str, str] = ("redis", "rediss")
+    if parsed.scheme not in SCHEME_LIST:
+        raise ValueError(f"Invalid URL scheme: '{parsed.scheme}'.")
 
-    def __init__(self, url: str) -> None:
-        """
-        Parses the provided URL and initializes the Redis connection.
+    host = parsed.hostname if parsed.username else EMPTY_STR
+    port = parsed.port if parsed.port else EMPTY_STR
+    user = parsed.username if parsed.username else EMPTY_STR
+    pasw = parsed.password if parsed.password else EMPTY_STR
 
-        Args:
-            url: A string representing the Redis connection URL.
-
-        Raises:
-            ValueError: If the URL scheme is not 'redis' or if the URL is malformed.
-            ConnecterError: If the connection to the server fails.
-        """
-        parsed = urlparse(url)
-
-        if parsed.scheme not in UrlConnection._SCHEME_LIST:
+    # Extraction of logical database index (the path segment).
+    # Redis URLs typically use /0, /1, etc.
+    db_idx = EMPTY_STR
+    if parsed.path:
+        try:
+            # Strip leading slash and convert to int.
+            db_idx = int(parsed.path.lstrip('/'))
+        except ValueError:
             raise ValueError(
-                f"Invalid URL scheme: '{parsed.scheme}'."
+                f"Invalid database index: '{parsed.path}'. Must be an integer."
             )
+    return (host, port, user, pasw, db_idx)
 
-        host = parsed.hostname
-        port = parsed.port
-        user = unquote(parsed.username) if parsed.username else None
-        pasw = unquote(parsed.password) if parsed.password else None
-
-        # Extraction of logical database index (the path segment).
-        # Redis URLs typically use /0, /1, etc.
-        db_idx = None
-        if parsed.path:
-            try:
-                # Strip leading slash and convert to int.
-                db_idx = int(parsed.path.lstrip('/'))
-            except ValueError:
-                raise ValueError(
-                    f"Invalid database index: '{parsed.path}'. Must be an integer."
-                )
-
-        super().__init__(host, port, user, pasw, db_idx)    
-
-def prepare_cmd(cmd: str) -> bytes:
-    cmd, argv = parser(cmd)
+def process_input(input_str: str) -> bytes:
+    cmd, argv = parser(input_str)
+    # todo sanitizer?
     encoded = encoder(cmd, argv)
-    return encoded.encode("ascii")
+    return encoded.encode(ASCII_ENC)
 
 class Immutable:
     """

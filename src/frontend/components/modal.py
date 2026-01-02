@@ -1,7 +1,9 @@
 import flet as ft
 from typing import Callable
 
-from network import Connection, UrlConnection
+from network import Connection
+
+from util import process_redis_url
 
 class Modal(ft.AlertDialog):
     def __init__(self, on_insert: Callable):
@@ -97,7 +99,7 @@ class Modal(ft.AlertDialog):
     def on_url_continue(self, e):
         try:
             val = self.url_input.value
-            conn = UrlConnection(val)
+            conn = process_redis_url(val)
             self.on_insert(conn)
             self.close_dialog(e)
         except Exception as e:

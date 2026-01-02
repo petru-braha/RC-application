@@ -3,8 +3,8 @@ import flet as ft
 from .components import ConnectButton, Modal, ConnectionList
 
 class LeftPannel(ft.Container):
-    def __init__(self):
-        connection_list = ConnectionList()
+    def __init__(self, sidebar_context: ft.Stack):
+        connection_list = ConnectionList(sidebar_context)
         modal = Modal(on_insert=connection_list.insert_connection)
         connect_button = ConnectButton(on_click=modal.open_dialog)
         

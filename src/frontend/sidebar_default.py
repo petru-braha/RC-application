@@ -1,8 +1,6 @@
 import flet as ft
 
-from frontend.interfaces import RightPanel
-
-class DefaultRightPanel(RightPanel):
+class SidebarDefault(ft.Container):
 
     def __init__(self):
         content=ft.Column([
