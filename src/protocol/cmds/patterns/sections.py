@@ -1,4 +1,4 @@
-from immutable import Immutable
+from util import Immutable
 
 from .interfaces import RequiredPattern, OptionalPattern
 from .types import VariadicKey

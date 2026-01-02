@@ -1,4 +1,4 @@
-from immutable import Immutable
+from util import Immutable
 
 class RequiredPattern(Immutable):
     """

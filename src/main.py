@@ -1,16 +1,19 @@
-import flet as ft
+from dotenv import dotenv_values
 
-# from core import SelectorHolder, Reactor
-#from frontend import Layout
+from core import Config, Operator
+from frontend import open_window
 
-def main(page: ft.Page):
+def main(dotenv_path: str | None = None) -> None:
+    dotenv_dict = dotenv_values(dotenv_path)
+    config = Config(dotenv_dict)
+    operator = Operator()
 
-    page.title = "RC-application"
-    page.theme_mode = ft.ThemeMode.DARK
-    # page.badge
-#    page.add(Layout())
+    if config.cli:
+        return # todo
+    else:
+        open_window(config, operator)
+    
+    operator.close()
 
-#SelectorHolder.open()
-#Reactor.start()
-ft.run(main)
-#SelectorHolder.close()
+if __name__ == "__main__":
+    main()

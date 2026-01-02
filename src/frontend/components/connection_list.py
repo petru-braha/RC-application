@@ -5,7 +5,8 @@ from network import Connection
 from .connection_context import ConnectionContext
 
 class ConnectionList(ft.Column):
-    def __init__(self):
+    def __init__(self, sidebar_context: ft.Stack):
+        self.sidebar_context = sidebar_context
         self.list_view = ft.ListView(
             expand=True,
             spacing=10,
@@ -18,7 +19,7 @@ class ConnectionList(ft.Column):
         )
 
     def insert_connection(self, connection: Connection):
-        connection_context = ConnectionContext(connection, self.remove_connection)
+        connection_context = ConnectionContext(connection, self.sidebar_context, self.remove_connection)
         self.list_view.controls.append(connection_context.connection_box)
         self.list_view.update()
 

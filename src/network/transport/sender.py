@@ -2,6 +2,7 @@ from collections import deque
 
 from constants import EMPTY_LEN
 from structs import Address
+from util import process_input
 
 from .sock import Sock
 
@@ -9,25 +10,19 @@ class Sender(Sock):
     """
     Handles buffering and sending commands to the socket.
     """
-
-    _ASCII_ENC: str = "ascii"
-    """
-    "RESP is a binary protocol that uses control sequences encoded in standard ASCII."
-    https://redis.io/docs/latest/develop/reference/protocol-spec/
-    """
         
     def __init__(self, addr: Address) -> None:
         super().__init__(addr)
-        self._pending_encoded_inputs = deque()
+        self._pending_inputs = deque()
 
-    def add_encoded(self, input_str: str) -> None:
+    def add_pending(self, pending: str) -> None:
         """
-        Adds a command string to the pending commands queue.
+        Adds raw input string to the pending commands queue.
 
         Parameters:
-            input_str (str): The command to add.
+            pending (str): The command to add.
         """
-        self._pending_encoded_inputs.append(input_str)
+        self._pending_inputs.append(pending)
 
     def has_pending(self) -> bool:
         """
@@ -36,7 +31,7 @@ class Sender(Sock):
         Returns:
             bool: True if there are pending commands, False otherwise.
         """
-        return len(self._pending_encoded_inputs) > EMPTY_LEN
+        return len(self._pending_inputs) > EMPTY_LEN
 
     def get_first_pending(self) -> str | None:
         """
@@ -46,9 +41,9 @@ class Sender(Sock):
             str: The first pending command.
             None: If queue is empty.
         """
-        if not self._pending_encoded_inputs:
+        if not self.has_pending():
             return None
-        return self._pending_encoded_inputs[0]
+        return self._pending_inputs[0]
 
     def rem_first_pending(self) -> bool:
         """
@@ -57,9 +52,9 @@ class Sender(Sock):
         Returns:
             bool: True if a command was removed, False if queue was empty.
         """
-        if not self._pending_encoded_inputs:
+        if not self.has_pending():
             return False
-        self._pending_encoded_inputs.popleft()
+        self._pending_inputs.popleft()
         return True
 
     def send_first_pending(self) -> bool:
@@ -67,8 +62,7 @@ class Sender(Sock):
         Sends data to the socket.
         Socket must be ready for writing!
 
-        Parameters:
-            data (bytes): The data to send.
+        Sends and processes the first raw input appended to the deque.
 
         Returns:
             bool: False if there was no pending commands,
@@ -78,10 +72,11 @@ class Sender(Sock):
             BlockingIOError: If the socket is not ready for writing.
             OSError: If the socket is closed.
         """
-        data = self.get_first_pending()
-        if data == None:
+        if not self.has_pending():
             return False
         
-        data = data.encode(Sender._ASCII_ENC)
-        self._sock.sendall(data)
+        pending = self.get_first_pending()
+        assert pending != None
+        encoded = process_input(pending)
+        self._sock.sendall(encoded)
         return True

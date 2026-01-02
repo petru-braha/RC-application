@@ -20,7 +20,7 @@ def encoder(cmd: str, argv: list[str]) -> str:
 
     Returns:
         str: The entire encoded command and arguments,
-             all following the RESP specs.
+             all following the RESP Config.
     """
     argc = len(argv)
     # argc + 1 is necessary since we also send the command itself.
