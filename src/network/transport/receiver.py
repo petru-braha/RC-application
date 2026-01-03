@@ -88,8 +88,11 @@ class Receiver(Sock):
         Raises:
             BlockingIOError: If the socket is not ready for reading.
             OSError: If the socket is closed.
+            ConnectionError: If the socket is closed by the peer.
         """
         data = self._sock.recv(bufsize)
+        if len(data) == EMPTY_LEN:
+            raise ConnectionError("Socket closed by peer.")
         self._buf.extend(data)
         return len(data)
     

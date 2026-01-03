@@ -77,6 +77,18 @@ class Sender(Sock):
         
         pending = self.get_first_pending()
         assert pending != None
+
         encoded = process_input(pending)
-        self._sock.sendall(encoded)
+        sent_count = self._sock.send(encoded)
+        
+        while sent_count < len(encoded):
+            # Partial send: Update the pending item with the remaining bytes
+            remaining = encoded[sent_count:]
+            # Replace the first item with remaining bytes
+            self._pending_inputs[0] = remaining
+            sent_count = self._sock.send(remaining)
+        
+        # Full send: Remove the item
+        self._pending_inputs.popleft()
+        
         return True

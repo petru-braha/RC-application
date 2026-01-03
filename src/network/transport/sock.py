@@ -39,25 +39,24 @@ class Sock:
             sock = None
             try:
                 sock = socket.socket(family, socktype, prot)
-            except socket.error:
+                # To detect if the server has crashed or disconnected.
+                sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, Sock._DEFAULT_OPT_VALUE)
+                # Disables Nagle's algorithm to ensure small latency.
+                sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, Sock._DEFAULT_OPT_VALUE)
+                
+                sock.connect(sockaddr)
+                # Enable multiplexing only after successful connection.
+                sock.setblocking(False)
+                break
+            except (socket.error, InterruptedError):
                 if sock:
                     sock.close()
+                sock = None
 
         if sock == None:
             # No address available.
             raise ConnectionError(f"Failed to connect to {addr.host}:{addr.port}.")
-                
-        # To detect if the server has crashed or disconnected.
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, Sock._DEFAULT_OPT_VALUE)
-        # Disables Nagle's algorithm to ensure small latency.
-        sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, Sock._DEFAULT_OPT_VALUE)
-        # Enable multiplexing.
-        sock.setblocking(False)
         
-        try:
-            sock.connect(sockaddr)
-        except InterruptedError:
-            pass
         # Initially, Sock was planned to inherit from socket.socket.
         # This can't be possible: "The newly created socket is non-inheritable".
         # https://docs.python.org/3/library/socket.html
