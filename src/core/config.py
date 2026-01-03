@@ -39,12 +39,14 @@ class Config:
             self.cli = True
         
         # Raises KeyError if invalid.
-        given_stage_str = dotenv_dict["stage"]
-        self.stage = Stage[given_stage_str]
+        given_stage_str = dotenv_dict.get("stage")
+        if given_stage_str:
+            self.stage = Stage[given_stage_str]
 
-        given_tls_enforced = dotenv_dict["tls_enforced"]
-        self.tls_enforced = given_tls_enforced == True
+        given_tls_enforced = dotenv_dict.get("tls_enforced")
+        if given_tls_enforced:
+            self.tls_enforced = given_tls_enforced
         
-        max_connections = dotenv_dict["max_connections"]
-        if max_connections:
-            self.max_connections = max_connections
+        given_max_connections = dotenv_dict.get("max_connections")
+        if given_max_connections:
+            self.max_connections = given_max_connections

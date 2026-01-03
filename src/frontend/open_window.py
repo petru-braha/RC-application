@@ -16,4 +16,4 @@ def build_page(page: ft.Page) -> None:
     page.add(safe_area)
 
 def open_window(config: Config) -> None:
-    ft.run(build_page, assets_dir="src/frontend/assets")
+    ft.run(build_page, assets_dir="src/ui/assets")
