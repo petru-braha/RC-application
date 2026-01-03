@@ -16,11 +16,12 @@ class PresenceChangeable(ft.Control):
         self.page.update()
 
 class ConnectionModal(PresenceChangeable, ft.AlertDialog):
-    def __init__(self, on_agenda_insert: Callable, on_agenda_remove: Callable, on_chat_insert: Callable):
+    def __init__(self, on_agenda_insert: Callable, on_agenda_remove: Callable, on_chat_insert: Callable, on_chat_remove: Callable):
         ft.AlertDialog.__init__()
         self._on_agenda_insert = on_agenda_insert
         self._on_agenda_remove = on_agenda_remove
         self._on_chat_insert = on_chat_insert
+        self._on_chat_remove = on_chat_remove
 
     def on_continue(self, connection_data: tuple) -> None:
         connection = Connection(connection_data)
@@ -30,7 +31,7 @@ class ConnectionModal(PresenceChangeable, ft.AlertDialog):
 
         def on_connection_close(self):
             Operator.remove_connection(connection)
-            chat.hide()
+            self._on_chat_remove(chat)
         connection_box = ConnectionBox(
             connection.addr,
             on_click=chat.show,

@@ -1,4 +1,4 @@
-from .manual_mode import ManualMode
+from .manual_mode import ManualConnect
 from .url_mode import UrlMode
 
-__all__ = ["ManualMode", "UrlMode"]
+__all__ = ["ManualConnect", "UrlMode"]
