@@ -1,0 +1,12 @@
+Codebase Error Scan Report
+============================
+
+10. URL Parsing Logic Error (`src/util.py`)
+----------------------------------------
+11. Type Confusion in `Sender` with Partial Sends (`src/network/transport/sender.py`)
+----------------------------------------------------------------------------------
+- When a partial send occurs, `remaining` bytes are put back into `_pending_inputs[0]`.
+- On the next call, `pending = self.get_first_pending()` retrieves these `bytes`.
+- The code calls `encoded = process_input(pending)`.
+- `process_input` (in `util.py`) expects a `str` to parse and encode. Passing `bytes` will likely raise a `TypeError` or cause incorrect behavior.
+- Fix: Check `isinstance(pending, str)` before calling `process_input`. If it's already `bytes`, use it directly.

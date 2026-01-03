@@ -77,14 +77,20 @@ class Sender(Sock):
         pending = self.get_first_pending()
         assert pending != None
         
-        encoded = process_input(pending)
+        # When partial send occurs,
+        # the first pending input becomes the remaining bytes from the original call.
+        if isinstance(pending, str):
+            encoded = process_input(pending)
+        else:
+            encoded = pending
+        
         try:
             sent_count = self._sock.send(encoded)
         except BlockingIOError:
             return False
         
         if sent_count >= len(encoded):
-            self._pending_inputs.popleft()
+            # We will not pop the first pending input here.
             return True
 
         # The command was not sent in one go.

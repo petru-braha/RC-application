@@ -4,7 +4,7 @@ from typing import Callable
 from frontend import PresenceChangeable
 
 class Chat(ft.Container, PresenceChangeable):
-    def __init__(self, on_enter: Callable) -> None:
+    def __init__(self, on_enter: Callable[[str], None]) -> None:
         self._on_enter = on_enter
         self.history_box = ft.ListView(
             expand=True,
@@ -32,7 +32,6 @@ class Chat(ft.Container, PresenceChangeable):
         )
 
     def on_submit(self) -> None:
-        # sanitizer
         request = self.cmd_input.value
         self._on_enter(request)
         to_display = ft.Text(request)

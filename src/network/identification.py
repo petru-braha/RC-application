@@ -53,11 +53,11 @@ class Identification(Archiver, Receiver, Sender):
 
         initial_user = Identification.DEFAULT_USER if user == None else user
         initial_pasw = EMPTY_STR if pasw == None else pasw
-        self.say_hello(initial_user, initial_pasw)
 
         Archiver.__init__(self)
         Receiver.__init__(self, addr)
         Sender.__init__(self, addr)
+        self.say_hello(initial_user, initial_pasw)
         self.initial_user = initial_user
         self.initial_pasw = initial_pasw
     

@@ -20,6 +20,7 @@ class Reactor:
     @staticmethod
     def start() -> None:
         Reactor._selector = selectors.DefaultSelector()
+        Reactor._response_lambdas = {}
 
     @staticmethod
     def close():
@@ -32,5 +33,6 @@ class Reactor:
     
     @staticmethod
     def remove_connection(connection: Connection):
-        connection.close()
         Reactor._selector.unregister(connection)
+        Reactor._response_lambdas.pop(connection)
+        connection.close()
