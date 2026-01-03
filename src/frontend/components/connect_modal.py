@@ -26,16 +26,14 @@ class ModalController(ConnectionBase, PresenceChangeable, ft.Container):
         self.is_manual = True
 
         self.switch_btn = ft.Button("Switch to URL Mode", on_click=self.switch_modal)
-        self.close_btn = ft.IconButton(ft.Icons.CLOSE, on_click=lambda e: self.hide(), tooltip="Close")
+        self.close_btn = ft.IconButton(ft.Icons.CLOSE, on_click=self.hide, tooltip="Close")
 
         # Container styling for Modal Overlay
         self.visible = False # Hidden by default
         self.alignment = ft.alignment.center
-        self.bgcolor = ft.colors.BLACK54 # Dimmed background
-        self.expand = True # Cover parent (Layout Stack)
-        self.on_click = lambda e: None # prevent click-through? Or maybe just background.
-        # Ideally, we want the content to be the "dialog" and the container to be the overlay.
-        # But for simplicity, we'll put the dialog in the content.
+        self.bgcolor = ft.colors.BLACK54
+        self.expand = True
+        self.on_click = lambda e: None
         
         self.dialog_content = ft.Container(
             bgcolor=ft.colors.SURFACE,
