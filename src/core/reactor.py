@@ -1,10 +1,7 @@
 import selectors
 from typing import Callable
 
-from frontend import Chat, ChatFrame, ConnectionBox
 from network import Connection
-
-from constants import EMPTY_STR
 
 class Reactor:
     """

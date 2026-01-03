@@ -1,15 +1,12 @@
 import selectors
 from threading import Thread
 
-from frontend import DialogueList
 from network import Connection, Receiver, Sender
 
 from .reactor import Reactor
 
 class Operator(Reactor, Thread):
 
-    _conn_hist_displays: dict[Connection, DialogueList]
-    
     @staticmethod
     def start() -> None:
         Reactor.start()
