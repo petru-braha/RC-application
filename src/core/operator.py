@@ -5,7 +5,7 @@ from network import Connection, Receiver, Sender
 
 from .reactor import Reactor
 
-class Operator(Reactor, Thread):
+class Operator(Reactor):
 
     @staticmethod
     def start() -> None:
@@ -41,14 +41,14 @@ class Operator(Reactor, Thread):
                 Operator._handle_write(conn)
 
     @staticmethod
-    def _handle_read(conn: Receiver) -> None:
+    def _handle_read(connection: Connection) -> None:
         """
         Reads from the socket, decodes data, and updates history.
         """
-        is_empty = conn.empty_buf()
-        bytes_read = conn.recv()
+        if connection.empty_buf()
+        bytes_read = connection.recv()
         
-        if not conn.empty_buf():
+        if not is_empty:
             # Simplistic decoding for now as per previous context
             try:
                 # Example:
@@ -62,8 +62,11 @@ class Operator(Reactor, Thread):
         Operator._response_lambdas[conn](value_read)
     
     @staticmethod
-    def _handle_write(conn: Sender) -> None:
+    def _handle_write(connection: Connection) -> None:
         """
         Sends pending commands to the socket.
         """
-        conn.send_first()
+        try:
+            connection.send_first_pending()
+        except Exception:
+            pass

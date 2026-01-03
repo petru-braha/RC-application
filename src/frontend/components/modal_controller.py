@@ -25,14 +25,14 @@ class ControllerBase:
         self._on_chat_remove = on_chat_remove
 
     def on_continue(self, connection_data: tuple) -> None:
-        connection = Connection(connection_data)
+        connection = Connection(*connection_data)
         
         chat = Chat(on_enter=connection.add_pending)
         self._on_chat_insert(chat)
 
         def on_connection_close():
             Operator.remove_connection(connection)
-            self._on_chat_remove(chat)
+            self._on_chat_remove()
         connection_box = ConnectionBox(
             connection.addr,
             on_click=chat.show,
@@ -60,7 +60,8 @@ class ModalController(ft.Container, ControllerBase, PresenceChangeable):
             on_agenda_insert,
             on_agenda_remove,
             on_chat_insert,
-            on_chat_remove)
+            on_chat_remove
+        )
 
         close_btn = ft.IconButton(ft.Icons.CLOSE, on_click=self.hide, tooltip="Close")
         self.url_view = UrlConnect(
@@ -79,15 +80,15 @@ class ModalController(ft.Container, ControllerBase, PresenceChangeable):
             content=self.url_view,
             expand=True,
             bgcolor=ft.Colors.BLACK_54,
-            alignment=ft.Alignment.CENTER)
-        self.visible = False
+            alignment=ft.Alignment.CENTER,
+            visible=False
+        )
         self.is_manual = False
     
     def switch_modal(self, e):
         if self.is_manual:
             self.content = self.url_view
-            self.is_manual = False
         else:
             self.content = self.manual_view
-            self.is_manual = True
-        self.page.update(e)
+        self.is_manual = not self.is_manual
+        self.page.update()

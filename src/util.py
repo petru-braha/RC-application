@@ -36,7 +36,7 @@ def process_redis_url(url: str) -> tuple:
     if parsed.scheme not in SCHEME_LIST:
         raise ValueError(f"Invalid URL scheme: '{parsed.scheme}'.")
 
-    host = parsed.hostname if parsed.username else EMPTY_STR
+    host = parsed.hostname if parsed.hostname else EMPTY_STR
     port = parsed.port if parsed.port else EMPTY_STR
     user = parsed.username if parsed.username else EMPTY_STR
     pasw = parsed.password if parsed.password else EMPTY_STR
