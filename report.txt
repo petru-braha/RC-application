@@ -1,4 +1,0 @@
-6. Potential Issue with `sendall` on Non-blocking Socket (`src/network/transport/sender.py`)
------------------------------------------------------------------------------------------
-- `self._sock.sendall(encoded)` is used on a non-blocking socket.
-- `sendall` attempts to send everything and may block or raise `BlockingIOError` if the kernel buffer is full, which might not be the intended behavior for a purely non-blocking design (usually manual `send` handling partial writes is preferred).

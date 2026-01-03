@@ -65,8 +65,7 @@ class Sender(Sock):
         Sends and processes the first raw input appended to the deque.
 
         Returns:
-            bool: False if there was no pending commands,
-                  True if the first was sent with success.
+            bool: True if the first was sent with success.
 
         Raises:
             BlockingIOError: If the socket is not ready for writing.
@@ -77,18 +76,19 @@ class Sender(Sock):
         
         pending = self.get_first_pending()
         assert pending != None
-
+        
         encoded = process_input(pending)
-        sent_count = self._sock.send(encoded)
+        try:
+            sent_count = self._sock.send(encoded)
+        except BlockingIOError:
+            return False
         
-        while sent_count < len(encoded):
-            # Partial send: Update the pending item with the remaining bytes
-            remaining = encoded[sent_count:]
-            # Replace the first item with remaining bytes
-            self._pending_inputs[0] = remaining
-            sent_count = self._sock.send(remaining)
-        
-        # Full send: Remove the item
-        self._pending_inputs.popleft()
-        
+        if sent_count >= len(encoded):
+            self._pending_inputs.popleft()
+            return True
+
+        # The command was not sent in one go.
+        # Update the pending item with the remaining bytes.
+        remaining = encoded[sent_count:]
+        self._pending_inputs[0] = remaining
         return True
