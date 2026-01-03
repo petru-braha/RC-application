@@ -39,7 +39,7 @@ class Receiver(Communicator):
         Returns:
             bool: True if buffer is empty, False otherwise.
         """
-        return len(self._buf) == EMPTY_LEN
+        return self._idx >= len(self._buf)
 
     def consume(self, bufsize: int) -> str:
         """
