@@ -1,12 +1,11 @@
 import flet as ft
 from typing import Callable
 
-from core import Operator
+from frontend import ConnectionModal
 
-class ManualMode(ft.AlertDialog):
-    def __init__(self, on_insert: Callable):
-        ft.AlertDialog.__init__(self)
-        self.on_insert = on_insert
+class ManualMode(ConnectionModal):
+    def __init__(self, on_agenda_insert: Callable, on_agenda_remove: Callable, on_chat_insert: Callable):
+        super().__init__(on_agenda_insert, on_agenda_remove, on_chat_insert)
         
         self.host_input = ft.TextField(hint_text="Host")
         self.port_input = ft.TextField(hint_text="Port")
@@ -45,20 +44,7 @@ class ManualMode(ft.AlertDialog):
                 scroll=ft.ScrollMode.AUTO
             )
         )
-        if self.visible:
-            self.update()
+        self.update()
 
     def on_manual_continue(self, e):
-        try:
-            conn = Operator.add_connection(
-                host=self.host_input.value,
-                port=self.port_input.value,
-                user=self.user_input.value,
-                pasw=self.pass_input.value,
-                db_idx=self.db_input.value
-            )
-            self.on_insert(conn)
-            self.hide(e)
-
-        except Exception as e:
-            print(f"Error creating connection: {e}")
+        self.on_continue()

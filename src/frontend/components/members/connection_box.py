@@ -3,7 +3,11 @@ from typing import Callable
 
 class ConnectionBox(ft.Container):
 
-    def __init__(self, text: str, on_click: Callable, on_close: Callable) -> None:
+    def __init__(self, text: str, on_click: Callable, on_connection_close: Callable, on_adenga_remove: Callable) -> None:
+        def on_close():
+            on_connection_close()
+            on_adenga_remove(self)
+        
         content=ft.Stack([
             ft.Text(text,
                 left=5, 

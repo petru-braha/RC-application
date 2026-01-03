@@ -61,6 +61,7 @@ Main development time: 02.12.2025 - 06.01.2026
 Ensure you have **Python 3.10+** and **pip** installed on your system. See more [here](https://pip.pypa.io/en/stable/installation/).
 
 ### Automated Setup
+
 The quickest way to get started is by using the provided installation script, which handles virtual environment creation and dependency installation:
 
 ```bash
@@ -68,6 +69,7 @@ The quickest way to get started is by using the provided installation script, wh
 ```
 
 ### Manual Setup
+
 If you prefer a manual installation, follow these steps:
 
 1. **Create a virtual environment:**
@@ -84,7 +86,9 @@ If you prefer a manual installation, follow these steps:
    ```
 
 ### Execution
+
 To launch the application, run:
+
 ```bash
 # For CLI mode.
 python3 src/main.py
@@ -105,3 +109,39 @@ Documentation too.
 Branches remain organized and purpose-driven.
 
 ---
+
+Chat
+
+- history_box
+- text_field - on_sumbit=(Connection.add_pending, HistoryBox.add_req)
+
+ConnectionBox
+
+- text = Connection.addr
+- on_click = chat_history.show
+- on_close = (Reactor.rem_connection, on_agenda_remove, chat.hide)
+
+Reactor.add_connection
+
+- creates Connection
+- registers Connection
+- save history_box (decoder -> history.prints)
+
+Operator.\_handle_read
+
+- returns the connection presentation
+
+Modal
+
+- on_agenda_insert
+- on_agenda_remove
+- on_continue
+
+  - creates Chat
+  - creates ConnectionBox
+
+- create connection
+- register connection
+- create chat
+- create connection_box
+- reactor.receive_callback

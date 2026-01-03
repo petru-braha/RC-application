@@ -1,11 +1,14 @@
 import selectors
 from threading import Thread
 
+from frontend import DialogueList
 from network import Connection, Receiver, Sender
 
 from .reactor import Reactor
 
 class Operator(Reactor, Thread):
+
+    _conn_hist_displays: dict[Connection, DialogueList]
     
     @staticmethod
     def start() -> None:
@@ -57,6 +60,9 @@ class Operator(Reactor, Thread):
                 pass
             except Exception:
                 pass
+        
+        # Display to the output
+        Operator._response_lambdas[conn](value_read)
     
     @staticmethod
     def _handle_write(conn: Sender) -> None:

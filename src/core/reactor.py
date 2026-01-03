@@ -1,5 +1,7 @@
 import selectors
+from typing import Callable
 
+from frontend import Chat, ChatFrame, ConnectionBox
 from network import Connection
 
 from constants import EMPTY_STR
@@ -11,6 +13,9 @@ class Reactor:
     Base class for I/O multiplexing.
     """
     
+    _response_lambdas: dict[Connection, Callable[[str], None]]
+    """
+    """
     _selector: selectors.BaseSelector
     """
     """
@@ -24,16 +29,11 @@ class Reactor:
         Reactor._selector.close()
     
     @staticmethod
-    def add_connection(host: str = EMPTY_STR,
-                       port: str = EMPTY_STR,
-                       user: str = EMPTY_STR,
-                       pasw: str = EMPTY_STR,
-                       db_idx: str = EMPTY_STR) -> Connection:
-        connection = Connection(host, port, user, pasw, db_idx)
+    def register_connection(connection: Connection, on_response: Callable) -> None:
         Reactor._selector.register(connection)
-        return connection
-
+        Reactor._response_lambdas[connection] = on_response
+    
     @staticmethod
-    def rem_connection(connection: Connection):
+    def remove_connection(connection: Connection):
         connection.close()
         Reactor._selector.unregister(connection)
