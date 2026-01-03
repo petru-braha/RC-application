@@ -1,8 +1,6 @@
 import flet as ft
 from typing import Callable
 
-from network import Connection
-
 class ConnectionBox(ft.Container):
 
     def __init__(self, text: str, on_click: Callable, on_close: Callable) -> None:
@@ -12,6 +10,7 @@ class ConnectionBox(ft.Container):
                 bottom=5, 
                 color=ft.Colors.WHITE,
                 weight=ft.FontWeight.BOLD),
+            # Close button of the connection
             ft.IconButton(
                 icon=ft.Icons.CLOSE,
                 icon_color=ft.Colors.WHITE_54,

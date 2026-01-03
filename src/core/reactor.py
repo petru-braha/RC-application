@@ -11,22 +11,29 @@ class Reactor:
     Base class for I/O multiplexing.
     """
     
-    def __init__(self):
-        self.selector = selectors.DefaultSelector()
+    _selector: selectors.BaseSelector
+    """
+    """
 
-    def close(self):
-        self.selector.close()
+    @staticmethod
+    def start() -> None:
+        Reactor._selector = selectors.DefaultSelector()
+
+    @staticmethod
+    def close():
+        Reactor._selector.close()
     
-    def add_connection(self,
-                       host: str = EMPTY_STR,
+    @staticmethod
+    def add_connection(host: str = EMPTY_STR,
                        port: str = EMPTY_STR,
                        user: str = EMPTY_STR,
                        pasw: str = EMPTY_STR,
                        db_idx: str = EMPTY_STR) -> Connection:
         connection = Connection(host, port, user, pasw, db_idx)
-        self.selector.register(connection)
+        Reactor._selector.register(connection)
         return connection
 
-    def rem_connection(self, connection: Connection):
+    @staticmethod
+    def rem_connection(connection: Connection):
         connection.close()
-        self.selector.unregister(connection)
+        Reactor._selector.unregister(connection)

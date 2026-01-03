@@ -1,12 +1,13 @@
 import flet as ft
 
-from .components import ConnectButton, Modal, ConnectionList
+from .components import ConnectButton, ConnectModal, ConnectionList
+from .history_context import HistoryContext
 
 class LeftPannel(ft.Container):
-    def __init__(self, sidebar_context: ft.Stack):
-        connection_list = ConnectionList(sidebar_context)
-        modal = Modal(on_insert=connection_list.insert_connection)
-        connect_button = ConnectButton(on_click=modal.open_dialog)
+    def __init__(self, history_context: HistoryContext):
+        connection_list = ConnectionList(history_context)
+        connect_modal = ConnectModal(on_insert=connection_list.insert_connection)
+        connect_button = ConnectButton(on_click=connect_modal.show)
         
         content = ft.Column([
             connection_list,

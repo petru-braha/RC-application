@@ -1,21 +1,18 @@
 import flet as ft 
 
 from .left_panel import LeftPannel
-from .sidebar_default import SidebarDefault
+from .history_context import HistoryContext
 
+# todo consider using SafeArea 
 class Layout(ft.Stack):
     def __init__(self) -> None:
 
-        sidebar_context = ft.Stack(
-            expand=True
-        )
+        history_context = HistoryContext()
 
         controls: list[ft.Control] = [
-            ft.Row([
-                LeftPannel(sidebar_context),
-                sidebar_context],
+            ft.Row(
+                [LeftPannel(history_context), history_context],
                 expand=True),
-                
             # todo log context 
         ]
         super().__init__(
