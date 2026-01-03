@@ -15,9 +15,8 @@ class PresenceChangeable(ft.Control):
         self.visible = False
         self.page.update()
 
-class ConnectionModal(PresenceChangeable, ft.AlertDialog):
+class ConnectionBase:
     def __init__(self, on_agenda_insert: Callable, on_agenda_remove: Callable, on_chat_insert: Callable, on_chat_remove: Callable):
-        ft.AlertDialog.__init__()
         self._on_agenda_insert = on_agenda_insert
         self._on_agenda_remove = on_agenda_remove
         self._on_chat_insert = on_chat_insert
