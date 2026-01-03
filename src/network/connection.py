@@ -1,14 +1,15 @@
-from constants import EMPTY_STR
-
 from .database_link import DatabaseLink
 
-# While it currently doesn't add extra functionality,
-# "Connection" is being kept is being kept as a separated class, 
-# since implementation could be changed, rather than chaging the super classes.
+# "Connection" is being kept as a separated class.
+# If additional functionality is needed, it can be added here,
+# rather than changing the super classes.
 class Connection(DatabaseLink):
+    """
+    Manages the final step of the connection process.
+    Acts as the primary interface for creating and maintaining a network connection.
+    """
 
-    # Here host and port are kept as parameterss,
-    # but later will be converted into an Address object.
-    # since clients might be intersted in typing them manually, can not generalize them.
+    # Host and port are internally converted into an Address object.
+    # Clients might be interested in typing them manually, so they are kept as separated parameters.
     def __init__(self, host: str, port: str, user: str, pasw: str, db_idx: str) -> None:
-        super().__init__(self, host, port, user, pasw, db_idx)
+        super().__init__(host, port, user, pasw, db_idx)

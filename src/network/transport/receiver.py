@@ -19,6 +19,7 @@ class Receiver(Sock):
     def __init__(self, addr: Address) -> None:
         super().__init__(addr)
         self._buf = bytearray()
+        self._idx = 0
 
     def empty_buf(self) -> bool:
         """
@@ -27,7 +28,7 @@ class Receiver(Sock):
         Returns:
             bool: True if buffer is empty, False otherwise.
         """
-        return len(self._buf) == EMPTY_LEN
+        return self._idx >= len(self._buf)
 
     def consume(self, bufsize: int) -> str:
         """
@@ -43,11 +44,11 @@ class Receiver(Sock):
         Raises:
             PartialResponseError: If there are insufficient bytes in the buffer.
         """
-        if bufsize > len(self._buf):
-            raise PartialResponseError(f"Insufficient buffer bytes: {len(self._buf)}. Needed: {bufsize}")
+        if self._idx + bufsize > len(self._buf):
+            raise PartialResponseError(f"Insufficient buffer bytes: {len(self._buf) - self._idx}. Needed: {bufsize}")
         
-        data = self._buf[:bufsize]
-        del self._buf[:bufsize]
+        data = self._buf[self._idx : self._idx + bufsize]
+        self._idx += bufsize
         return data.decode()
 
     def consume_crlf(self) -> str:
@@ -63,13 +64,14 @@ class Receiver(Sock):
         """
         ASCII_CRLF = CRLF.encode()
         try:
-            idx = self._buf.index(ASCII_CRLF)
+            # Search for CRLF starting from current index
+            idx = self._buf.index(ASCII_CRLF, self._idx)
         except ValueError:
             raise PartialResponseError("Buffer does not contain a CRLF.")
         
         end_idx = idx + len(ASCII_CRLF)
-        data = self._buf[:end_idx]
-        del self._buf[:end_idx]
+        data = self._buf[self._idx : end_idx]
+        self._idx = end_idx
         return data.decode()
 
     def recv(self, bufsize: int = _4KB_BUFSIZE) -> int:
@@ -90,3 +92,17 @@ class Receiver(Sock):
         data = self._sock.recv(bufsize)
         self._buf.extend(data)
         return len(data)
+    
+    def cleanup(self) -> None:
+        """
+        Discards the consumed part of the buffer.
+
+        This call should be used when after a complete response is received.
+        The buffer should be completely cleaned after this.
+
+        Raises:
+            AssertionError: If the buffer is not empty after cleanup.
+        """
+        self._buf = self._buf[self._idx:]
+        self._idx = 0
+        assert self.empty_buf()

@@ -1,0 +1,45 @@
+
+Network Package Review Report
+=============================
+
+1. Logic Error in Socket Connection Loop (`src/network/transport/sock.py`)
+-----------------------------------------------------------------------
+In the `__init__` method of the `Sock` class:
+- The loop iterates over `addr_infos` to create a socket but does **not** attempt to `connect` inside the loop.
+- It merely creates a socket object and closes it if creation fails.
+- The `sock.connect(sockaddr)` call happens **outside** the loop. This uses the `sockaddr` from the last iteration of the loop (or raises `UnboundLocalError` if the loop was empty).
+- This defeats the purpose of trying multiple address families (e.g., IPv6 then IPv4). It should try to connect inside the loop and break on success.
+
+2. Non-blocking Socket Connection Issues (`src/network/transport/sock.py`)
+-----------------------------------------------------------------------
+- `sock.setblocking(False)` is called before `sock.connect(sockaddr)`.
+- `connect()` on a non-blocking socket typically raises `BlockingIOError` (or `EINPROGRESS`) immediately. The current code only catches `InterruptedError`.
+- If `BlockingIOError` is raised, it is not caught, crashing the application.
+
+3. Infinite Send Loop / Integrity Issue (`src/network/transport/sender.py`)
+------------------------------------------------------------------------
+- `send_first_pending` retrieves the first pending command using `get_first_pending()` and sends it.
+- However, it **never removes** the command from the queue (`rem_first_pending()` is not called).
+- Beacuse of `sendall` usage (which guarantees all data sent or error), the item should be removed after success.
+- This will cause the same command to be sent repeatedly every time `send_first_pending` is called.
+
+4. Incorrect `super().__init__` Call (`src/network/connection.py`)
+---------------------------------------------------------------
+- `super().__init__(self, ...)` passes `self` explicitly.
+- In Python 3, `super()` handles `self` automatically. Passing it explicitly will cause a `TypeError`.
+
+5. Incorrect Argument Passing in Inheritance (`src/network/database_link.py`)
+--------------------------------------------------------------------------
+- `DatabaseLink.__init__` calls `super().__init__(host, port, user, pasw, db_idx)`.
+- The parent class `Identification.__init__` only accepts `(host, port, user, pasw)`.
+- Passing `db_idx` will cause a `TypeError`.
+
+6. Potential Issue with `sendall` on Non-blocking Socket (`src/network/transport/sender.py`)
+-----------------------------------------------------------------------------------------
+- `self._sock.sendall(encoded)` is used on a non-blocking socket.
+- `sendall` attempts to send everything and may block or raise `BlockingIOError` if the kernel buffer is full, which might not be the intended behavior for a purely non-blocking design (usually manual `send` handling partial writes is preferred).
+
+7. Missing EOF Handling in Receiver (`src/network/transport/receiver.py`)
+-----------------------------------------------------------------------
+- `recv` returns `len(data)`. If the peer closes the connection, `recv` returns 0.
+- The return value 0 should be explicitly documented or handled as an EOF signal, as the caller needs to know when the connection is closed.

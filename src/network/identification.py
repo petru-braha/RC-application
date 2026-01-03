@@ -8,11 +8,8 @@ from .transport import Archiver, Receiver, Sender
 
 class Identification(Archiver, Receiver, Sender):
     """
-    Attributes:
-        addr (obj): The address object consisting of the host and port.
-        user (str): The username of the client authentificated.
-        pasw (str): The password of the same client.
-        sock (obj): The socket object
+    Manages the initial identification phase of the Redis protocol connection.
+    Handles the HELLO handshake and authentication details.
     """
     
     DEFAULT_HOST: str = "localhost"
@@ -45,7 +42,10 @@ class Identification(Archiver, Receiver, Sender):
     def __init__(self, host: str, port: str, user: str, pasw: str) -> None:
         """
         Saves the initial username and password a client tried to connect with.
-        If the initial hello command does not succed, these information is necessary to recover from certain errors and eventually retry.
+        If the initial hello command does not succed,
+        these information are necessary to recover from errors and retry authentication.
+
+        Note: Keep in mind that the initial username and password are mutable.
         """
         host = Identification.DEFAULT_HOST if host == None else host
         port = Identification.DEFAULT_PORT if port == None else port
@@ -63,7 +63,12 @@ class Identification(Archiver, Receiver, Sender):
     
     def say_hello(self, user: str, pasw: str, protver: str = _RESP3) -> None:
         """
-        The errors must be trated somewhere else.
+        Queues the HELLO command with the specified authentication credentials and protocol version.
+
+        Parameters:
+            user (str): The username for authentication.
+            pasw (str): The password for authentication.
+            protver (str): The RESP protocol version to negotiate (default is 3).
         """
         argv = [protver, AUTH_ARG.pattern, user, pasw]
         pending_input = join_cmd_argv(Identification._HELLO_CMD, argv)
