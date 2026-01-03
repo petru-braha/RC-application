@@ -1,14 +1,13 @@
 import flet as ft
 from typing import Callable
 
-from core import Operator
+from frontend import ConnectionModal
 
 from util import process_redis_url
 
-class UrlMode(ft.AlertDialog):
-    def __init__(self, on_insert: Callable):
-        ft.AlertDialog.__init__(self)
-        self.on_insert = on_insert
+class UrlMode(ConnectionModal):
+    def __init__(self, on_agenda_insert: Callable, on_agenda_remove: Callable, on_chat_insert: Callable):
+        super().__init__(on_agenda_insert, on_agenda_remove, on_chat_insert)
         
         self.url_input = ft.TextField(
             hint_text="redis://user:pass@host:port/db", 
@@ -39,15 +38,9 @@ class UrlMode(ft.AlertDialog):
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER
             )
         )
-        if self.visible:
-            self.update()
-
-    def on_url_continue(self, e):
-        try:
-            url = self.url_input.value
-            components = process_redis_url(url)
-            connection = Operator.add_connection(components)
-            self.on_insert(connection)
-            self.hide(e)
-        except Exception as e:
-            print(f"Error creating URL connection: {e}")
+        self.update()
+    
+    def on_url_continue(self, e) -> None:
+        url = self.url_input.value
+        components = process_redis_url(url)
+        self.on_continue(components)

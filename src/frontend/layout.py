@@ -1,17 +1,23 @@
 import flet as ft 
 
+from .components import Agenda, ConnectModal
 from .left_panel import LeftPannel
-from .history_context import HistoryContext
+from .components import ChatFrame
 
-# todo consider using SafeArea 
 class Layout(ft.Stack):
     def __init__(self) -> None:
 
-        history_context = HistoryContext()
-
+        agenda = Agenda()
+        chat_frame = ChatFrame()
+        connect_modal = ConnectModal(
+            on_adenda_insert=agenda.insert,
+            on_adenda_remove=agenda.remove,
+            on_chat_insert=chat_frame.set_chat)
+        connect_button = ft.Button("Connect", on_click=connect_modal.show)
+        
         controls: list[ft.Control] = [
             ft.Row(
-                [LeftPannel(history_context), history_context],
+                [LeftPannel(agenda, connect_button), chat_frame],
                 expand=True),
             # todo log context 
         ]
