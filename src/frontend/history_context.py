@@ -1,9 +1,9 @@
 import flet as ft
 
-class SidebarDefault(ft.Container):
+class HistoryContext(ft.Stack):
 
     def __init__(self):
-        content=ft.Column([
+        default_layer=ft.Column([
             ft.Text("Connect to a Redis server.", 
                 size=20, 
                 weight=ft.FontWeight.BOLD,
@@ -15,5 +15,10 @@ class SidebarDefault(ft.Container):
         )
     
         super().__init__(
-            content=content,
+            controls=[default_layer],
+            expand=True
         )
+
+    def reset(self):
+        self.controls = [self.default_layer]
+        self.update()

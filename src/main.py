@@ -6,14 +6,15 @@ from frontend import open_window
 def main(dotenv_path: str | None = None) -> None:
     dotenv_dict = dotenv_values(dotenv_path)
     config = Config(dotenv_dict)
-    operator = Operator()
+    
+    Operator.start()
 
     if config.cli:
         return # todo
     else:
-        open_window(config, operator)
+        open_window(config)
     
-    operator.close()
+    Operator.close()
 
 if __name__ == "__main__":
     main()
