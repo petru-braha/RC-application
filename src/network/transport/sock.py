@@ -5,6 +5,8 @@ from core.structs import Address
 
 logger = get_logger(__name__)
 
+logger = Config.get_logger(__name__)
+
 class Sock:
     """
     Establishes a TCP connection to a Redis server instance.

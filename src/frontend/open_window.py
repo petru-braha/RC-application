@@ -1,6 +1,10 @@
 import flet as ft
 
+from core import Config
+
 from .layout import Layout
+
+logger = Config.get_logger(__name__)
 
 def build_page(page: ft.Page) -> None:
     # Handles OS intrusions gracefully.
@@ -15,4 +19,6 @@ def build_page(page: ft.Page) -> None:
     page.add(safe_area)
 
 def open_window() -> None:
-    ft.run(build_page, assets_dir="src/ui/assets")
+    logger.info("Initializing Flet app window...")
+    ft.run(build_page, assets_dir="src/frontend/assets")
+    logger.info("Flet app window initialized.")

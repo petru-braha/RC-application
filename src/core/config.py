@@ -33,15 +33,15 @@ class Config:
     Default path for the log file.
     """
 
-    VERBOSE_FORMAT: str = "%(asctime)s, %(name)s, %(lineno)d, %(levelname)s, %(message)s"
+    VERBOSE_FORMAT: str = "%(asctime)s %(levelname)s - %(message)s --- %(name)s[%(lineno)d]"
     """
     Format string for verbose logging (used in file logs).
     """
-    DANGER_FORMAT: str = "%(name)s, %(lineno)d, %(levelname)s, %(message)s"
+    DANGER_FORMAT: str = "%(levelname)s - %(message)s --- %(name)s[%(lineno)d]"
     """
     Format string for warnings and errors logging.
     """
-    SIMPLE_FORMAT: str = "%(name)s, %(levelname)s, %(message)s"
+    SIMPLE_FORMAT: str = "%(levelname)s - %(message)s --- %(name)s"
     """
     Format string for simple logging (used in console output).
     """
@@ -94,25 +94,33 @@ class Config:
 
         app_configs = [
             ("stage", Stage.DEV, lambda x: Stage[x]),
-            ("tls_enforced", False, lambda x: bool(x)),
+            ("tls_enforced", False, lambda x: str(x).lower() == "true"),
             ("max_connections", Config.DEFAULT_MAX_CONNECTIONS, int),
-            ("file_handler", logging.FileHandler(Config.DEFAULT_LOG_FILE), logging.FileHandler),
-            ("stdout_handler", logging.StreamHandler(sys.stdout), logging.StreamHandler),
-            ("stderr_handler", logging.StreamHandler(sys.stderr), logging.StreamHandler)
+            ("file_handler", None, logging.FileHandler),
+            ("stdout_handler", None, logging.StreamHandler),
+            ("stderr_handler", None, logging.StreamHandler)
         ]
-
         for key, default, func in app_configs:
             if value := dotenv_dict.get(key):
                 setattr(Config, key, func(value))
             else:
                 setattr(Config, key, default)
 
+        # Initialize handlers if they weren't overridden.
+        if Config.file_handler == None:
+             Config.file_handler = logging.FileHandler(Config.DEFAULT_LOG_FILE)
+        if Config.stdout_handler == None:
+             Config.stdout_handler = logging.StreamHandler(sys.stdout)
+        if Config.stderr_handler == None:
+             Config.stderr_handler = logging.StreamHandler(sys.stderr)
+
         Config.file_handler.setLevel(logging.DEBUG)
         Config.file_handler.setFormatter(logging.Formatter(Config.VERBOSE_FORMAT))
         Config.file_handler.addFilter(lambda r: r.levelno == logging.DEBUG)
 
         Config.stdout_handler.setLevel(logging.DEBUG)
-        Config.stdout_handler.setFormatter(TruncatingLogFormatter(Config.SIMPLE_FORMAT, TruncatingLogFormatter.DEFAULT_MAX_BYTES / 4))
+        Config.stdout_handler.setFormatter(
+            TruncatingLogFormatter(Config.SIMPLE_FORMAT, TruncatingLogFormatter.DEFAULT_MAX_BYTES / 4))
         Config.stdout_handler.addFilter(lambda r: r.levelno <= logging.INFO)
         
         Config.stderr_handler.setLevel(logging.WARNING)

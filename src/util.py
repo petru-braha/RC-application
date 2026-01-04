@@ -1,10 +1,13 @@
 from typing import Any
 from urllib.parse import urlparse
 
+from core import Config
 from protocol import parser, encoder
 
 from exceptions import AssignmentError
 from constants import EMPTY_STR, SCHEME_LIST, ASCII_ENC
+
+logger = Config.get_logger(__name__)
 
 def join_cmd_argv(cmd: str, argv: list[str]) -> str:
     """
@@ -17,7 +20,7 @@ def join_cmd_argv(cmd: str, argv: list[str]) -> str:
     fragments.extend(argv)
     return " ".join(fragments)
 
-def process_redis_url(url: str) -> tuple:
+def process_redis_url(url: str) -> tuple[str, str, str, str, str]:
     """
     Processes and extracts data from a Redis URL string (e.g., 'redis://user:password@host:port').
     
@@ -31,6 +34,7 @@ def process_redis_url(url: str) -> tuple:
         ValueError: If the URL scheme is not 'redis' or if the URL is malformed.
         ConnecterError: If the connection to the server fails.
     """
+    logger.debug(f"Processing Redis URL: {url}.")
     parsed = urlparse(url)
 
     if parsed.scheme not in SCHEME_LIST:
@@ -45,19 +49,32 @@ def process_redis_url(url: str) -> tuple:
     # Redis URLs typically use /0, /1, etc.
     db_idx = EMPTY_STR
     if parsed.path:
+        # Strip leading slash, and check if the integer is valid.
+        db_idx = parsed.path.lstrip('/')
+        
+    if db_idx != EMPTY_STR:
         try:
-            # Strip leading slash and convert to int.
-            db_idx = int(parsed.path.lstrip('/'))
+            int(db_idx)
         except ValueError:
             raise ValueError(
                 f"Invalid database index: '{parsed.path}'. Must be an integer."
             )
+    
+    # Do not log the password, sensitive data.
+    logger.debug(f"Url connection details: host={host}, port={port}, user={user}, db={db_idx}")
     return (host, port, user, pasw, db_idx)
 
 def process_input(input_str: str) -> bytes:
+    logger.debug(f"Processing input: {input_str}.")
+    
     cmd, argv = parser(input_str)
+    logger.debug(f"Parsed command: {cmd}, arguments: {argv}.")
+    
     # todo sanitizer?
+    
     encoded = encoder(cmd, argv)
+    logger.debug(f"Encoded command: {encoded}.")
+    
     return encoded.encode(ASCII_ENC)
 
 class Immutable:
