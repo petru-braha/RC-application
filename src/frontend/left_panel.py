@@ -2,7 +2,7 @@ import flet as ft
 
 from .components import Agenda
 
-class LeftPannel(ft.Container):
+class LeftPanel(ft.Container):
     """
     Groups the agenda and the connect button under a unitary panel.
     """
@@ -16,7 +16,7 @@ class LeftPannel(ft.Container):
 
         super().__init__(
             content=content,
-            width=250,
+            width=350,
             bgcolor=ft.Colors.BLUE_GREY_900,
             padding=10,
         )

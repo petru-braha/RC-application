@@ -1,12 +1,11 @@
 import flet as ft
 from typing import Callable
 
-from frontend import PresenceChangeable
 from network import Connection
 
 from parallel_operator import ParallelOperator
 
-from .members import Chat, ConnectionBox
+from .members import Chat, ConnectionBox, PresenceChangeable
 from .modals import ManualConnect, UrlConnect
 
 class ControllerBase:
@@ -18,29 +17,33 @@ class ControllerBase:
                  on_agenda_insert: Callable,
                  on_agenda_remove: Callable,
                  on_chat_insert: Callable,
+                 on_chat_select: Callable,
                  on_chat_remove: Callable):
         self._on_agenda_insert = on_agenda_insert
         self._on_agenda_remove = on_agenda_remove
         self._on_chat_insert = on_chat_insert
+        self._on_chat_select = on_chat_select
         self._on_chat_remove = on_chat_remove
 
     def on_continue(self, connection_data: tuple) -> None:
         connection = Connection(*connection_data)
         
-        chat = Chat(on_enter=connection.add_pending)
+        chat = Chat(
+            text=str(connection.addr),
+            on_enter=connection.add_pending)
         self._on_chat_insert(chat)
 
         def on_connection_close():
             ParallelOperator.remove_connection(connection)
-            self._on_chat_remove()
+            self._on_chat_remove(chat)
         connection_box = ConnectionBox(
-            connection.addr,
-            on_click=chat.show,
-            on_close=on_connection_close,
+            text=str(connection.addr),
+            on_click=lambda: self._on_chat_select(chat),
+            on_connection_close=on_connection_close,
             on_agenda_remove=self._on_agenda_remove)
         self._on_agenda_insert(connection_box)
         
-        ParallelOperator.register_connection(connection, on_response=chat.on_response)
+        # todo ParallelOperator.register_connection(connection, on_response=chat.on_response)
         self.hide()
 
 class ModalController(ft.Container, ControllerBase, PresenceChangeable):
@@ -54,12 +57,14 @@ class ModalController(ft.Container, ControllerBase, PresenceChangeable):
                  on_agenda_insert: Callable,
                  on_agenda_remove: Callable,
                  on_chat_insert: Callable,
+                 on_chat_select: Callable,
                  on_chat_remove: Callable):
         ControllerBase.__init__(
             self,
             on_agenda_insert,
             on_agenda_remove,
             on_chat_insert,
+            on_chat_select,
             on_chat_remove
         )
 

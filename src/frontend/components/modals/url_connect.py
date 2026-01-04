@@ -1,9 +1,13 @@
 import flet as ft
 from typing import Callable
 
+from core import Config
+
 from util import process_redis_url
 
 from .interfaces import ModalBase
+
+logger = Config().get_logger(__name__)
 
 class UrlConnect(ModalBase):
     def __init__(self, on_continue: Callable, switch_btn: ft.Button, close_btn: ft.Button):
@@ -40,5 +44,10 @@ class UrlConnect(ModalBase):
 
     def on_process_url(self, e) -> None:
         url = self.url_input.value
-        components = process_redis_url(url)
+        self.url_input.value = ""
+        try:
+            components = process_redis_url(url)
+        except ValueError as err:
+            logger.error(f"Invalid url, {err}.")
+            return
         self._on_continue_callback(components)

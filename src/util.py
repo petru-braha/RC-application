@@ -56,7 +56,7 @@ def process_redis_url(url: str) -> tuple[str, str, str, str, str]:
     parsed = urlparse(url)
 
     if parsed.scheme not in SCHEME_LIST:
-        raise ValueError(f"Invalid URL scheme: '{parsed.scheme}'.")
+        raise ValueError(f"Invalid URL scheme: '{parsed.scheme}'")
 
     host = parsed.hostname if parsed.hostname else EMPTY_STR
     port = str(parsed.port) if parsed.port else EMPTY_STR
@@ -75,7 +75,7 @@ def process_redis_url(url: str) -> tuple[str, str, str, str, str]:
             int(db_idx)
         except ValueError:
             raise ValueError(
-                f"Invalid database index: '{parsed.path}'. Must be an integer."
+                f"Invalid database index: '{parsed.path}'. Must be an integer"
             )
     
     # Do not log the password, sensitive data.

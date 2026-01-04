@@ -23,6 +23,7 @@ def main() -> None:
         except Exception as e:
             logger.error(f"Failed to close operator: {e}.")
         logger.info("Closing application...")
+        exit()
 
 if __name__ == "__main__":
     main()

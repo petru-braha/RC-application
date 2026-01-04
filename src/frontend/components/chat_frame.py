@@ -9,12 +9,18 @@ class ChatFrame(ft.Stack):
     Displays a standard default message.
     """
 
+    _EMPTY_LEN: int = 1
+    """
+    Number of layers when there are no connections.
+    """
+
     def __init__(self) -> None:
         default_layer=ft.Column([
-            ft.Text("Connect to a Redis server.", 
+            ft.Text("RC-application - a multi-connection Redis client.\n"
+                    "Press \"Connect\" to get started.",
                 size=20, 
                 weight=ft.FontWeight.BOLD,
-                text_align=ft.TextAlign.CENTER
+                text_align=ft.TextAlign.LEFT
             )],
             alignment=ft.MainAxisAlignment.CENTER,
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
@@ -26,14 +32,48 @@ class ChatFrame(ft.Stack):
             expand=True
         )
         self.default_layer = default_layer
+        self.active_layer = None
 
-    def reset(self) -> None:
-        """
-        Called when all connections are removed.
-        """
-        self.controls = [self.default_layer]
+    def add_chat(self, chat: Chat) -> None:
+        if self.active_layer != None:
+            self.active_layer.hide()
+        self.controls.append(chat)
+        self.active_layer = chat
         self.update()
 
+    def rem_chat(self, chat: Chat) -> None:
+        chat.hide()
+        chat_idx = self.controls.index(chat)
+        self.controls.pop(chat_idx)
+
+        if self.active_layer != chat:
+            return
+        
+        self.active_layer = None
+        # The chat wanted for removal was active.
+        # Switch to the next available layer.
+        if len(self.controls) == ChatFrame._EMPTY_LEN:
+            # The default layer will be visible by default.
+            return
+        
+        # Try display the chat of a previously created connection.
+        # If not possible, try to display the chat of a next connection.
+        if chat_idx > ChatFrame._EMPTY_LEN:
+            prev_chat = self.controls[chat_idx - 1]
+            self._set_active(prev_chat)
+            return
+        
+        if chat_idx < len(self.controls) - 1:
+            next_chat = self.controls[chat_idx + 1]
+            self._set_active(next_chat)
+    
     def set_chat(self, chat: Chat) -> None:
-        self.controls = [chat]
+        assert chat in self.controls
+        self._set_active(chat)
         self.update()
+
+    def _set_active(self, chat: Chat) -> None:
+        if self.active_layer:
+            self.active_layer.hide()
+        chat.show()
+        self.active_layer = chat
