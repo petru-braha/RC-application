@@ -78,16 +78,13 @@ class Config:
     """
 
     @staticmethod
-    def init() -> None:
+    def _init() -> None:
         """
         Initializes the configuration static variables.
 
         Sets default values and overrides them with provided environment variables.
         Also configures the logging handlers.
         """
-        if Config.cli != None:
-            return
-        
         dotenv_dict = dotenv_values()
         Config.cli = len(sys.argv) > 1 and sys.argv[1] == Config._CLI_FLAG
 
@@ -138,6 +135,9 @@ class Config:
         Returns:
             logging.Logger: The configured logger instance.
         """
+        if Config.cli == None:
+            Config._init()
+        
         logger = logging.getLogger(name)
         logger.setLevel(logging.DEBUG)
 
@@ -146,5 +146,3 @@ class Config:
         logger.addHandler(Config.stderr_handler)
 
         return logger
-
-Config.init()

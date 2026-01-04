@@ -3,12 +3,10 @@ from typing import Callable
 
 from core import Operator
 from frontend import PresenceChangeable
-from .modals import ManualConnect, UrlConnect
-
-# from network import Connection
-from network import MockConnection as Connection
+from network import Connection
 
 from .members import Chat, ConnectionBox
+from .modals import ManualConnect, UrlConnect
 
 class ControllerBase:
     """

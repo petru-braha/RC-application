@@ -1,10 +1,9 @@
 import selectors
 from typing import Callable
 
-from .config import Config
+from network import Connection
 
-# from network import Connection
-from network import MockConnection as Connection
+from .config import Config
 
 logger = Config.get_logger(__name__)
 

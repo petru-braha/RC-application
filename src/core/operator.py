@@ -2,8 +2,7 @@ import selectors
 from time import sleep
 from threading import Thread
 
-# from network import Connection
-from network import MockConnection as Connection
+from network import Connection
 from protocol import decoder
 
 from exceptions import PartialResponseError

@@ -15,7 +15,13 @@ def join_cmd_argv(cmd: str, argv: list[str]) -> str:
 
     Returns:
         str: The formatted command string.
+
+    Raises:
+        ValueError: If the command name is empty.
     """
+    if not cmd:
+        raise ValueError("Command name cannot be empty.")
+    
     fragments = [cmd]
     fragments.extend(argv)
     return " ".join(fragments)
@@ -65,9 +71,25 @@ def process_redis_url(url: str) -> tuple[str, str, str, str, str]:
     return (host, port, user, pasw, db_idx)
 
 def process_input(input_str: str) -> bytes:
+    """
+    Processes the input string by parsing it into a command and arguments,
+    encoding it, and returning the encoded bytes.
+    
+    Args:
+        input_str (str): A string representing the input to be processed.
+    
+    Returns:
+        bytes: The encoded bytes of the input string.
+
+    Raises:
+        ValueError: If the input string is invalid.
+    """
     logger.debug(f"Processing input: {input_str}.")
     
-    cmd, argv = parser(input_str)
+    try:
+        cmd, argv = parser(input_str)
+    except Exception as e:
+        raise ValueError(f"Invalid input {input_str}. {e}.")
     logger.debug(f"Parsed command: {cmd}, arguments: {argv}.")
     
     # todo sanitizer?

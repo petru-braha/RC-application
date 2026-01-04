@@ -32,6 +32,31 @@ class MockReceiver:
         self.idx = end + 2
         return res
 
+class MockReceiver:
+    """
+    Simulates the Receiver class for testing the decoder.
+    Operates on string data directly to mimic the decoded output of a real Receiver.
+    """
+    def __init__(self, data: str):
+        self.data = data
+        self.idx = 0
+
+    def consume(self, n: int) -> str:
+        if self.idx + n > len(self.data):
+             raise PartialResponseError(f"Insufficient buffer bytes. Needed {n}, has {len(self.data) - self.idx}")
+        res = self.data[self.idx : self.idx + n]
+        self.idx += n
+        return res
+
+    def consume_crlf(self) -> str:
+        try:
+            end = self.data.index('\r\n', self.idx)
+        except ValueError:
+             raise PartialResponseError("Buffer does not contain a CRLF.")
+        res = self.data[self.idx : end]
+        self.idx = end + 2
+        return res
+
 class TestDecoder(TestCase):
     
     # ------------------------------
