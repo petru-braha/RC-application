@@ -1,11 +1,13 @@
 import selectors
+from time import sleep
 from threading import Thread
 
-from network import Connection
+# from network import Connection
+from network import MockConnection as Connection
 from protocol import decoder
-from util import process_input
 
 from exceptions import PartialResponseError
+from util import process_input
 
 from .config import Config
 from .reactor import Reactor
@@ -18,6 +20,11 @@ class Operator(Reactor):
     Manages the event loop and delegates read/write operations to handlers.
     """
 
+    DEFAULT_TIMEOUT: float = 1
+    """
+    The default timeout for the event loop.
+    """
+
     @staticmethod
     def start() -> None:
         Reactor.start()
@@ -28,19 +35,24 @@ class Operator(Reactor):
     def _run():
         while True:
             try:
-                Operator._tick(timeout=1)
+                Operator._tick()
             except Exception as e:
                 logger.critical(f"Operator loop error: {e}", exc_info=True)
 
     @staticmethod
-    def _tick(timeout: float | None = None) -> None:
+    def _tick(timeout: float = DEFAULT_TIMEOUT) -> None:
         """
         Polls for I/O events and dispatches them to the registered handlers.
         
         Args:
             timeout: The maximum time to wait for events. None to wait indefinitely.
         """
-        events = Operator.selector.select(timeout)
+        # On Windows, select() raises OSError if no file descriptors are registered.
+        if not Operator._selector.get_map():
+            sleep(timeout)
+            return
+
+        events = Operator._selector.select(timeout)
         for key, mask in events:
             
             connection = key.fileobj

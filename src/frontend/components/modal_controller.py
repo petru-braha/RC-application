@@ -5,7 +5,8 @@ from core import Operator
 from frontend import PresenceChangeable
 from .modals import ManualConnect, UrlConnect
 
-from network import Connection
+# from network import Connection
+from network import MockConnection as Connection
 
 from .members import Chat, ConnectionBox
 

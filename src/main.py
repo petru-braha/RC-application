@@ -1,9 +1,5 @@
-from dotenv import dotenv_values
-
 from core import Config, Operator
 from frontend import open_window
-
-Config.init(dotenv_values())
 
 logger = Config.get_logger(__name__)
 
