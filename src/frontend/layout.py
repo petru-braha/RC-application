@@ -20,7 +20,6 @@ class Layout(ft.Stack):
                 [LeftPannel(agenda, connect_button), chat_frame],
                 expand=True),
             modal_controller,
-            # todo log context 
         ]
         super().__init__(
             controls=controls,

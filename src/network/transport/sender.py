@@ -2,7 +2,6 @@ from collections import deque
 
 from constants import EMPTY_LEN
 from structs import Address
-from util import process_input
 
 from .sock import Sock
 
@@ -33,12 +32,13 @@ class Sender(Sock):
         """
         return len(self._pending_inputs) > EMPTY_LEN
 
-    def get_first_pending(self) -> str | None:
+    def get_first_pending(self) -> str | bytes | None:
         """
         Retrieves the first pending command without removing it.
 
         Returns:
             str: The first pending command.
+            bytes: The encoded leftover of the first pending command.
             None: If queue is empty.
         """
         if not self.has_pending():
@@ -57,44 +57,29 @@ class Sender(Sock):
         self._pending_inputs.popleft()
         return True
 
-    def send_first_pending(self) -> bool:
+    def shrink_first_pending(self, remaining: bytes) -> None:
         """
-        Sends data to the socket.
+        Updates the first pending command with the remaining bytes after a partial send.
+
+        Parameters:
+            remaining (bytes): The bytes that were not sent.
+        """
+        assert self.has_pending()
+        self._pending_inputs[0] = remaining
+
+    def send(self, data: bytes) -> int:
+        """
+        Sends raw bytes to the socket.
         Socket must be ready for writing!
 
-        Sends and processes the first raw input appended to the deque.
+        Parameters:
+            data (bytes): The data to send.
 
         Returns:
-            bool: True if the first was sent with success.
+            int: The number of bytes sent.
 
         Raises:
             BlockingIOError: If the socket is not ready for writing.
             OSError: If the socket is closed.
         """
-        if not self.has_pending():
-            return False
-        
-        pending = self.get_first_pending()
-        assert pending != None
-        
-        # When partial send occurs,
-        # the first pending input becomes the remaining bytes from the original call.
-        if isinstance(pending, str):
-            encoded = process_input(pending)
-        else:
-            encoded = pending
-        
-        try:
-            sent_count = self._sock.send(encoded)
-        except BlockingIOError:
-            return False
-        
-        if sent_count >= len(encoded):
-            # We will not pop the first pending input here.
-            return True
-
-        # The command was not sent in one go.
-        # Update the pending item with the remaining bytes.
-        remaining = encoded[sent_count:]
-        self._pending_inputs[0] = remaining
-        return True
+        return self._sock.send(data)

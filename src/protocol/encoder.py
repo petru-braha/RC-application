@@ -1,4 +1,6 @@
-from .constants_resp import RespDataType, RESP_SYMB, CRLF
+from constants import CRLF
+
+from .constants_resp import RespDataType, RESP_SYMB
 
 def _encode_arg(arg: str) -> str:
     """

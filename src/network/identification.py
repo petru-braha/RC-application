@@ -4,9 +4,9 @@ from constants import EMPTY_STR
 from structs import Address
 from util import join_cmd_argv
 
-from .transport import Archiver, Receiver, Sender
+from .transport import Receiver, Sender
 
-class Identification(Archiver, Receiver, Sender):
+class Identification(Receiver, Sender):
     """
     Manages the initial identification phase of the Redis protocol connection.
     Handles the HELLO handshake and authentication details.

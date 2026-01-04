@@ -1,6 +1,4 @@
-from protocol.constants_resp import CRLF
-
-from constants import EMPTY_LEN
+from constants import EMPTY_LEN, CRLF
 from exceptions import PartialResponseError
 from structs import Address
 
@@ -57,20 +55,21 @@ class Receiver(Sock):
         And coverts it into UTF-8 string.
 
         Returns:
-            str: The consumed line as a string, including CRLF.
+            str: The consumed line as a string, NOT including CRLF.
         
         Raises:
             PartialResponseError: If the buffer does not contain a CRLF.
         """
         ASCII_CRLF = CRLF.encode()
         try:
-            # Search for CRLF starting from current index
+            # Search for CRLF starting from current index.
             idx = self._buf.index(ASCII_CRLF, self._idx)
         except ValueError:
             raise PartialResponseError("Buffer does not contain a CRLF.")
         
-        end_idx = idx + len(ASCII_CRLF)
+        end_idx = idx
         data = self._buf[self._idx : end_idx]
+        end_idx += len(ASCII_CRLF)
         self._idx = end_idx
         return data.decode()
 

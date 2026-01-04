@@ -1,12 +1,33 @@
 from frozendict import frozendict
 from typing import Callable
 
-from constants import NOT_FOUND_INDEX
+from network import Receiver
+
+from constants import STR_TRAVERSAL_STRIDE, CRLF
 from output import Output, OutputStr, OutputSeq, OutputMap, OutputAtt
 
 from .constants_resp import RespDataType, \
                             SYMB_TYPE, NULL_LENGTH, \
-                            CRLF, NULL
+                            NULL
+
+def decoder(receiver: Receiver) -> Output:
+    """
+    Decodes a RESP-encoded Redis response using a Receiver instance.
+
+    The input is assumed to be well-formed according to RESP rules.
+
+    Parameters:
+        receiver (obj): The receiver instance to consume data from.
+
+    Returns:
+        Output: The decoded value.
+
+    Raises:
+        PartialResponseError: If the buffer provided by receiver is incomplete.
+        ConnectionError: If the connection is closed during reading.
+    """
+    decoder = _Decoder(receiver)
+    return decoder.decoded
 
 class _Decoder:
     """
@@ -16,8 +37,7 @@ class _Decoder:
     preserving the original hierarchical structure.
 
     Attributes:
-        output (str): The raw RESP3 string to decode.
-        output_idx (int): The current index during traversal.
+        receiver (Receiver): The receiver source.
         decoded (Output): The fully decoded representation of the input.
     """
 
@@ -31,12 +51,17 @@ class _Decoder:
     Maps RESP3 data types to their traversal functions.
 
     Used by `_traverser()` to decode values based on type.
-    Each function returns `(decoded_string, next_index)`.
     """
     
-    def __init__(self, output: str) -> None:
-        self._output = output
-        self._output_idx = 0
+    _COLON_SEP: str = ":"
+    """
+    Internal constant.
+
+    The separator between the encoding and the content in a verbatim string.
+    """
+    
+    def __init__(self, receiver: Receiver) -> None:
+        self._receiver = receiver
         self.decoded = self._traverser()
 
     def _traverser(self) -> Output:
@@ -47,11 +72,9 @@ class _Decoder:
 
         Raises:
             KeyError: Invalid first byte of an output.
+            PartialResponseError: If the buffer is empty.
         """
-        symb = self._output[self._output_idx]
-
-        # idx always points to the not read character.
-        self._output_idx += 1
+        symb = self._receiver.consume(STR_TRAVERSAL_STRIDE)
         data_type = SYMB_TYPE[symb]
 
         # Call the appropriate method for the first byte received.
@@ -64,20 +87,15 @@ class _Decoder:
 
         Handles simple strings, simple errors, RESP null values, and similar types.
 
-        Traverses the Redis output from `start_idx` until the CRLF terminator.
+        Traverses the Redis output until the CRLF terminator.
         
         Example: Input "+OK\r\n" returns OutputStr("OK").
 
         Raises:
-            ValueError: the output received is invalid and not ended by CRLF.
+            PartialResponseError: If CRLF is missing.
         """
-        end_idx = self._output.find(CRLF, self._output_idx)
-        if end_idx == NOT_FOUND_INDEX:
-            raise ValueError("Invalid Redis response.", self._output)
-        
-        output = OutputStr(self._output[self._output_idx:end_idx])
-        self._output_idx = end_idx + len(CRLF)
-        return output
+        line = self._receiver.consume_crlf()
+        return OutputStr(line)
 
     def _traverse_null(self) -> OutputStr:
         """
@@ -85,19 +103,19 @@ class _Decoder:
 
         Parses a RESP null value.
 
-        Returns the constant `NULL` and the index after the CRLF.
+        Returns the constant `NULL`.
         
         Example: Input "_\r\n" returns OutputStr("NULL").
         """
         self._traverse_crlf()
         return OutputStr(NULL)
     
-    def _traverse_bulk_string(self) -> OutputStr:
+    def _traverse_bulk(self) -> OutputStr:
         """
         Internal method.
 
-        Parses a bulk string by first reading its declared length,
-        followed by the string content itself.
+        Parses a bulk types by reading its declared length,
+        followed by the content itself.
         
         Example: Input "$6\r\nfoobar\r\n" returns OutputStr("foobar").
         """
@@ -107,22 +125,11 @@ class _Decoder:
         if length == NULL_LENGTH:
             return OutputStr(NULL)
 
-        value = self._output[self._output_idx:self._output_idx + length]
-        self._output_idx += length + len(CRLF)
+        value = self._receiver.consume(length)
+        self._receiver.consume(len(CRLF))
         return OutputStr(value)
 
-    def _traverse_bulk_error(self) -> OutputStr:
-        """
-        Internal method.
-
-        Similar to the bulk string traverser.
-        
-        Example: Input "!5\r\nError\r\n" returns OutputStr("Error").
-        """
-        _ = self._traverse_crlf()
-        return self._traverse_crlf()
-
-    def _traverse_verbatim_string(self) -> OutputStr:
+    def _traverse_verbatim(self) -> OutputStr:
         """
         Internal method.
 
@@ -133,17 +140,21 @@ class _Decoder:
         
         Example: Input "=9\r\ntxt:Hello\r\n" returns OutputStr("Hello").
         """
-        _ = self._traverse_crlf()
-        value = self._traverse_crlf().value
-        # 4 bytes are skipped: enconding bytes and the ":" character.
-        return OutputStr(value[4:])
+        length_str = self._traverse_crlf().value
+        length = int(length_str)
+        
+        content = self._receiver.consume(length)
+        self._receiver.consume(len(CRLF))
+        
+        start_idx = content.index(_Decoder._COLON_SEP)
+        return OutputStr(content[start_idx + 1:])
     
     def _traverse_sequence(self) -> OutputSeq:
         """
         Internal method.
 
         Parses aggregate RESP types such as arrays, sets, and pushes.
-        Although this client does not use commands that emit push messages,
+        Although RC-application does not support push messages,
         the decoder can still interpret them.
         
         Example: Input "*2\r\n:1\r\n:2\r\n" returns OutputSeq((OutputStr("1"), OutputStr("2"))).
@@ -188,37 +199,16 @@ _Decoder._TRAVERSERS = frozendict({
     RespDataType.SIMPLE_STRINGS: _Decoder._traverse_crlf,
     RespDataType.SIMPLE_ERRORS: _Decoder._traverse_crlf,
     RespDataType.INTEGERS: _Decoder._traverse_crlf,
-    RespDataType.BULK_STRINGS: _Decoder._traverse_bulk_string,
+    RespDataType.BULK_STRINGS: _Decoder._traverse_bulk,
     RespDataType.ARRAYS: _Decoder._traverse_sequence,
     RespDataType.NULLS: _Decoder._traverse_null,
     RespDataType.BOOLEANS: _Decoder._traverse_crlf,
     RespDataType.DOUBLES: _Decoder._traverse_crlf,
     RespDataType.BIG_NUMBERS: _Decoder._traverse_crlf,
-    RespDataType.BULK_ERRORS: _Decoder._traverse_bulk_error,
-    RespDataType.VERBATIM_STRINGS: _Decoder._traverse_verbatim_string,
+    RespDataType.BULK_ERRORS: _Decoder._traverse_bulk,
+    RespDataType.VERBATIM_STRINGS: _Decoder._traverse_verbatim,
     RespDataType.MAPS: _Decoder._traverse_map,
     RespDataType.ATTRIBUTES: _Decoder._traverse_attribute,
     RespDataType.SETS: _Decoder._traverse_sequence,
     RespDataType.PUSHES: _Decoder._traverse_sequence,
 })
-
-def decoder(output: str) -> Output:
-    """
-    Decodes a RESP-encoded Redis response.
-
-    The input is assumed to be well-formed according to RESP rules.
-
-    Parameters:
-        output (str): The raw RESP-encoded (Redis) response string.
-
-    Returns:
-        str: The decoded value, represented as a string.
-
-    Raises:
-        RuntimeError: Unexpected exceptions.
-    """
-    try:
-        decoder = _Decoder(output)
-        return decoder.decoded
-    except BaseException as e:
-        raise RuntimeError("Decoder failure.") from e
