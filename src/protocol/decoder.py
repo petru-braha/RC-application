@@ -146,14 +146,11 @@ class _Decoder:
         
         Example: Input "=9\r\ntxt:Hello\r\n" returns OutputStr("Hello").
         """
-        length_str = self._traverse_crlf().value
-        length = int(length_str)
-        
-        content = self._receiver.consume(length)
-        self._receiver.consume(len(CRLF))
-        
+        content = self._traverse_bulk().value
+        # Under the assumption that the server sends valid verbatim strings,
+        # we can safely assume that the index method does not raise errors.
         start_idx = content.index(_Decoder._COLON_SEP)
-        return OutputStr(content[start_idx + 1:])
+        return OutputStr(content[start_idx + len(_Decoder._COLON_SEP) : ])
     
     def _traverse_sequence(self) -> OutputSeq:
         """

@@ -110,10 +110,10 @@ class TestDecoder(TestCase):
 
     def test_verbatim_string(self):
         """
-        The decoder strips the first 4 bytes (encoding + ":" of the content.
+        The decoder strips the first 4 bytes (encoding + ":" of the content).
         """
-        # Length 15: "txt:Some content" -> 3 (txt) + 1 (:) + 11 (content) = 15
-        receiver = MockReceiver("=15\r\ntxt:Some content\r\n")
+        # Length 16: "txt:Some content" -> 3 (txt) + 1 (:) + 12 (content) = 16
+        receiver = MockReceiver("=16\r\ntxt:Some content\r\n")
         actual = decoder(receiver)
         expected = OutputStr("Some content")
         self.assertEqual(actual, expected)

@@ -12,21 +12,6 @@ from dataclasses import dataclass
 from frozendict import frozendict
 from typing import Callable
 
-class _StrConverter:
-    """
-    Internal helper class for converting outputs to strings.
-    """
-    _callback: Callable | None = None
-
-    @staticmethod
-    def format(output) -> str:
-        # Cache formatting logic to ensure initialization occurs only once.
-        if _StrConverter._callback == None:
-            # Use late import to prevent circular dependencies with the formatter.
-            from protocol import formatter
-            _StrConverter._callback = formatter
-        return _StrConverter._callback(output)
-
 class Output:
     """
     Base class for all decoded Redis output types.
@@ -35,8 +20,13 @@ class Output:
 
     Note: The stored data is immutable.
     """
+    _callback: Callable | None = None
+
     def __str__(self) -> str:
-        return _StrConverter.format(self)
+        if Output._callback == None:
+            from .formatter import formatter
+            Output._callback = formatter
+        return Output._callback(self)
 
 @dataclass(frozen=True)
 class OutputStr(Output):
