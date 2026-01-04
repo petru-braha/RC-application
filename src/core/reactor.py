@@ -23,7 +23,7 @@ class Reactor:
         Reactor._response_lambdas = {}
 
     @staticmethod
-    def close():
+    def close() -> None:
         Reactor._selector.close()
     
     @staticmethod
@@ -32,7 +32,7 @@ class Reactor:
         Reactor._response_lambdas[connection] = on_response
     
     @staticmethod
-    def remove_connection(connection: Connection):
+    def remove_connection(connection: Connection) -> None:
         Reactor._selector.unregister(connection)
         Reactor._response_lambdas.pop(connection)
         connection.close()

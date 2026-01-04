@@ -28,3 +28,8 @@ ASCII_ENC: str = "ascii"
 "RESP is a binary protocol that uses control sequences encoded in standard ASCII."
 https://redis.io/docs/latest/develop/reference/protocol-spec/
 """
+
+CRLF: str = "\r\n"
+"""
+Standard RESP encoded data suffix.
+"""

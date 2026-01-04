@@ -5,14 +5,13 @@ from frontend import open_window
 
 def main(dotenv_path: str | None = None) -> None:
     dotenv_dict = dotenv_values(dotenv_path)
-    config = Config(dotenv_dict)
-    
+    Config.init(dotenv_dict)
     Operator.start()
 
-    if config.cli:
+    if Config.cli:
         return # todo
     else:
-        open_window(config)
+        open_window()
     
     Operator.close()
 

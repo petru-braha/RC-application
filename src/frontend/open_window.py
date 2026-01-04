@@ -1,6 +1,5 @@
 import flet as ft
 
-from core import Config
 from .layout import Layout
 
 def build_page(page: ft.Page) -> None:
@@ -15,5 +14,5 @@ def build_page(page: ft.Page) -> None:
     page.theme_mode = ft.ThemeMode.DARK
     page.add(safe_area)
 
-def open_window(config: Config) -> None:
+def open_window() -> None:
     ft.run(build_page, assets_dir="src/ui/assets")
