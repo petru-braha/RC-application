@@ -2,7 +2,7 @@ import socket
 import collections
 
 from core import Config
-from structs import Address
+from core.structs import Address
 
 from .connection import Connection
 

@@ -1,9 +1,10 @@
 import flet as ft
 from typing import Callable
 
-from core import Operator
 from frontend import PresenceChangeable
 from network import Connection
+
+from parallel_operator import ParallelOperator
 
 from .members import Chat, ConnectionBox
 from .modals import ManualConnect, UrlConnect
@@ -30,7 +31,7 @@ class ControllerBase:
         self._on_chat_insert(chat)
 
         def on_connection_close():
-            Operator.remove_connection(connection)
+            ParallelOperator.remove_connection(connection)
             self._on_chat_remove()
         connection_box = ConnectionBox(
             connection.addr,
@@ -39,7 +40,7 @@ class ControllerBase:
             on_agenda_remove=self._on_agenda_remove)
         self._on_agenda_insert(connection_box)
         
-        Operator.register_connection(connection, on_response=chat.on_response)
+        ParallelOperator.register_connection(connection, on_response=chat.on_response)
         self.hide()
 
 class ModalController(ft.Container, ControllerBase, PresenceChangeable):

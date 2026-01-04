@@ -1,28 +1,6 @@
-from dataclasses import dataclass
-import logging
+from logging import Formatter
 
-from output import Output
-
-@dataclass(frozen=True)
-class Address:
-    """
-    Server address composed of host and port.
-    """
-    host: str
-    port: str
-
-    def __str__(self) -> str:
-        return f"{self.host}:{self.port}"
-
-@dataclass()
-class Dialogue:
-    """
-    Request-response pair for a connection.
-    """
-    cmd: str
-    output: Output
-
-class TruncatingLogFormatter(logging.Formatter):
+class LogCompressor(Formatter):
     """
     Custom formatter that truncates messages longer than a specified byte limit.
     """
@@ -53,11 +31,11 @@ class TruncatingLogFormatter(logging.Formatter):
             ValueError: If max_bytes is less than the minimum required bytes.
         """
         super().__init__(fmt, datefmt)
-        if max_bytes < TruncatingLogFormatter.MINIMUM_REQUIRED_BYTES:
+        if max_bytes < LogCompressor.MINIMUM_REQUIRED_BYTES:
             raise ValueError("max_bytes must be at least 3")
         self.max_bytes = max_bytes
 
-    def format(self, record: logging.LogRecord) -> str:
+    def format(self, record) -> str:
         """
         Formats the log record by truncating the message if it exceeds the byte limit.
 
@@ -72,8 +50,8 @@ class TruncatingLogFormatter(logging.Formatter):
         
         if len(msg_bytes) > self.max_bytes:
             # Truncate and add indicator.
-            suffix_bytes = len(TruncatingLogFormatter.TRUNCATION_SUFFIX)
-            truncated_bytes = msg_bytes[:self.max_bytes - suffix_bytes] + TruncatingLogFormatter.TRUNCATION_SUFFIX
+            suffix_bytes = len(LogCompressor.TRUNCATION_SUFFIX)
+            truncated_bytes = msg_bytes[:self.max_bytes - suffix_bytes] + LogCompressor.TRUNCATION_SUFFIX
             truncated_msg = truncated_bytes.decode()
             record.msg = truncated_msg
             # Clear args so getMessage() doesn't try to re-format.

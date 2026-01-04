@@ -1,12 +1,14 @@
-from core import Config, Operator
+from core import Config
 from frontend import open_window
+
+from parallel_operator import ParallelOperator
 
 logger = Config.get_logger(__name__)
 
 def main() -> None:
     logger.info("Starting application...")
     try:
-        Operator.start()
+        ParallelOperator.start()
         if Config.cli:
             raise NotImplementedError("CLI mode is not implemented yet.")
             logger.info("CLI mode enabled.")
@@ -17,7 +19,7 @@ def main() -> None:
         logger.critical(f"Application failed: {e}", exc_info=True)
     finally:
         try:
-            Operator.close()
+            ParallelOperator.close()
         except Exception as e:
             logger.error(f"Failed to close operator: {e}.")
         logger.info("Closing application...")

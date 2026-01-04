@@ -1,30 +1,44 @@
 from typing import Any
 from urllib.parse import urlparse
 
-from core import Config
+from core.config import Config
+from core.constants import EMPTY_STR, SCHEME_LIST, ASCII_ENC
+from core.exceptions import AssignmentError
 from protocol import parser, encoder
-
-from exceptions import AssignmentError
-from constants import EMPTY_STR, SCHEME_LIST, ASCII_ENC
 
 logger = Config.get_logger(__name__)
 
-def join_cmd_argv(cmd: str, argv: list[str]) -> str:
+def process_input(input_str: str) -> bytes:
     """
-    Concatenates a command name and its arguments into a space-separated string.
-
+    Processes the input string by parsing it into a command and arguments,
+    encoding it, and returning the encoded bytes.
+    
+    Args:
+        input_str (str): A string representing the input to be processed.
+    
     Returns:
-        str: The formatted command string.
+        bytes: The encoded bytes of the input string.
 
     Raises:
-        ValueError: If the command name is empty.
+        ValueError: If the input string is invalid.
     """
-    if not cmd:
-        raise ValueError("Command name cannot be empty.")
+    logger.debug(f"Processing input: {input_str}.")
     
-    fragments = [cmd]
-    fragments.extend(argv)
-    return " ".join(fragments)
+    try:
+        cmd, argv = parser(input_str)
+    except Exception as e:
+        raise ValueError(f"Invalid input {input_str}. {e}.")
+    logger.debug(f"Parsed command: {cmd}, arguments: {argv}.")
+    
+    # todo sanitizer
+    
+    encoded = encoder(cmd, argv)
+    logger.debug(f"Encoded command: {encoded}.")
+    
+    return encoded.encode(ASCII_ENC)
+
+def process_output(output: Output) -> str:
+    pass
 
 def process_redis_url(url: str) -> tuple[str, str, str, str, str]:
     """
@@ -69,35 +83,6 @@ def process_redis_url(url: str) -> tuple[str, str, str, str, str]:
     # Do not log the password, sensitive data.
     logger.debug(f"Url connection details: host={host}, port={port}, user={user}, db={db_idx}")
     return (host, port, user, pasw, db_idx)
-
-def process_input(input_str: str) -> bytes:
-    """
-    Processes the input string by parsing it into a command and arguments,
-    encoding it, and returning the encoded bytes.
-    
-    Args:
-        input_str (str): A string representing the input to be processed.
-    
-    Returns:
-        bytes: The encoded bytes of the input string.
-
-    Raises:
-        ValueError: If the input string is invalid.
-    """
-    logger.debug(f"Processing input: {input_str}.")
-    
-    try:
-        cmd, argv = parser(input_str)
-    except Exception as e:
-        raise ValueError(f"Invalid input {input_str}. {e}.")
-    logger.debug(f"Parsed command: {cmd}, arguments: {argv}.")
-    
-    # todo sanitizer?
-    
-    encoded = encoder(cmd, argv)
-    logger.debug(f"Encoded command: {encoded}.")
-    
-    return encoded.encode(ASCII_ENC)
 
 class Immutable:
     """

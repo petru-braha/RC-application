@@ -3,7 +3,7 @@ from enum import IntEnum
 import logging
 import sys
 
-from structs import TruncatingLogFormatter
+from .util import LogCompressor
 
 # Keep this as an enum since it can be extended to much more (e.g. testing).
 class Stage(IntEnum):
@@ -116,11 +116,11 @@ class Config:
 
         Config.stdout_handler.setLevel(logging.DEBUG)
         Config.stdout_handler.setFormatter(
-            TruncatingLogFormatter(Config.SIMPLE_FORMAT, TruncatingLogFormatter.DEFAULT_MAX_BYTES / 4))
+            LogCompressor(Config.SIMPLE_FORMAT, LogCompressor.DEFAULT_MAX_BYTES / 4))
         Config.stdout_handler.addFilter(lambda r: r.levelno <= logging.INFO)
         
         Config.stderr_handler.setLevel(logging.WARNING)
-        Config.stderr_handler.setFormatter(TruncatingLogFormatter(Config.DANGER_FORMAT))
+        Config.stderr_handler.setFormatter(LogCompressor(Config.DANGER_FORMAT))
 
     @staticmethod
     def get_logger(name: str) -> logging.Logger:

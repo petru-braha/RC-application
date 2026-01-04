@@ -1,19 +1,16 @@
-import selectors
+from selectors import EVENT_READ, EVENT_WRITE
 from time import sleep
 from threading import Thread
 
+from core import Config, PartialResponseError
 from network import Connection
-from protocol import decoder
 
-from exceptions import PartialResponseError
-from util import process_input
-
-from .config import Config
-from .reactor import Reactor
+from reactor import Reactor
+from util import process_input, process_output
 
 logger = Config.get_logger(__name__)
 
-class Operator(Reactor):
+class ParallelOperator(Reactor):
     """
     Dispatcher engine for I/O events.
     Manages the event loop and delegates read/write operations to handlers.
@@ -57,9 +54,9 @@ class Operator(Reactor):
             connection = key.fileobj
             assert isinstance(connection, Connection)
             
-            if mask & selectors.EVENT_READ:
+            if mask & EVENT_READ:
                 Operator._handle_read(connection)
-            if mask & selectors.EVENT_WRITE:
+            if mask & EVENT_WRITE:
                 Operator._handle_write(connection)
 
     @staticmethod
@@ -115,7 +112,11 @@ class Operator(Reactor):
         # When partial send occurs,
         # the first pending input becomes the remaining bytes from the previous call.
         if isinstance(pending, str):
-            encoded = process_input(pending)
+            try:
+                encoded = process_input(pending)
+            except Exception as e:
+                logger.error(f"Error when encoding data to {connection.addr}: {e}.", exc_info=True)
+                return
         else:
             logger.debug(f"Sending leftovers from a previous command: {pending}.")
             encoded = pending

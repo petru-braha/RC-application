@@ -1,9 +1,8 @@
 import selectors
 from typing import Callable
 
+from core import Config
 from network import Connection
-
-from .config import Config
 
 logger = Config.get_logger(__name__)
 
