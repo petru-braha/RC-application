@@ -1,3 +1,4 @@
+from dotenv import dotenv_values
 from enum import IntEnum
 import logging
 import sys
@@ -46,7 +47,7 @@ class Config:
     Format string for simple logging (used in console output).
     """
 
-    cli: bool
+    cli: bool | None = None
     """
     Indicates if the application is running in Command Line Interface mode.
     """
@@ -77,19 +78,17 @@ class Config:
     """
 
     @staticmethod
-    def init(dotenv_dict: dict[str, str | None]) -> None:
+    def init() -> None:
         """
         Initializes the configuration static variables.
 
         Sets default values and overrides them with provided environment variables.
         Also configures the logging handlers.
-
-        Parameters:
-            dotenv_dict (dict): Dictionary containing environment variables.
-
-        Raises:
-            KeyError: If an invalid stage is provided in the environment variables.
         """
+        if Config.cli != None:
+            return
+        
+        dotenv_dict = dotenv_values()
         Config.cli = len(sys.argv) > 1 and sys.argv[1] == Config._CLI_FLAG
 
         app_configs = [
@@ -97,8 +96,8 @@ class Config:
             ("tls_enforced", False, lambda x: str(x).lower() == "true"),
             ("max_connections", Config.DEFAULT_MAX_CONNECTIONS, int),
             ("file_handler", None, logging.FileHandler),
-            ("stdout_handler", None, logging.StreamHandler),
-            ("stderr_handler", None, logging.StreamHandler)
+            ("stdout_handler", None, logging.FileHandler),
+            ("stderr_handler", None, logging.FileHandler)
         ]
         for key, default, func in app_configs:
             if value := dotenv_dict.get(key):
@@ -147,3 +146,5 @@ class Config:
         logger.addHandler(Config.stderr_handler)
 
         return logger
+
+Config.init()
