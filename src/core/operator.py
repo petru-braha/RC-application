@@ -7,7 +7,10 @@ from util import process_input
 
 from exceptions import PartialResponseError
 
+from .config import Config
 from .reactor import Reactor
+
+logger = Config.get_logger(__name__)
 
 class Operator(Reactor):
     """
@@ -18,6 +21,7 @@ class Operator(Reactor):
     @staticmethod
     def start() -> None:
         Reactor.start()
+        logger.info("Starting Operator event loop thread.")
         Thread(target=Operator._run, daemon=True).start()
 
     @staticmethod
@@ -26,7 +30,7 @@ class Operator(Reactor):
             try:
                 Operator._tick(timeout=1)
             except Exception as e:
-                print(f"Reactor loop error: {e}")
+                logger.critical(f"Operator loop error: {e}", exc_info=True)
 
     @staticmethod
     def _tick(timeout: float | None = None) -> None:
@@ -58,13 +62,28 @@ class Operator(Reactor):
         try:
             initial_buf_idx = connection._buf_idx
             output = decoder(connection)
+            
+            logger.debug(f"Reflected: {output}.")
             Operator._response_lambdas[connection](output)
         
-        except PartialResponseError:
+        # When a partial response is encountered, 
+        # the buffer index is rolled back to the initial position, 
+        # and the next chunk of data is read and concatenated to the initial buffer. 
+        except PartialResponseError as e:
+            logger.debug(f"Partial output received: {e}.")
+            logger.debug(f"Rolling back {connection._buf_idx - initial_buf_idx} bytes.")
             connection._buf_idx = initial_buf_idx
-            bytes_read = connection.recv()
-        except (Exception, AssertionError):
-            pass
+            try:
+                connection.recv()
+            except BlockingIOError:
+                logger.debug("Receiving would block.")
+                return
+            except Exception as e:
+                logger.error(f"Error receiving data from {connection.addr}: {e}.")
+                return
+
+        except Exception as e:
+            logger.error(f"Error when decoding data from {connection.addr}: {e}.", exc_info=True)
     
     @staticmethod
     def _handle_write(connection: Connection) -> None:
@@ -87,15 +106,17 @@ class Operator(Reactor):
         if isinstance(pending, str):
             encoded = process_input(pending)
         else:
+            logger.debug(f"Sending leftovers from a previous command: {pending}.")
             encoded = pending
 
         try:
             sent_count = connection.send(encoded)
+            logger.debug(f"Sent {sent_count} bytes to {connection.addr}")
         except BlockingIOError:
-            # todo log
+            logger.debug("Sending would block.")
             return
-        except OSError:
-            # todo delete the socket yourself...
+        except OSError as e:
+            logger.error(f"Write error on {connection.addr}: {e}. Remove the connection if closed.")
             return
         
         if sent_count >= len(encoded):
@@ -104,5 +125,6 @@ class Operator(Reactor):
 
         # The command was not sent in one go.
         # Update the pending item with the remaining bytes.
+        logger.debug(f"Partial send for {connection.addr}: {sent_count}/{len(encoded)} bytes sent.")
         remaining = encoded[sent_count:]
         connection.shrink_first_pending(remaining)

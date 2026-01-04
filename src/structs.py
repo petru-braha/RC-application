@@ -53,7 +53,7 @@ class TruncatingLogFormatter(logging.Formatter):
             ValueError: If max_bytes is less than the minimum required bytes.
         """
         super().__init__(fmt, datefmt)
-        if max_bytes < TruncatingFormatter.MINIMUM_REQUIRED_BYTES:
+        if max_bytes < TruncatingLogFormatter.MINIMUM_REQUIRED_BYTES:
             raise ValueError("max_bytes must be at least 3")
         self.max_bytes = max_bytes
 
@@ -72,8 +72,8 @@ class TruncatingLogFormatter(logging.Formatter):
         
         if len(msg_bytes) > self.max_bytes:
             # Truncate and add indicator.
-            suffix_bytes = len(TruncatingFormatter.TRUNCATION_SUFFIX)
-            truncated_bytes = msg_bytes[:self.max_bytes - suffix_bytes] + TruncatingFormatter.TRUNCATION_SUFFIX
+            suffix_bytes = len(TruncatingLogFormatter.TRUNCATION_SUFFIX)
+            truncated_bytes = msg_bytes[:self.max_bytes - suffix_bytes] + TruncatingLogFormatter.TRUNCATION_SUFFIX
             truncated_msg = truncated_bytes.decode()
             record.msg = truncated_msg
             # Clear args so getMessage() doesn't try to re-format.

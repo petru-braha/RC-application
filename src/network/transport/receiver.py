@@ -1,8 +1,12 @@
+from core import Config
+
 from constants import EMPTY_LEN, CRLF
 from exceptions import PartialResponseError
 from structs import Address
 
 from .sock import Sock
+
+logger = Config.get_logger(__name__)
 
 class Receiver(Sock):
     """
@@ -47,6 +51,8 @@ class Receiver(Sock):
         
         data = self._buf[self._idx : self._idx + bufsize]
         self._idx += bufsize
+        
+        logger.debug(f"Consumed {bufsize} bytes from buffer. Remaining: {len(self._buf) - self._idx}.")
         return data.decode()
 
     def consume_crlf(self) -> str:
@@ -63,13 +69,15 @@ class Receiver(Sock):
         ASCII_CRLF = CRLF.encode()
         try:
             # Search for CRLF starting from current index.
-            idx = self._buf.index(ASCII_CRLF, self._idx)
+            end_idx = self._buf.index(ASCII_CRLF, self._idx)
         except ValueError:
             raise PartialResponseError("Buffer does not contain a CRLF.")
         
-        end_idx = idx
+        # Here we want to consume CRLF but not include it the returned string.
         data = self._buf[self._idx : end_idx]
         end_idx += len(ASCII_CRLF)
+        
+        logger.debug(f"Consumed {end_idx - self._idx} bytes from buffer. Remaining: {len(self._buf) - end_idx}.")
         self._idx = end_idx
         return data.decode()
 
@@ -92,6 +100,8 @@ class Receiver(Sock):
         data = self._sock.recv(bufsize)
         if len(data) == EMPTY_LEN:
             raise ConnectionError("Socket closed by peer.")
+
+        logger.debug(f"Received {len(data)} bytes from socket. Available: {len(self._buf) - self._idx}.")
         self._buf.extend(data)
         return len(data)
     

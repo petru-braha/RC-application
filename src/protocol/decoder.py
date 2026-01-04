@@ -1,6 +1,7 @@
 from frozendict import frozendict
 from typing import Callable
 
+from core import Config
 from network import Receiver
 
 from constants import STR_TRAVERSAL_STRIDE, CRLF
@@ -9,6 +10,8 @@ from output import Output, OutputStr, OutputSeq, OutputMap, OutputAtt
 from .constants_resp import RespDataType, \
                             SYMB_TYPE, NULL_LENGTH, \
                             NULL
+
+logger = Config.get_logger(__name__)
 
 def decoder(receiver: Receiver) -> Output:
     """
@@ -75,7 +78,11 @@ class _Decoder:
             PartialResponseError: If the buffer is empty.
         """
         symb = self._receiver.consume(STR_TRAVERSAL_STRIDE)
-        data_type = SYMB_TYPE[symb]
+        try:
+            data_type = SYMB_TYPE[symb]
+        except KeyError:
+            logger.error(f"Unknown RESP type byte received: {symb!r}")
+            raise
 
         # Call the appropriate method for the first byte received.
         traverser = _Decoder._TRAVERSERS[data_type]

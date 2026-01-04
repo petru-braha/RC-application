@@ -1,10 +1,14 @@
 from protocol.cmds.patterns.constants import AUTH_ARG
 
+from core import Config
+
 from constants import EMPTY_STR
 from structs import Address
 from util import join_cmd_argv
 
 from .transport import Receiver, Sender
+
+logger = Config.get_logger(__name__)
 
 class Identification(Receiver, Sender):
     """
@@ -50,11 +54,10 @@ class Identification(Receiver, Sender):
         host = Identification.DEFAULT_HOST if host == None else host
         port = Identification.DEFAULT_PORT if port == None else port
         addr = Address(host, port)
-
+        
         initial_user = Identification.DEFAULT_USER if user == None else user
         initial_pasw = EMPTY_STR if pasw == None else pasw
 
-        Archiver.__init__(self)
         Receiver.__init__(self, addr)
         Sender.__init__(self, addr)
         self.say_hello(initial_user, initial_pasw)
@@ -72,4 +75,6 @@ class Identification(Receiver, Sender):
         """
         argv = [protver, AUTH_ARG.pattern, user, pasw]
         pending_input = join_cmd_argv(Identification._HELLO_CMD, argv)
+        
+        logger.info(f"Queueing HELLO handshake for user '{user}' (Protocol {protver}).")
         self.add_pending(pending_input)

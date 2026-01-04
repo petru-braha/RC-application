@@ -1,4 +1,8 @@
+from core import Config
+
 from .database_link import DatabaseLink
+
+logger = Config.get_logger(__name__)
 
 # "Connection" is being kept as a separated class.
 # If additional functionality is needed, it can be added here,
@@ -12,4 +16,5 @@ class Connection(DatabaseLink):
     # Host and port are internally converted into an Address object.
     # Clients might be interested in typing them manually, so they are kept as separated parameters.
     def __init__(self, host: str, port: str, user: str, pasw: str, db_idx: str) -> None:
+        logger.info(f"Initializing connection pipeline for {host}:{port}.")
         super().__init__(host, port, user, pasw, db_idx)

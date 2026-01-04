@@ -1,6 +1,10 @@
 import socket
 
+from core import Config
+
 from structs import Address
+
+logger = Config.get_logger(__name__)
 
 class Sock:
     """
@@ -26,6 +30,7 @@ class Sock:
             ConnectionError: If DNS resolution fails or
                              no connection was established.
         """
+        logger.debug(f"Resolving address for {addr}...")
         try:
             addr_infos = socket.getaddrinfo(
                 addr.host, addr.port,
@@ -44,17 +49,21 @@ class Sock:
                 # Disables Nagle's algorithm to ensure small latency.
                 sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, Sock._DEFAULT_OPT_VALUE)
                 
+                logger.debug(f"Connecting to {sockaddr}...")
                 sock.connect(sockaddr)
                 # Enable multiplexing only after successful connection.
                 sock.setblocking(False)
+                logger.info(f"Successfully connected to {addr} ({sockaddr}).")
                 break
-            except (socket.error, InterruptedError):
+            except (socket.error, InterruptedError) as e:
+                logger.warning(f"Failed to connect to {sockaddr}: {e}.")
                 if sock:
                     sock.close()
                 sock = None
 
         if sock == None:
             # No address available.
+            logger.error(f"Could not establish connection to {addr} after trying all address families.")
             raise ConnectionError(f"Failed to connect to {addr.host}:{addr.port}.")
         
         # Initially, Sock was planned to inherit from socket.socket.
@@ -74,10 +83,11 @@ class Sock:
         if self._sock._closed:
             return
         
+        logger.info(f"Closing connection to {self.addr}.")
         try:
             self._sock.shutdown(socket.SHUT_RDWR)
-        except OSError:
+        except OSError as e:
             # The socket might be broken or closed by the peer first.
-            pass
+            logger.debug(f"Error when shutting down {self.addr} (likely already closed): {e}.")
         finally:
             self._sock.close()

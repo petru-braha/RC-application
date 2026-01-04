@@ -1,9 +1,13 @@
 from collections import deque
 
+from core import Config
+
 from constants import EMPTY_LEN
 from structs import Address
 
 from .sock import Sock
+
+logger = Config.get_logger(__name__)
 
 class Sender(Sock):
     """
@@ -12,7 +16,7 @@ class Sender(Sock):
         
     def __init__(self, addr: Address) -> None:
         super().__init__(addr)
-        self._pending_inputs = deque()
+        self._pending_inputs: deque[str | bytes] = deque()
 
     def add_pending(self, pending: str) -> None:
         """
@@ -22,6 +26,7 @@ class Sender(Sock):
             pending (str): The command to add.
         """
         self._pending_inputs.append(pending)
+        logger.debug(f"Added pending raw command: {pending}.")
 
     def has_pending(self) -> bool:
         """
@@ -54,7 +59,9 @@ class Sender(Sock):
         """
         if not self.has_pending():
             return False
-        self._pending_inputs.popleft()
+        
+        cmd = self._pending_inputs.popleft()
+        logger.debug(f"Removed first pending command: {cmd}.")
         return True
 
     def shrink_first_pending(self, remaining: bytes) -> None:
@@ -65,6 +72,9 @@ class Sender(Sock):
             remaining (bytes): The bytes that were not sent.
         """
         assert self.has_pending()
+        cmd = self._pending_inputs[0]
+        
+        logger.debug(f"Shrinking first pending command from {cmd} to {remaining}.")
         self._pending_inputs[0] = remaining
 
     def send(self, data: bytes) -> int:

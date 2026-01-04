@@ -1,6 +1,10 @@
+from core import Config
+
 from constants import EMPTY_STR
 
 from .identification import Identification
+
+logger = Config.get_logger(__name__)
 
 class DatabaseLink(Identification):
     """
@@ -35,4 +39,5 @@ class DatabaseLink(Identification):
         Parameters:
             db_idx (str): The index of the database to select.
         """
+        logger.info(f"Queueing SELECT command for database index '{db_idx}'.")
         self.add_pending(f"{DatabaseLink._SELECT_CMD} {db_idx}")
