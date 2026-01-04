@@ -35,9 +35,6 @@ class MockConnection(Connection):
         self._sock.setblocking(False)
         self._peer.setblocking(False)
 
-        # Simulate authentication steps if needed, 
-        # or just acknowledge everything sent to _peer.
-
     def send(self, data: bytes) -> int:
         """
         Intercepts data sent to the socket and queues a mock response.
