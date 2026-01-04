@@ -1,4 +1,4 @@
-from core import Config
+from core.config import Config
 
 from .database_link import DatabaseLink
 

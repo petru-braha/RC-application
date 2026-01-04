@@ -23,7 +23,7 @@ class _StrConverter:
         # Cache formatting logic to ensure initialization occurs only once.
         if _StrConverter._callback == None:
             # Use late import to prevent circular dependencies with the formatter.
-            from .protocol.formatter import formatter
+            from protocol import formatter
             _StrConverter._callback = formatter
         return _StrConverter._callback(output)
 

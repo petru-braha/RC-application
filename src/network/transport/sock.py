@@ -1,8 +1,7 @@
 import socket
 
-from core import Config
-
-from structs import Address
+from core.config import Config
+from core.structs import Address
 
 logger = Config.get_logger(__name__)
 

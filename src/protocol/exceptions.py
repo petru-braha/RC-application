@@ -1,4 +1,4 @@
-from exceptions import RCException
+from core.exceptions import RCException
 
 #! parser errors
 class ParserError(RCException):

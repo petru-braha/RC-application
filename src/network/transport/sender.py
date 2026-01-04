@@ -1,9 +1,8 @@
 from collections import deque
 
-from core import Config
-
-from constants import EMPTY_LEN
-from structs import Address
+from core.config import Config
+from core.constants import EMPTY_LEN
+from core.structs import Address
 
 from .sock import Sock
 

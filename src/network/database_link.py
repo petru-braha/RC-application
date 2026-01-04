@@ -1,6 +1,5 @@
-from core import Config
-
-from constants import EMPTY_STR
+from core.config import Config
+from core.constants import EMPTY_STR
 
 from .identification import Identification
 

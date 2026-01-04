@@ -1,12 +1,9 @@
-from protocol.cmds.patterns.constants import AUTH_ARG
-
-from core import Config
-
-from constants import EMPTY_STR
-from structs import Address
-from util import join_cmd_argv
+from core.config import Config
+from core.constants import EMPTY_STR
+from core.structs import Address
 
 from .transport import Receiver, Sender
+from .util import join_cmd_argv
 
 logger = Config.get_logger(__name__)
 
@@ -33,6 +30,10 @@ class Identification(Receiver, Sender):
     """
     First command ever sent to a newly established connection.
     Negotiates the protocol, and authentificate the client.
+    """
+    _AUTH_ARG: str = "AUTH"
+    """
+    The authentication argument for the HELLO command.
     """
     _RESP3: str = "3"
     """
@@ -73,7 +74,7 @@ class Identification(Receiver, Sender):
             pasw (str): The password for authentication.
             protver (str): The RESP protocol version to negotiate (default is 3).
         """
-        argv = [protver, AUTH_ARG.pattern, user, pasw]
+        argv = [protver, Identification._AUTH_ARG, user, pasw]
         pending_input = join_cmd_argv(Identification._HELLO_CMD, argv)
         
         logger.info(f"Queueing HELLO handshake for user '{user}' (Protocol {protver}).")

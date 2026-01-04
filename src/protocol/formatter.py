@@ -1,5 +1,6 @@
-from constants import EMPTY_STR, STR_TRAVERSAL_STRIDE, CRLF
-from output import Output, OutputStr, OutputSeq, OutputMap, OutputAtt
+from core.constants import EMPTY_STR, STR_TRAVERSAL_STRIDE, CRLF
+
+from .output import Output, OutputStr, OutputSeq, OutputMap, OutputAtt
 
 def formatter(output: Output, prefix: str = EMPTY_STR) -> str:
     """

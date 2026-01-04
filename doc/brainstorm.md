@@ -53,3 +53,10 @@ an issue is complete when the following items are achieved:
 0. tests
 0. errors
 0. documentation
+
+## Some random notes
+
+```ps1
+$env:PYTHONPATH='src'; python3.13.exe -m coverage run -m unittest discover -s tst -t .
+python3 -m coverage report -m
+```

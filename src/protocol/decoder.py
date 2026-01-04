@@ -1,15 +1,14 @@
 from frozendict import frozendict
 from typing import Callable
 
-from core import Config
+from core.config import Config
+from core.constants import STR_TRAVERSAL_STRIDE, CRLF
 from network import Receiver
-
-from constants import STR_TRAVERSAL_STRIDE, CRLF
-from output import Output, OutputStr, OutputSeq, OutputMap, OutputAtt
 
 from .constants_resp import RespDataType, \
                             SYMB_TYPE, NULL_LENGTH, \
                             NULL
+from .output import Output, OutputStr, OutputSeq, OutputMap, OutputAtt
 
 logger = Config.get_logger(__name__)
 

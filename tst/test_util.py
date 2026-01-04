@@ -1,29 +1,19 @@
 from unittest import TestCase
 
-# from protocol import parser, encoder
-
-from exceptions import AssignmentError
-from util import join_cmd_argv, process_redis_url, process_input
+from src.core.exceptions import AssignmentError
+from src.util import process_redis_url
 
 class TestUtil(TestCase):
-
     # ------------------------------
-    # ---- join_cmd_argv method ----
+    # ---- process_input method ----
     # ------------------------------
 
-    def test_simple_join(self):
-        expected = "SET key 1"
-        actual = join_cmd_argv("SET", ["key", "1"])
+    def test_process_input(self):
+        expected = "test"
+        actual = process_input("test")
         self.assertEqual(actual, expected)
-
-    def test_join_empty_argv(self):
-        expected = "HELLO"
-        actual = join_cmd_argv("HELLO", [])
-        self.assertEqual(actual, expected)
-
-    def test_join_empty_cmd(self):
-        with self.assertRaises(ValueError):
-            join_cmd_argv("", [])
+        self.assertCalled(encoder, once)
+        self.assertCalled(parser, once)
 
     # ------------------------------
     # -- process_redis_url method --
@@ -52,17 +42,6 @@ class TestUtil(TestCase):
     def test_process_url_invalid_db(self):
         with self.assertRaises(ValueError):
             process_redis_url("redis://localhost:6379/my_db")
-
-    # ------------------------------
-    # ---- process_input method ----
-    # ------------------------------
-
-    #def test_process_input(self):
-    #    expected = "test"
-    #    actual = process_input("test")
-    #    self.assertEqual(actual, expected)
-    #    self.assertCalled(encoder, once)
-    #    self.assertCalled(parser, once)
 
     # ------------------------------
     # ------ Immutable class -------

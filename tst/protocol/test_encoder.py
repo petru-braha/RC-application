@@ -1,5 +1,6 @@
 from unittest import TestCase
-from protocol.encoder import encoder
+
+from src.protocol.encoder import encoder
 
 class TestEncoder(TestCase):
     """

@@ -1,4 +1,4 @@
-from constants import CRLF
+from core.constants import CRLF
 
 from .constants_resp import RespDataType, RESP_SYMB
 
