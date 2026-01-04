@@ -31,5 +31,6 @@ class ConnectionBox(ft.Container):
             height=80,
             bgcolor=ft.Colors.BLUE_GREY_700,
             border_radius=5,
-            on_click=on_click
+            on_click=on_click,
+            ink=True
         )

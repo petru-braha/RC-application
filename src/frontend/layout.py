@@ -1,7 +1,7 @@
 import flet as ft 
 
 from .components import Agenda, ChatFrame, ModalController
-from .left_panel import LeftPannel
+from .left_panel import LeftPanel
 
 class Layout(ft.Stack):
     def __init__(self) -> None:
@@ -11,13 +11,14 @@ class Layout(ft.Stack):
         modal_controller = ModalController(
             on_agenda_insert=agenda.insert,
             on_agenda_remove=agenda.remove,
-            on_chat_insert=chat_frame.set_chat,
-            on_chat_remove=chat_frame.reset)
+            on_chat_insert=chat_frame.add_chat,
+            on_chat_select=chat_frame.set_chat,
+            on_chat_remove=chat_frame.rem_chat)
         connect_button = ft.Button("Connect", on_click=modal_controller.show)
         
         controls: list[ft.Control] = [
             ft.Row(
-                [LeftPannel(agenda, connect_button), chat_frame],
+                [LeftPanel(agenda, connect_button), chat_frame],
                 expand=True),
             modal_controller,
         ]

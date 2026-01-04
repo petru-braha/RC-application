@@ -25,13 +25,13 @@ class ParallelOperator(Reactor):
     def start() -> None:
         Reactor.start()
         logger.info("Starting Operator event loop thread.")
-        Thread(target=Operator._run, daemon=True).start()
+        Thread(target=ParallelOperator._run, daemon=True).start()
 
     @staticmethod
     def _run():
         while True:
             try:
-                Operator._tick()
+                ParallelOperator._tick()
             except Exception as e:
                 logger.critical(f"Operator loop error: {e}", exc_info=True)
 
@@ -44,20 +44,20 @@ class ParallelOperator(Reactor):
             timeout: The maximum time to wait for events. None to wait indefinitely.
         """
         # On Windows, select() raises OSError if no file descriptors are registered.
-        if not Operator._selector.get_map():
+        if not ParallelOperator._selector.get_map():
             sleep(timeout)
             return
 
-        events = Operator._selector.select(timeout)
+        events = ParallelOperator._selector.select(timeout)
         for key, mask in events:
             
             connection = key.fileobj
             assert isinstance(connection, Connection)
             
             if mask & EVENT_READ:
-                Operator._handle_read(connection)
+                ParallelOperator._handle_read(connection)
             if mask & EVENT_WRITE:
-                Operator._handle_write(connection)
+                ParallelOperator._handle_write(connection)
 
     @staticmethod
     def _handle_read(connection: Connection) -> None:
@@ -72,7 +72,7 @@ class ParallelOperator(Reactor):
             output = decoder(connection)
             
             logger.debug(f"Reflected: {output}.")
-            Operator._response_lambdas[connection](output)
+            ParallelOperator._response_lambdas[connection](output)
         
         # When a partial response is encountered, 
         # the buffer index is rolled back to the initial position, 
