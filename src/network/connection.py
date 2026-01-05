@@ -31,6 +31,3 @@ class Connection(DatabaseLink):
     def close(self) -> None:
         self.sock.close()
         Connection.count -= 1
-    
-    def fileno(self) -> int:
-        return self.sock.fileno()

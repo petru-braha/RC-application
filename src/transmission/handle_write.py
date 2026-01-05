@@ -35,9 +35,6 @@ def handle_write(connection: Connection) -> None:
         # If the previous command was not fully received by the peer,
         # do NOT send this one.
         if connection.synchronizer.all_recv != True:
-            logger.debug(
-                f"Not sending {pending} to {str(connection.addr)} yet.\n"
-                "Waiting for the previous command to be fully received.")
             return
         connection.synchronizer.sync_input(pending)
         # This might raise ValueError.

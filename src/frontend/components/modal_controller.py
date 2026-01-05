@@ -40,7 +40,7 @@ class ControllerBase:
         
         chat = Chat(
             text=str(connection.addr),
-            on_enter=connection.add_pending)
+            on_enter=connection.sender.add_pending)
         self._on_chat_insert(chat)
 
         def on_connection_close():
