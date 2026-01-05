@@ -1,6 +1,6 @@
 from core.constants import EMPTY_STR, STR_TRAVERSAL_STRIDE, CRLF
 
-from .output import Output, OutputStr, OutputSeq, OutputMap, OutputAtt
+from .output import Output, OutputStr, OutputErr, OutputSeq, OutputMap, OutputAtt
 
 def formatter(output: Output, prefix: str = EMPTY_STR) -> str:
     """
@@ -20,7 +20,7 @@ def formatter(output: Output, prefix: str = EMPTY_STR) -> str:
         AssertionError: If the output type is NOT one of the expected Output subclasses.
     """
     # Strings (leaf nodes). No recursive calls are performed here.
-    if isinstance(output, OutputStr):
+    if isinstance(output, OutputStr, OutputErr):
         return _format_str(output.value, prefix)
     
     # Aggregate types. Potentially contain recursive calls.

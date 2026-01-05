@@ -1,7 +1,11 @@
 import flet as ft
 from typing import Callable
 
+from core import get_logger
+
 from .interfaces import PresenceChangeable
+
+logger = get_logger(__name__)
 
 class Chat(ft.Container, PresenceChangeable):
     def __init__(self, text: str, on_enter: Callable[[str], None]) -> None:
@@ -53,6 +57,7 @@ class Chat(ft.Container, PresenceChangeable):
         if not req:
             return
 
+        logger.debug(f"Processing request: {req}.")
         self._on_enter(req)
         
         self.cmd_input.value = ""
@@ -67,6 +72,7 @@ class Chat(ft.Container, PresenceChangeable):
         """
         Called by reactor.
         """
+        logger.debug(f"Processing response: {res}.")
         bubble = self._create_server_bubble(res)
         self.history_box.controls.append(bubble)
         self.update()

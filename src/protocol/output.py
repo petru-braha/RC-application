@@ -36,6 +36,13 @@ class OutputStr(Output):
     value: str
 
 @dataclass(frozen=True)
+class OutputErr(Output):
+    """
+    Represents a RESP error (simple or bulk).
+    """
+    value: str
+
+@dataclass(frozen=True)
 class OutputSeq(Output):
     """
     Represents a list-like collection of Redis outputs (arrays, sets, or pushes).

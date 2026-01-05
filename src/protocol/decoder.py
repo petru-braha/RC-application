@@ -8,7 +8,7 @@ from network import Receiver
 from .constants_resp import RespDataType, \
                             SYMB_TYPE, NULL_LENGTH, \
                             NULL
-from .output import Output, OutputStr, OutputSeq, OutputMap, OutputAtt
+from .output import Output, OutputStr, OutputErr, OutputSeq, OutputMap, OutputAtt
 
 logger = get_logger(__name__)
 
@@ -86,7 +86,7 @@ class _Decoder:
         traverser = _Decoder._TRAVERSERS[data_type]
         return traverser(self)
 
-    def _traverse_crlf(self) -> OutputStr:
+    def _traverse_string(self) -> OutputStr:
         """
         Internal method.
 
@@ -112,19 +112,19 @@ class _Decoder:
         
         Example: Input "_\r\n" returns OutputStr("NULL").
         """
-        self._traverse_crlf()
+        self._traverse_string()
         return OutputStr(NULL)
     
-    def _traverse_bulk(self) -> OutputStr:
+    def _traverse_bulk_string(self) -> OutputStr:
         """
         Internal method.
 
-        Parses a bulk types by reading its declared length,
+        Parses a bulk string by reading its declared length,
         followed by the content itself.
         
         Example: Input "$6\r\nfoobar\r\n" returns OutputStr("foobar").
         """
-        length_str = self._traverse_crlf().value
+        length_str = self._traverse_string().value
         length = int(length_str)
 
         if length == NULL_LENGTH:
@@ -134,7 +134,7 @@ class _Decoder:
         self._receiver.consume(len(CRLF))
         return OutputStr(value)
 
-    def _traverse_verbatim(self) -> OutputStr:
+    def _traverse_verbatim_string(self) -> OutputStr:
         """
         Internal method.
 
@@ -145,11 +145,39 @@ class _Decoder:
         
         Example: Input "=9\r\ntxt:Hello\r\n" returns OutputStr("Hello").
         """
-        content = self._traverse_bulk().value
+        content = self._traverse_bulk_string().value
         # Under the assumption that the server sends valid verbatim strings,
         # we can safely assume that the index method does not raise errors.
         start_idx = content.index(_Decoder._COLON_SEP)
         return OutputStr(content[start_idx + len(_Decoder._COLON_SEP) : ])
+    
+    def _traverse_simple_error(self) -> OutputErr:
+        """
+        Internal method.
+        
+        Example: Input "-Error\r\n" returns OutputErr("Error").
+        """
+        line = self._receiver.consume_crlf()
+        return OutputErr(line)
+
+    def _traverse_bulk_error(self) -> OutputErr:
+        """
+        Internal method.
+
+        Parses a bulk error by reading its declared length,
+        followed by the content itself.
+        
+        Example: Input "$6\r\nfoobar\r\n" returns OutputErr("foobar").
+        """
+        length_str = self._traverse_string().value
+        length = int(length_str)
+
+        if length == NULL_LENGTH:
+            return OutputErr(NULL)
+
+        value = self._receiver.consume(length)
+        self._receiver.consume(len(CRLF))
+        return OutputErr(value)
     
     def _traverse_sequence(self) -> OutputSeq:
         """
@@ -161,7 +189,7 @@ class _Decoder:
         
         Example: Input "*2\r\n:1\r\n:2\r\n" returns OutputSeq((OutputStr("1"), OutputStr("2"))).
         """
-        length = int(self._traverse_crlf().value)
+        length = int(self._traverse_string().value)
         elements = tuple(self._traverser() for _ in range(length))
         return OutputSeq(elements)
 
@@ -173,7 +201,7 @@ class _Decoder:
         
         Example: Input "%1\r\n+k\r\n+v\r\n" returns OutputMap({OutputStr("k"): OutputStr("v")}).
         """
-        length = int(self._traverse_crlf().value)
+        length = int(self._traverse_string().value)
         result = {}
         for _ in range(length):
             key = self._traverser()
@@ -198,17 +226,17 @@ class _Decoder:
         return OutputAtt(attributes, output)
 
 _Decoder._TRAVERSERS = frozendict({
-    RespDataType.SIMPLE_STRINGS: _Decoder._traverse_crlf,
-    RespDataType.SIMPLE_ERRORS: _Decoder._traverse_crlf,
-    RespDataType.INTEGERS: _Decoder._traverse_crlf,
-    RespDataType.BULK_STRINGS: _Decoder._traverse_bulk,
+    RespDataType.SIMPLE_STRINGS: _Decoder._traverse_string,
+    RespDataType.SIMPLE_ERRORS: _Decoder._traverse_simple_error,
+    RespDataType.INTEGERS: _Decoder._traverse_string,
+    RespDataType.BULK_STRINGS: _Decoder._traverse_bulk_string,
     RespDataType.ARRAYS: _Decoder._traverse_sequence,
     RespDataType.NULLS: _Decoder._traverse_null,
-    RespDataType.BOOLEANS: _Decoder._traverse_crlf,
-    RespDataType.DOUBLES: _Decoder._traverse_crlf,
-    RespDataType.BIG_NUMBERS: _Decoder._traverse_crlf,
-    RespDataType.BULK_ERRORS: _Decoder._traverse_bulk,
-    RespDataType.VERBATIM_STRINGS: _Decoder._traverse_verbatim,
+    RespDataType.BOOLEANS: _Decoder._traverse_string,
+    RespDataType.DOUBLES: _Decoder._traverse_string,
+    RespDataType.BIG_NUMBERS: _Decoder._traverse_string,
+    RespDataType.BULK_ERRORS: _Decoder._traverse_bulk_error,
+    RespDataType.VERBATIM_STRINGS: _Decoder._traverse_verbatim_string,
     RespDataType.MAPS: _Decoder._traverse_map,
     RespDataType.ATTRIBUTES: _Decoder._traverse_attribute,
     RespDataType.SETS: _Decoder._traverse_sequence,
