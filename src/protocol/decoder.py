@@ -1,7 +1,7 @@
 from frozendict import frozendict
 from typing import Callable
 
-from core.config import Config
+from core.config import get_logger
 from core.constants import STR_TRAVERSAL_STRIDE, CRLF
 from network import Receiver
 
@@ -10,7 +10,7 @@ from .constants_resp import RespDataType, \
                             NULL
 from .output import Output, OutputStr, OutputSeq, OutputMap, OutputAtt
 
-logger = Config.get_logger(__name__)
+logger = get_logger(__name__)
 
 def decoder(receiver: Receiver) -> Output:
     """

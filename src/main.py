@@ -1,12 +1,12 @@
 from threading import Thread, Event
 
-from core import Config
+from core import IS_CLI, get_logger
 from frontend import open_window
 
 from reactor import close_application
 from multiplexing import run_multiplexing_loop
 
-logger = Config.get_logger(__name__)
+logger = get_logger(__name__)
 
 def main() -> None:
     logger.info("Starting application...")
@@ -20,7 +20,7 @@ def main() -> None:
         logger.info("Multiplexing thread started.")
 
         # Start the application loop.
-        if Config.cli:
+        if IS_CLI:
             raise NotImplementedError("CLI mode is not implemented yet")
             logger.info("CLI mode enabled.")
         else:
@@ -29,6 +29,10 @@ def main() -> None:
 
     except Exception as e:
         logger.critical(f"Application failed: {e}.", exc_info=True)
+    # Catch all exceptions to ensure that all resources are freed correctly.
+    # Catch KeyboardInterrupt as well. The resources must be freed.
+    except BaseException as e:
+        logger.critical(f"Application forcely closed: {e}.", exc_info=True)
     finally:
         multiplexing_event.clear()
         multiplexing_thread.join()

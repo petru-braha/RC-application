@@ -1,11 +1,11 @@
-from core.config import Config
+from core.config import get_logger
 from core.constants import ASCII_ENC
 from core.exceptions import PartialResponseError
 
 from network import Connection, Receiver
 from protocol import parser, encoder, decoder, formatter
 
-logger = Config.get_logger(__name__)
+logger = get_logger(__name__)
 
 def process_input(input_str: str) -> bytes:
     """

@@ -19,6 +19,3 @@ class Transmitter:
         self.receiver = Receiver(self.sock._socket)
         self.sender = Sender(self.sock._socket)
         self.synchronizer = Synchronizer()
-    
-    def close(self) -> None:
-        self.sock.close()

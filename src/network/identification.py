@@ -1,11 +1,11 @@
-from core.config import Config
+from core.config import get_logger
 from core.constants import EMPTY_STR
 from core.structs import Address
 
 from .transmitter import Transmitter
 from .util import join_cmd_argv
 
-logger = Config.get_logger(__name__)
+logger = get_logger(__name__)
 
 class Identification(Transmitter):
     """

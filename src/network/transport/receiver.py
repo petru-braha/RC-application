@@ -1,12 +1,12 @@
 from socket import socket
 
-from core.config import Config
+from core.config import get_logger
 from core.constants import EMPTY_LEN, CRLF
 from core.exceptions import PartialResponseError
 
 from .interfaces import Communicator
 
-logger = Config.get_logger(__name__)
+logger = get_logger(__name__)
 
 class Receiver(Communicator):
     """

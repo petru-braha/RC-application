@@ -1,12 +1,16 @@
 import flet as ft
 from typing import Callable
 
+from core.config import get_logger
+from core.exceptions import ConnectionCountError
 from network import Connection
 
 from reactor import enque_new_connection, enque_close_connection
 
 from .members import Chat, ConnectionBox, PresenceChangeable
 from .modals import ManualConnect, UrlConnect
+
+logger = get_logger(__name__)
 
 class ControllerBase:
     """
@@ -26,7 +30,13 @@ class ControllerBase:
         self._on_chat_remove = on_chat_remove
 
     def on_continue(self, connection_data: tuple) -> None:
-        connection = Connection(*connection_data)
+        try:
+            connection = Connection(*connection_data)
+        except ConnectionCountError as e:
+            logger.error(
+                "Can not add a new connection.\n"
+                "Remove old connections or restart the application with a new \".env\" configuration.")
+            return
         
         chat = Chat(
             text=str(connection.addr),

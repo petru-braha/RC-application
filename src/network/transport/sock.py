@@ -1,9 +1,9 @@
 import socket
 
-from core.config import Config
+from core.config import get_logger
 from core.structs import Address
 
-logger = Config.get_logger(__name__)
+logger = get_logger(__name__)
 
 class Sock:
     """
@@ -90,3 +90,9 @@ class Sock:
             logger.debug(f"Error when shutting down {self.addr} (likely already closed): {e}.")
         finally:
             self._socket.close()
+
+    def fileno(self) -> int:
+        """
+        Returns the file descriptor of the socket.
+        """
+        return self._socket.fileno()

@@ -1,22 +1,25 @@
 from urllib.parse import urlparse
 
-from core.config import Config
+from core.config import TLS_ENFORCED, get_logger
 from core.constants import EMPTY_STR, SCHEME_LIST
 
-logger = Config.get_logger(__name__)
+logger = get_logger(__name__)
 
 def process_redis_url(url: str) -> tuple[str, str, str, str, str]:
     """
-    Processes and extracts data from a Redis URL string (e.g., 'redis://user:password@host:port').
+    Processes and extracts data from a Redis URL string.
     
-    Args:
-        url: A string representing the Redis connection URL
-        (format: redis[s]://[[username][:password]@][host][:port][/db-number]).
+    Format: redis[s]://[[username][:password]@][host][:port][/db-number]
+    See more: https://docs.python.org/3/library/urllib.parse.html#url-parsing
+
+    Parameters:
+        url (str): A string representing the Redis connection URL.
     
-    Returns: A five-string tuple contaning the connection information.
+    Returns:
+        arr: A five-string tuple contaning the connection information.
 
     Raises:
-        ValueError: If the URL scheme is not 'redis' or if the URL is malformed.
+        ValueError: For invalid URL scheme or malformed URL.
         ConnecterError: If the connection to the server fails.
     """
     logger.debug(f"Processing Redis URL: {url}.")
@@ -24,6 +27,8 @@ def process_redis_url(url: str) -> tuple[str, str, str, str, str]:
 
     if parsed.scheme not in SCHEME_LIST:
         raise ValueError(f"Invalid url scheme: '{parsed.scheme}'")
+    if TLS_ENFORCED and parsed.scheme == SCHEME_LIST[0]:
+        raise ValueError("TLS is enforced, and an invalid scheme was provided.")
 
     host = parsed.hostname if parsed.hostname else EMPTY_STR
     port = str(parsed.port) if parsed.port else EMPTY_STR

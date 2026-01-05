@@ -6,7 +6,7 @@ from core.structs import Address
 
 from .connection import Connection
 
-logger = Config.get_logger(__name__)
+logger = get_logger(__name__)
 
 class MockConnection(Connection):
     """

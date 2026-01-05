@@ -1,10 +1,10 @@
 import flet as ft
 
-from core import Config
+from core import get_logger
 
 from .layout import Layout
 
-logger = Config.get_logger(__name__)
+logger = get_logger(__name__)
 
 def build_page(page: ft.Page) -> None:
     # Handles OS intrusions gracefully.

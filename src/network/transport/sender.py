@@ -1,12 +1,12 @@
 from socket import socket
 from collections import deque
 
-from core.config import Config
+from core.config import get_logger
 from core.constants import EMPTY_LEN
 
 from .interfaces import Communicator
 
-logger = Config.get_logger(__name__)
+logger = get_logger(__name__)
 
 class Sender(Communicator):
     """

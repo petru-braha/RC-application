@@ -1,9 +1,9 @@
-from core.config import Config
+from core.config import get_logger
 from core.constants import EMPTY_STR
 
 from .identification import Identification
 
-logger = Config.get_logger(__name__)
+logger = get_logger(__name__)
 
 class DatabaseLink(Identification):
     """
