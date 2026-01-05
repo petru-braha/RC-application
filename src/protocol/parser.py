@@ -28,7 +28,7 @@ def parser(input: str) -> tuple[str, list[str]]:
 
     # All commands have a length greater of equal to 3.
     if input_len < _MIN_CMD_LEN:
-        raise ValueError("The input string must contain at least one (supported) command.")
+        raise ValueError("The input string must contain at least one (supported) command")
     
     # Skip first idx spaces.
     idx = 0
@@ -88,7 +88,7 @@ class _ArgumentParser:
             
             # Verify valid separation if not at the end of the string.
             if self._idx < self._input_len and self._input[self._idx] != SPACE:
-                raise SpaceError("Arguments must be separated by space.")
+                raise SpaceError("Arguments must be separated by space")
             argv.append(arg)
             
         return argv
@@ -161,7 +161,7 @@ class _ArgumentParser:
             self._idx += 2 * STR_TRAVERSAL_STRIDE
         
        # Raised if an argument like "abc' is provided.
-        raise QuoteError("Argument was not ended with a (correct) quote.")
+        raise QuoteError("Argument was not ended with a (correct) quote")
 
     def _visit_unquoted(self) -> str:
         """
@@ -180,7 +180,7 @@ class _ArgumentParser:
             char = self._input[self._idx]
             
             if char == QUOTE_DOUBLE or char == QUOTE_SINGLE:
-                raise QuoteError("Unquoted values must NOT contain quotes.")
+                raise QuoteError("Unquoted values must NOT contain quotes")
 
             if char == SPACE:
                 return arg

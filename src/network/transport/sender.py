@@ -1,20 +1,20 @@
+from socket import socket
 from collections import deque
 
 from core.config import Config
 from core.constants import EMPTY_LEN
-from core.structs import Address
 
-from .sock import Sock
+from .interfaces import Communicator
 
 logger = Config.get_logger(__name__)
 
-class Sender(Sock):
+class Sender(Communicator):
     """
     Handles buffering and sending commands to the socket.
     """
         
-    def __init__(self, addr: Address) -> None:
-        super().__init__(addr)
+    def __init__(self, sock: socket) -> None:
+        self._socket = sock
         self._pending_inputs: deque[str | bytes] = deque()
 
     def add_pending(self, pending: str) -> None:
@@ -49,19 +49,16 @@ class Sender(Sock):
             return None
         return self._pending_inputs[0]
 
-    def rem_first_pending(self) -> bool:
+    def rem_first_pending(self) -> None:
         """
         Removes the first pending command from the queue.
 
-        Returns:
-            bool: True if a command was removed, False if queue was empty.
+        Raises:
+            AssertionError: If there are no pending commands.
         """
-        if not self.has_pending():
-            return False
-        
+        assert self.has_pending()
         cmd = self._pending_inputs.popleft()
         logger.debug(f"Removed first pending command: {cmd}.")
-        return True
 
     def shrink_first_pending(self, remaining: bytes) -> None:
         """
@@ -69,6 +66,9 @@ class Sender(Sock):
 
         Parameters:
             remaining (bytes): The bytes that were not sent.
+
+        Raises:
+            AssertionError: If there are no pending commands.
         """
         assert self.has_pending()
         cmd = self._pending_inputs[0]
@@ -91,4 +91,4 @@ class Sender(Sock):
             BlockingIOError: If the socket is not ready for writing.
             OSError: If the socket is closed.
         """
-        return self._sock.send(data)
+        return self._socket.send(data)

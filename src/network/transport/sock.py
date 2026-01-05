@@ -37,7 +37,7 @@ class Sock:
                 socket.SOCK_STREAM)
         except socket.gaierror as e:
             raise ConnectionError(
-                f"Failed to resolve address {addr.host}:{addr.port}.") from e
+                f"Failed to resolve address {addr.host}:{addr.port}") from e
 
         for family, socktype, prot, _, sockaddr in addr_infos:
             sock = None
@@ -63,12 +63,12 @@ class Sock:
         if sock == None:
             # No address available.
             logger.error(f"Could not establish connection to {addr} after trying all address families.")
-            raise ConnectionError(f"Failed to connect to {addr.host}:{addr.port}.")
+            raise ConnectionError(f"Failed to connect to {addr.host}:{addr.port}")
         
         # Initially, Sock was planned to inherit from socket.socket.
         # This can't be possible: "The newly created socket is non-inheritable".
         # https://docs.python.org/3/library/socket.html
-        self._sock = sock
+        self._socket = sock
         self.addr = addr
         
     def close(self) -> None:
@@ -79,14 +79,14 @@ class Sock:
         then releases the local socket resources.
         If the socket is already closed, the method returns silently.
         """
-        if self._sock._closed:
+        if self._socket._closed:
             return
         
         logger.info(f"Closing connection to {self.addr}.")
         try:
-            self._sock.shutdown(socket.SHUT_RDWR)
+            self._socket.shutdown(socket.SHUT_RDWR)
         except OSError as e:
             # The socket might be broken or closed by the peer first.
             logger.debug(f"Error when shutting down {self.addr} (likely already closed): {e}.")
         finally:
-            self._sock.close()
+            self._socket.close()

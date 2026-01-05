@@ -2,12 +2,12 @@ from core.config import Config
 from core.constants import EMPTY_STR
 from core.structs import Address
 
-from .transport import Receiver, Sender
+from .transmitter import Transmitter
 from .util import join_cmd_argv
 
 logger = Config.get_logger(__name__)
 
-class Identification(Receiver, Sender):
+class Identification(Transmitter):
     """
     Manages the initial identification phase of the Redis protocol connection.
     Handles the HELLO handshake and authentication details.
@@ -26,22 +26,22 @@ class Identification(Receiver, Sender):
     Default ACL user.
     """
 
-    _HELLO_CMD: str = "HELLO"
+    HELLO_CMD: str = "HELLO"
     """
     First command ever sent to a newly established connection.
     Negotiates the protocol, and authentificate the client.
     """
-    _AUTH_ARG: str = "AUTH"
-    """
-    The authentication argument for the HELLO command.
-    """
-    _RESP3: str = "3"
+    RESP3: str = "3"
     """
     The newest available RESP protocol version. 
     """
-    _RESP2: str = "2"
+    RESP2: str = "2"
     """
     The stable version of RESP.
+    """
+    _AUTH_ARG: str = "AUTH"
+    """
+    The authentication argument for the HELLO command.
     """
     
     def __init__(self, host: str, port: str, user: str, pasw: str) -> None:
@@ -58,14 +58,13 @@ class Identification(Receiver, Sender):
         
         initial_user = Identification.DEFAULT_USER if user == None else user
         initial_pasw = EMPTY_STR if pasw == None else pasw
-
-        Receiver.__init__(self, addr)
-        Sender.__init__(self, addr)
+        
+        super().__init__(addr)
         self.say_hello(initial_user, initial_pasw)
         self.initial_user = initial_user
         self.initial_pasw = initial_pasw
     
-    def say_hello(self, user: str, pasw: str, protver: str = _RESP3) -> None:
+    def say_hello(self, user: str, pasw: str, protver: str = RESP3) -> None:
         """
         Queues the HELLO command with the specified authentication credentials and protocol version.
 
@@ -75,7 +74,7 @@ class Identification(Receiver, Sender):
             protver (str): The RESP protocol version to negotiate (default is 3).
         """
         argv = [protver, Identification._AUTH_ARG, user, pasw]
-        pending_input = join_cmd_argv(Identification._HELLO_CMD, argv)
+        pending_input = join_cmd_argv(Identification.HELLO_CMD, argv)
         
         logger.info(f"Queueing HELLO handshake for user '{user}' (Protocol {protver}).")
-        self.add_pending(pending_input)
+        self.sender.add_pending(pending_input)

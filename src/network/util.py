@@ -9,7 +9,7 @@ def join_cmd_argv(cmd: str, argv: list[str]) -> str:
         ValueError: If the command name is empty.
     """
     if not cmd:
-        raise ValueError("Command name cannot be empty.")
+        raise ValueError("Command name cannot be empty")
     
     fragments = [cmd]
     fragments.extend(argv)

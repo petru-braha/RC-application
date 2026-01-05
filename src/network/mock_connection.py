@@ -29,10 +29,10 @@ class MockConnection(Connection):
         self.initial_pasw = pasw
 
         # Create a socket pair to satisfy selectors.
-        # self._sock is used by the application (Reactor/Receiver/Sender).
+        # self._socket is used by the application (Reactor/Receiver/Sender).
         # self._peer is used to simulate the server side.
-        self._sock, self._peer = socket.socketpair()
-        self._sock.setblocking(False)
+        self._socket, self._peer = socket.socketpair()
+        self._socket.setblocking(False)
         self._peer.setblocking(False)
 
     def send(self, data: bytes) -> int:
@@ -44,7 +44,7 @@ class MockConnection(Connection):
         # but here we just want to trigger a response.
         
         # Simple echo/ok simulation:
-        # Write to _sock's peer so _sock becomes readable.
+        # Write to _socket's peer so _socket becomes readable.
         response = b"+OK\r\n"
         try:
             self._peer.send(response)
@@ -61,5 +61,5 @@ class MockConnection(Connection):
 
     def close(self) -> None:
         logger.info("[MOCK] Closing connection.")
-        self._sock.close()
+        self._socket.close()
         self._peer.close()

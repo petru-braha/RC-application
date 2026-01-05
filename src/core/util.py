@@ -35,7 +35,7 @@ class LogCompressor(Formatter):
         """
         super().__init__(fmt, datefmt)
         if max_bytes < LogCompressor.MINIMUM_REQUIRED_BYTES:
-            raise ValueError("max_bytes must be at least 3")
+            raise ValueError("Invalid number of maximum bytes; must be at least 3")
         self.max_bytes = max_bytes
 
     def format(self, record) -> str:
@@ -99,7 +99,7 @@ class Immutable:
             _ = self.__getattribute__(name)
             # If the attribute already exists (was created by constructor),
             # then the immutability property tried to be violated.
-            raise AssignmentError(f"Cannot modify '{name}'.")
+            raise AssignmentError(f"Cannot modify '{name}'")
         except AttributeError:
             # If __getattribute__ raises AttributeError, the attribute is missing.
             # Therefore allow the construction of the object.

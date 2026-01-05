@@ -1,42 +1,9 @@
 from urllib.parse import urlparse
 
 from core.config import Config
-from core.constants import EMPTY_STR, SCHEME_LIST, ASCII_ENC
-from protocol import parser, encoder, Output
+from core.constants import EMPTY_STR, SCHEME_LIST
 
 logger = Config.get_logger(__name__)
-
-def process_input(input_str: str) -> bytes:
-    """
-    Processes the input string by parsing it into a command and arguments,
-    encoding it, and returning the encoded bytes.
-    
-    Args:
-        input_str (str): A string representing the input to be processed.
-    
-    Returns:
-        bytes: The encoded bytes of the input string.
-
-    Raises:
-        ValueError: If the input string is invalid.
-    """
-    logger.debug(f"Processing input: {input_str}.")
-    
-    try:
-        cmd, argv = parser(input_str)
-    except Exception as e:
-        raise ValueError(f"Invalid input {input_str}. {e}.")
-    logger.debug(f"Parsed command: {cmd}, arguments: {argv}.")
-    
-    # todo sanitizer
-    
-    encoded = encoder(cmd, argv)
-    logger.debug(f"Encoded command: {encoded}.")
-    
-    return encoded.encode(ASCII_ENC)
-
-def process_output(output: Output) -> str:
-    pass
 
 def process_redis_url(url: str) -> tuple[str, str, str, str, str]:
     """
@@ -56,7 +23,7 @@ def process_redis_url(url: str) -> tuple[str, str, str, str, str]:
     parsed = urlparse(url)
 
     if parsed.scheme not in SCHEME_LIST:
-        raise ValueError(f"Invalid URL scheme: '{parsed.scheme}'")
+        raise ValueError(f"Invalid url scheme: '{parsed.scheme}'")
 
     host = parsed.hostname if parsed.hostname else EMPTY_STR
     port = str(parsed.port) if parsed.port else EMPTY_STR
@@ -75,7 +42,7 @@ def process_redis_url(url: str) -> tuple[str, str, str, str, str]:
             int(db_idx)
         except ValueError:
             raise ValueError(
-                f"Invalid database index: '{parsed.path}'. Must be an integer"
+                f"Invalid database index: '{parsed.path}'; must be an integer"
             )
     
     # Do not log the password, sensitive data.

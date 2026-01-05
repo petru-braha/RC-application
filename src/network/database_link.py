@@ -19,7 +19,7 @@ class DatabaseLink(Identification):
     Default logical database of a Redis instance.
     """
 
-    _SELECT_CMD: str = "SELECT"
+    SELECT_CMD: str = "SELECT"
     """
     Command automatically sent when connecting,
     used for selecting the provided logical database of a Redis server.
@@ -39,4 +39,4 @@ class DatabaseLink(Identification):
             db_idx (str): The index of the database to select.
         """
         logger.info(f"Queueing SELECT command for database index '{db_idx}'.")
-        self.add_pending(f"{DatabaseLink._SELECT_CMD} {db_idx}")
+        self.sender.add_pending(f"{DatabaseLink.SELECT_CMD} {db_idx}")

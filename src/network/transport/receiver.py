@@ -1,13 +1,14 @@
+from socket import socket
+
 from core.config import Config
 from core.constants import EMPTY_LEN, CRLF
 from core.exceptions import PartialResponseError
-from core.structs import Address
 
-from .sock import Sock
+from .interfaces import Communicator
 
 logger = Config.get_logger(__name__)
 
-class Receiver(Sock):
+class Receiver(Communicator):
     """
     Handles reading data from the socket and managing the output buffer.
     """
@@ -17,8 +18,8 @@ class Receiver(Sock):
     Default buffer size for read operations (4KB).
     """
 
-    def __init__(self, addr: Address) -> None:
-        super().__init__(addr)
+    def __init__(self, sock: socket) -> None:
+        self._socket = sock
         self._buf = bytearray()
         self._idx = 0
 
@@ -70,7 +71,7 @@ class Receiver(Sock):
             # Search for CRLF starting from current index.
             end_idx = self._buf.index(ASCII_CRLF, self._idx)
         except ValueError:
-            raise PartialResponseError("Buffer does not contain a CRLF.")
+            raise PartialResponseError("Buffer does not contain a CRLF")
         
         # Here we want to consume CRLF but not include it the returned string.
         data = self._buf[self._idx : end_idx]
@@ -79,6 +80,22 @@ class Receiver(Sock):
         logger.debug(f"Consumed {end_idx - self._idx} bytes from buffer. Remaining: {len(self._buf) - end_idx}.")
         self._idx = end_idx
         return data.decode()
+
+    def restore_buf(self, idx: int) -> None:
+        """
+        Restores the buffer to the specified index.
+        
+        Parameters:
+            idx (int): The index to restore the buffer to.
+        
+        Raises:
+            ValueError: If the index is greater than the current index.
+        """
+        if idx > self._idx:
+            raise ValueError("Cannot restore buffer to an index greater than the current index")
+        
+        logger.debug(f"Restore {self._idx - idx} bytes.")
+        self._idx = idx
 
     def recv(self, bufsize: int = _4KB_BUFSIZE) -> int:
         """
@@ -96,9 +113,9 @@ class Receiver(Sock):
             OSError: If the socket is closed.
             ConnectionError: If the socket is closed by the peer.
         """
-        data = self._sock.recv(bufsize)
+        data = self._socket.recv(bufsize)
         if len(data) == EMPTY_LEN:
-            raise ConnectionError("Socket closed by peer.")
+            raise ConnectionError("Socket closed by peer")
 
         logger.debug(f"Received {len(data)} bytes from socket. Available: {len(self._buf) - self._idx}.")
         self._buf.extend(data)
