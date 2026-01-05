@@ -3,7 +3,7 @@ from typing import Callable
 
 from network import Connection
 
-from parallel_operator import ParallelOperator
+from reactor import enque_new_connection, enque_close_connection
 
 from .members import Chat, ConnectionBox, PresenceChangeable
 from .modals import ManualConnect, UrlConnect
@@ -34,7 +34,7 @@ class ControllerBase:
         self._on_chat_insert(chat)
 
         def on_connection_close():
-            ParallelOperator.remove_connection(connection)
+            enque_close_connection(connection)
             self._on_chat_remove(chat)
         connection_box = ConnectionBox(
             text=str(connection.addr),
@@ -43,7 +43,7 @@ class ControllerBase:
             on_agenda_remove=self._on_agenda_remove)
         self._on_agenda_insert(connection_box)
         
-        # todo ParallelOperator.register_connection(connection, on_response=chat.on_response)
+        enque_new_connection(connection, on_response=chat.on_response)
         self.hide()
 
 class ModalController(ft.Container, ControllerBase, PresenceChangeable):

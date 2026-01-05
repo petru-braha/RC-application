@@ -52,7 +52,7 @@ class MockReceiver:
         try:
             end = self.data.index('\r\n', self.idx)
         except ValueError:
-             raise PartialResponseError("Buffer does not contain a CRLF.")
+             raise PartialResponseError("Buffer does not contain a CRLF")
         res = self.data[self.idx : end]
         self.idx = end + 2
         return res
