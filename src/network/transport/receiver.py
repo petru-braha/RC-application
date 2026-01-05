@@ -37,7 +37,7 @@ class Receiver(Communicator):
         Consumes a specific number of bytes from the buffer.
         And coverts it into UTF-8 string.
 
-        Parameters:
+        Args:
             bufsize (int): The number of bytes to consume.
 
         Returns:
@@ -85,7 +85,7 @@ class Receiver(Communicator):
         """
         Restores the buffer to the specified index.
         
-        Parameters:
+        Args:
             idx (int): The index to restore the buffer to.
         
         Raises:
@@ -102,7 +102,7 @@ class Receiver(Communicator):
         Reads data from the socket into the buffer.
         The socket must be ready for reading!
 
-        Parameters:
+        Args:
             bufsize (int): The maximum number of bytes to read.
 
         Returns:
@@ -110,7 +110,6 @@ class Receiver(Communicator):
 
         Raises:
             BlockingIOError: If the socket is not ready for reading.
-            OSError: If the socket is closed.
             ConnectionError: If the socket is closed by the peer.
         """
         data = self._socket.recv(bufsize)

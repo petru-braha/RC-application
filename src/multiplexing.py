@@ -10,7 +10,7 @@ from time import sleep
 
 from core import get_logger
 from network import Connection
-from transmission import handle_read, handle_write
+import transmission
 
 import reactor
 
@@ -23,7 +23,7 @@ def run_multiplexing_loop(stay_alive: Event) -> None:
     One iteration first adds/removes enqued connections to application's selector,
     then selects ready sockets dispatching them to their corresponding handlers.
 
-    Parameters:
+    Args:
         stay_alive (obj): The event to signal the loop to continue/stop.
     """
     while stay_alive.is_set():
@@ -52,7 +52,7 @@ def _select_and_dispatch(timeout: float = _DEFAULT_TIMEOUT) -> None:
     """
     Polls for I/O events and dispatches them to the registered handlers.
     
-    Parameters:
+    Args:
         timeout: The maximum time to wait for events.
     """
     # No need to run `select()` if there are no connections.
@@ -70,12 +70,24 @@ def _select_and_dispatch(timeout: float = _DEFAULT_TIMEOUT) -> None:
             response_lambda = reactor._response_lambdas[connection]
             
             if mask & EVENT_READ:
-                handle_read(connection.receiver, connection.synchronizer, response_lambda)
+                transmission.handle_read(connection, response_lambda)
             if mask & EVENT_WRITE:
-                handle_write(connection.sender, connection.synchronizer)
+                try:
+                    transmission.handle_write(connection)
+                except ValueError as e:
+                    # If the user makes a syntax error.
+                    # The error is both logged and printed on his screen as a response.
+                    response_lambda(e)
+                    logger.error(f"Error when encoding data to {str(connection.addr)}: {e}.", exc_info=True)
+                    raise
+        
+        except ConnectionError as e:
+            logger.warning(f"The connection {str(connection.addr)} was closed by peer: {e}.")
+            logger.info(f"Removing the connection.")
+            reactor.rem_connection(connection)
         
         except Exception as e:
-            logger.error(f"Error handling event for connection {str(connection.addr)}: {e}.", exc_info=True)
+            logger.error(f"Failed to handle event for connection {str(connection.addr)}: {e}.", exc_info=True)
 
 _DEFAULT_TIMEOUT: float = 1
 """

@@ -131,7 +131,7 @@ def get_logger(name: str) -> logging.Logger:
 
     Attaches the standard file, stdout, and stderr handlers to the logger.
 
-    Parameters:
+    Args:
         name (str): The name of the logger (usually __name__).
 
     Returns:

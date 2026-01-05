@@ -12,7 +12,7 @@ def process_redis_url(url: str) -> tuple[str, str, str, str, str]:
     Format: redis[s]://[[username][:password]@][host][:port][/db-number]
     See more: https://docs.python.org/3/library/urllib.parse.html#url-parsing
 
-    Parameters:
+    Args:
         url (str): A string representing the Redis connection URL.
     
     Returns:

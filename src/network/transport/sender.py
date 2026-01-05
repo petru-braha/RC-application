@@ -21,7 +21,7 @@ class Sender(Communicator):
         """
         Adds raw input string to the pending commands queue.
 
-        Parameters:
+        Args:
             pending (str): The command to add.
         """
         self._pending_inputs.append(pending)
@@ -64,7 +64,7 @@ class Sender(Communicator):
         """
         Updates the first pending command with the remaining bytes after a partial send.
 
-        Parameters:
+        Args:
             remaining (bytes): The bytes that were not sent.
 
         Raises:
@@ -81,7 +81,7 @@ class Sender(Communicator):
         Sends raw bytes to the socket.
         Socket must be ready for writing!
 
-        Parameters:
+        Args:
             data (bytes): The data to send.
 
         Returns:
@@ -89,6 +89,6 @@ class Sender(Communicator):
 
         Raises:
             BlockingIOError: If the socket is not ready for writing.
-            OSError: If the socket is closed.
+            ConnectionError: If the socket is closed by the peer.
         """
         return self._socket.send(data)

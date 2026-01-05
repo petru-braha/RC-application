@@ -22,7 +22,7 @@ class Sock:
         Configures the socket with KEEPALIVE and TCP_NODELAY
         for optimal performance.
 
-        Parameters:
+        Args:
             addr (Address): The address (host, port) to connect to.
 
         Raises:

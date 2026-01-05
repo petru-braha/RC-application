@@ -35,7 +35,7 @@ class DatabaseLink(Identification):
         Queues the SELECT command to switch to the specified database index.
         If the default database is selected, no action is taken.
 
-        Parameters:
+        Args:
             db_idx (str): The index of the database to select.
         """
         logger.info(f"Queueing SELECT command for database index '{db_idx}'.")

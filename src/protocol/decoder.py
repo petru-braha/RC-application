@@ -18,7 +18,7 @@ def decoder(receiver: Receiver) -> Output:
 
     The input is assumed to be well-formed according to RESP rules.
 
-    Parameters:
+    Args:
         receiver (obj): The receiver instance to consume data from.
 
     Returns:
@@ -26,7 +26,6 @@ def decoder(receiver: Receiver) -> Output:
 
     Raises:
         PartialResponseError: If the buffer provided by receiver is incomplete.
-        ConnectionError: If the connection is closed during reading.
     """
     decoder = _Decoder(receiver)
     return decoder.decoded

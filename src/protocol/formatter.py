@@ -9,7 +9,7 @@ def formatter(output: Output, prefix: str = EMPTY_STR) -> str:
     Entry point for traversal.
     Dispatches aggregate types to their specific formatting methods.
 
-    Parameters:
+    Args:
         output: The Output object (Str, Seq, Map, or Att) to format.
         prefix (str): Optional indentation string. Defaults to empty string.
 
@@ -80,7 +80,7 @@ def _set_prefix(prefix: str, idx: int) -> str:
 
     Constructs a numbered prefix string for list items.
 
-    Parameters:
+    Args:
         prefix (str): The existing indentation or parent prefix.
         idx (int): The current item index to display.
 
@@ -95,7 +95,7 @@ def _format_str(output: str, prefix: str) -> str:
 
     Formats a simple string output by appending a newline.
 
-    Parameters:
+    Args:
         output (str): The string content to format.
         prefix (str): The indentation string to prepend.
 
@@ -111,7 +111,7 @@ def _format_seq(output: OutputSeq, prefix: str) -> str:
     Formats a sequence (Array/Set/Push) into a numbered list.
     Handles empty sequences by returning a specific empty message.
 
-    Parameters:
+    Args:
         output: The OutputSeq object containing the list of values.
         prefix (str): The indentation string for the current level.
 
@@ -145,7 +145,7 @@ def _format_map(output: OutputMap, prefix: str) -> str:
     Formats a Map into a flattened key-value list structure.
     Iterates through dictionary items and presents them as sequential numbered entries.
 
-    Parameters:
+    Args:
         output: The OutputMap object containing key-value pairs.
         prefix (str): The indentation string for the current level.
 
@@ -187,7 +187,7 @@ def _format_att(output: OutputAtt, prefix: str) -> str:
     It is formed out of an attribute map and a payload,
     which can be any output type.
 
-    Parameters:
+    Args:
         output: The OutputAtt object containing attributes and payload.
         prefix (str): The indentation string for the current level.
 

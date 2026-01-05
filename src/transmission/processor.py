@@ -4,6 +4,7 @@ from core.exceptions import PartialResponseError
 
 from network import Connection, Receiver
 from protocol import parser, encoder, decoder, formatter
+from protocol import ParserError
 
 logger = get_logger(__name__)
 
@@ -25,7 +26,7 @@ def process_input(input_str: str) -> bytes:
     
     try:
         cmd, argv = parser(input_str)
-    except Exception as e:
+    except (ValueError, ParserError) as e:
         raise ValueError(f"Invalid input {input_str}; {e}")
     logger.debug(f"Parsed command: {cmd}, arguments: {argv}.")
     
@@ -48,7 +49,6 @@ def process_output(receiver: Receiver) -> str:
 
     Raises:
         PartialResponseError: If the buffer provided by receiver is incomplete.
-        ConnectionError: If the connection is closed during reading.
         AssertionError: If the output type is NOT one of the expected Output subclasses.
     """
     logger.debug(f"Processing output for {str(receiver.addr)}.")
@@ -62,11 +62,11 @@ def process_output(receiver: Receiver) -> str:
     
     except PartialResponseError as e:
         logger.debug(f"Partial output received: {e}.")
-        raise e
+        raise
     
     except Exception as e:
-        logger.error(f"Error when decoding data from {receiver.addr}: {e}.", exc_info=True)
-        raise e
+        logger.error(f"Error when processing data from {receiver.addr}: {e}.", exc_info=True)
+        raise
 
 def process_transmission(connection: Connection, raw_input: str, output: str) -> None:
     """
@@ -83,6 +83,7 @@ def process_transmission(connection: Connection, raw_input: str, output: str) ->
     """
     logger.debug(f"Processing transmission: {raw_input} -> {output}.")
 
+    # todo
     if Connection.SELECT_CMD in raw_input:
         # if output error
         logger.error("SELECT command failed.")

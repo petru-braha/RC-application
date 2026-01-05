@@ -68,7 +68,7 @@ class Identification(Transmitter):
         """
         Queues the HELLO command with the specified authentication credentials and protocol version.
 
-        Parameters:
+        Args:
             user (str): The username for authentication.
             pasw (str): The password for authentication.
             protver (str): The RESP protocol version to negotiate (default is 3).

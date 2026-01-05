@@ -16,7 +16,7 @@ def encoder(cmd: str, argv: list[str]) -> str:
     Encodes the cmd and the arguments.
     Must be used after running the sanitizer.
 
-    Parameters:
+    Args:
         cmd (str): The command string (e.g. "GET").
         argv (list[str]): The argument values for the command.
 
