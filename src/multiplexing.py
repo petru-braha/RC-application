@@ -1,36 +1,44 @@
 """
-Dispatcher engine for I/O events.
-Manages the event loop and delegates read/write operations to handlers.
-"""
+This module contains all the logic related to I/O multiplexing.
 
+It is based on a central loop method supposed to run a on parallel thread.
+This method selects the sockets ready for either reading/writing and dispatches them to their corresponding handlers.
+"""
 from selectors import EVENT_READ, EVENT_WRITE
 from threading import Event
 from time import sleep
 
-from core import Config
+from core import get_logger
 from network import Connection
 from transmission import handle_read, handle_write
 
 import reactor
 
-logger = Config.get_logger(__name__)
+logger = get_logger(__name__)
 
-def run_multiplexing_loop(continue_loop_event: Event) -> None:
+def run_multiplexing_loop(stay_alive: Event) -> None:
     """
-    The main event loop for the operator.
+    The socket selection loop.
+    
+    One iteration first adds/removes enqued connections to application's selector,
+    then selects ready sockets dispatching them to their corresponding handlers.
+
+    Parameters:
+        stay_alive (obj): The event to signal the loop to continue/stop.
     """
-    while continue_loop_event.is_set():
+    while stay_alive.is_set():
         try:
             _handle_connection_queues()
-            _tick()
+            _select_and_dispatch()
         except Exception as e:
-            logger.critical(f"Multiplexing loop error: {e}", exc_info=True)
+            logger.critical(f"Multiplexing loop error: {e}.", exc_info=True)
+    # The application prepares to completely shutdown.
     # Handle any remaining connections.
     _handle_connection_queues()
 
 def _handle_connection_queues() -> None:
     """
-    Handles the connection queues.
+    Handles the interaction (add/removal) between the selector and enqueued connections.
     """
     while reactor._connections_to_add:
         connection, on_response = reactor._connections_to_add.popleft()
@@ -40,28 +48,34 @@ def _handle_connection_queues() -> None:
         connection = reactor._connections_to_rem.popleft()
         reactor.rem_connection(connection)
 
-def _tick(timeout: float = DEFAULT_TIMEOUT) -> None:
+def _select_and_dispatch(timeout: float = _DEFAULT_TIMEOUT) -> None:
     """
     Polls for I/O events and dispatches them to the registered handlers.
     
-    Args:
-        timeout: The maximum time to wait for events. None to wait indefinitely.
+    Parameters:
+        timeout: The maximum time to wait for events.
     """
-    # On Windows, select() raises OSError if no file descriptors are registered.
+    # No need to run `select()` if there are no connections.
     if not reactor._selector.get_map():
-        sleep(timeout)
+        # Wait for a second, hoping that a client will enqueue a connection.
+        # This was arbitrarily chosen.
+        sleep(_DEFAULT_TIMEOUT)
         return
 
     events = reactor._selector.select(timeout)
     for key, mask in events:
-        connection = key.fileobj
-        assert isinstance(connection, Connection)
-        response_lambda = reactor._response_lambdas[connection]
+        try:
+            connection = key.fileobj
+            assert isinstance(connection, Connection)
+            response_lambda = reactor._response_lambdas[connection]
+            
+            if mask & EVENT_READ:
+                handle_read(connection.receiver, connection.synchronizer, response_lambda)
+            if mask & EVENT_WRITE:
+                handle_write(connection.sender, connection.synchronizer)
         
-        if mask & EVENT_READ:
-            handle_read(connection.receiver, connection.synchronizer, response_lambda)
-        if mask & EVENT_WRITE:
-            handle_write(connection.sender, connection.synchronizer)
+        except Exception as e:
+            logger.error(f"Error handling event for connection {str(connection.addr)}: {e}.", exc_info=True)
 
 _DEFAULT_TIMEOUT: float = 1
 """

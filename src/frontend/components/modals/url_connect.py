@@ -1,13 +1,12 @@
 import flet as ft
 from typing import Callable
 
-from core import Config
-
+from core import get_logger
 from util import process_redis_url
 
 from .interfaces import ModalBase
 
-logger = Config().get_logger(__name__)
+logger = get_logger(__name__)
 
 class UrlConnect(ModalBase):
     def __init__(self, on_continue: Callable, switch_btn: ft.Button, close_btn: ft.Button):

@@ -1,11 +1,11 @@
 from typing import Callable
 
-from core import Config, PartialResponseError
+from core import get_logger, PartialResponseError
 from network import Receiver, Sender, Synchronizer
 
 from .processor import process_input, process_output, process_transmission
 
-logger = Config.get_logger(__name__)
+logger = get_logger(__name__)
 
 def handle_read(receiver: Receiver, synchronizer: Synchronizer, response_lambda: Callable[[str], None]) -> None:
     """

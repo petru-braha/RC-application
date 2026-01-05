@@ -1,6 +1,13 @@
+"""
+Centralized configuration manager for the application and logging.
+
+Handles initialization of global settings, logging, and environment variables.
+Determines execution mode (CLI vs GUI) and manages connection parameters.
+"""
 from dotenv import dotenv_values
 from enum import IntEnum
 import logging
+import os
 import sys
 
 from .util import LogCompressor
@@ -10,139 +17,150 @@ class Stage(IntEnum):
     PROD = 0
     DEV = 1
 
-# App and logging configuration.
-# A log level has to be greater than the level of the handler in order to be printed.
-# Making a hierarchy of loggers was considered but is far beyond the scope of this application.
-class Config:
-    """
-    Centralized configuration manager for the application.
+# Fixed utilities used to initialize the current application session constants.
+_MIN_CONNECTIONS: int = 0
+"""
+Minimum allowed concurrent client connections.
+"""
+_DEFAULT_MAX_CONNECTIONS: int = 1024
+"""
+Maximum allowed concurrent client connections.
+"""
+_DEFAULT_LOG_FILE: str = "./log/debug.log"
+"""
+Default path for the log file.
+"""
 
-    Handles initialization of global settings, logging, and environment variables.
-    Determines execution mode (CLI vs GUI) and manages connection parameters.
-    """
+# See more: https://docs.python.org/3/library/logging.html#logrecord-attributes
+_VERBOSE_FORMAT: str = "%(asctime)s %(levelname)s - %(message)s --- %(name)s[%(lineno)d]"
+"""
+Format string for verbose logging (used in file logs).
+"""
+_DANGER_FORMAT: str = "%(levelname)s - %(message)s --- %(name)s[%(lineno)d]"
+"""
+Format string for warnings and errors logging.
+"""
+_SIMPLE_FORMAT: str = "%(levelname)s - %(message)s --- %(name)s"
+"""
+Format string for simple logging (used in console output).
+"""
+
+def _parse_dotenv():
+    global STAGE, TLS_ENFORCED, MAX_CONNECTIONS, FILE_HANDLER, STDOUT_HANDLER, STDERR_HANDLER
+    dotenv_dict = dotenv_values()
     
-    _CLI_FLAG: str = "--cli"
-    """
-    Internal flag used to detect CLI mode from command line arguments.
-    """
-    DEFAULT_MAX_CONNECTIONS: int = 1024
-    """
-    Default maximum limit of concurrent client connections.
-    """
-    DEFAULT_LOG_FILE: str = "./log/debug.log"
-    """
-    Default path for the log file.
-    """
+    app_configs = [
+        ("STAGE", lambda x: Stage[x.upper()]),
+        ("TLS_ENFORCED", lambda x: str(x).lower() == "true"),
+        ("MAX_CONNECTIONS", int),
+        ("FILE_HANDLER", logging.FileHandler),
+        ("STDOUT_HANDLER", logging.FileHandler),
+        ("STDERR_HANDLER", logging.FileHandler)
+    ]
+    for key, func in app_configs:
+        try:
+            val = dotenv_dict[key]
+            globals()[key] = func(val)
+        except (KeyError, ValueError, OSError):
+            pass
 
-    VERBOSE_FORMAT: str = "%(asctime)s %(levelname)s - %(message)s --- %(name)s[%(lineno)d]"
-    """
-    Format string for verbose logging (used in file logs).
-    """
-    DANGER_FORMAT: str = "%(levelname)s - %(message)s --- %(name)s[%(lineno)d]"
-    """
-    Format string for warnings and errors logging.
-    """
-    SIMPLE_FORMAT: str = "%(levelname)s - %(message)s --- %(name)s"
-    """
-    Format string for simple logging (used in console output).
-    """
+    # Ensure log directory exists if we use the default log file.
+    os.makedirs(os.path.dirname(_DEFAULT_LOG_FILE), exist_ok=True)
 
-    cli: bool | None = None
-    """
-    Indicates if the application is running in Command Line Interface mode.
-    """
-    stage: Stage
-    """
-    Current deployment stage (PROD, DEV, etc.).
-    """
-    tls_enforced: bool
-    """
-    Whether TLS encryption is enforced for connections.
-    """
-    max_connections: int
-    """
-    Maximum allowed concurrent connections.
-    """
+    if MAX_CONNECTIONS < _MIN_CONNECTIONS or MAX_CONNECTIONS > _DEFAULT_MAX_CONNECTIONS:
+        MAX_CONNECTIONS = _DEFAULT_MAX_CONNECTIONS
     
-    file_handler: logging.Handler
+    # Initialize handlers if they weren't specified but dotenv.
+    if FILE_HANDLER == None:
+        FILE_HANDLER = logging.FileHandler(_DEFAULT_LOG_FILE)
+    if STDOUT_HANDLER == None:
+        STDOUT_HANDLER = logging.StreamHandler(sys.stdout)
+    if STDERR_HANDLER == None:
+        STDERR_HANDLER = logging.StreamHandler(sys.stderr)
+
+# The importable values can be found below
+IS_CLI: bool = len(sys.argv) > 1 and sys.argv[1] == "--cli"
+"""
+Indicates if the application is running in Command Line Interface mode.
+"""
+STAGE: Stage = Stage.DEV
+"""
+Current deployment stage (PROD, DEV, etc.).
+"""
+TLS_ENFORCED: bool = False
+"""
+Whether TLS encryption is enforced for connections.
+"""
+MAX_CONNECTIONS: int = _DEFAULT_MAX_CONNECTIONS
+"""
+Maximum allowed concurrent connections.
+"""
+
+# Do not initialize handlers directly since consumes extra resources and it is bug prone.
+FILE_HANDLER: logging.Handler | None = None
+"""
+Logging handler for writing debug logs to a file.
+"""
+STDOUT_HANDLER: logging.Handler | None = None
+"""
+Logging handler for writing info loops to standard output.
+"""
+STDERR_HANDLER: logging.Handler | None = None
+"""
+Logging handler for writing warnings and errors to standard error.
+"""
+
+_parse_dotenv()
+
+FILE_HANDLER.setLevel(logging.DEBUG)
+FILE_HANDLER.setFormatter(logging.Formatter(_VERBOSE_FORMAT))
+FILE_HANDLER.addFilter(lambda r: r.levelno == logging.DEBUG)
+
+STDOUT_HANDLER.setLevel(logging.DEBUG)
+STDOUT_HANDLER.setFormatter(
+    LogCompressor(_SIMPLE_FORMAT, LogCompressor.DEFAULT_MAX_BYTES / 4))
+STDOUT_HANDLER.addFilter(lambda r: r.levelno <= logging.INFO)
+    
+STDERR_HANDLER.setLevel(logging.WARNING)
+STDERR_HANDLER.setFormatter(LogCompressor(_DANGER_FORMAT))
+
+# The method that should be used by client modules.
+def get_logger(name: str) -> logging.Logger:
     """
-    Logging handler for writing debug logs to a file.
+    Retrieves a configured logger instance.
+
+    Attaches the standard file, stdout, and stderr handlers to the logger.
+
+    Parameters:
+        name (str): The name of the logger (usually __name__).
+
+    Returns:
+        logging.Logger: The configured logger instance.
     """
-    stdout_handler: logging.Handler
-    """
-    Logging handler for writing info loops to standard output.
-    """
-    stderr_handler: logging.Handler
-    """
-    Logging handler for writing warnings and errors to standard error.
-    """
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
 
-    @staticmethod
-    def _init() -> None:
-        """
-        Initializes the configuration static variables.
+    logger.addHandler(FILE_HANDLER)
+    logger.addHandler(STDOUT_HANDLER)
+    logger.addHandler(STDERR_HANDLER)
 
-        Sets default values and overrides them with provided environment variables.
-        Also configures the logging handlers.
-        """
-        dotenv_dict = dotenv_values()
-        Config.cli = len(sys.argv) > 1 and sys.argv[1] == Config._CLI_FLAG
+    return logger
 
-        app_configs = [
-            ("stage", Stage.DEV, lambda x: Stage[x]),
-            ("tls_enforced", False, lambda x: str(x).lower() == "true"),
-            ("max_connections", Config.DEFAULT_MAX_CONNECTIONS, int),
-            ("file_handler", None, logging.FileHandler),
-            ("stdout_handler", None, logging.FileHandler),
-            ("stderr_handler", None, logging.FileHandler)
-        ]
-        for key, default, func in app_configs:
-            if value := dotenv_dict.get(key):
-                setattr(Config, key, func(value))
-            else:
-                setattr(Config, key, default)
-
-        # Initialize handlers if they weren't overridden.
-        if Config.file_handler == None:
-             Config.file_handler = logging.FileHandler(Config.DEFAULT_LOG_FILE)
-        if Config.stdout_handler == None:
-             Config.stdout_handler = logging.StreamHandler(sys.stdout)
-        if Config.stderr_handler == None:
-             Config.stderr_handler = logging.StreamHandler(sys.stderr)
-
-        Config.file_handler.setLevel(logging.DEBUG)
-        Config.file_handler.setFormatter(logging.Formatter(Config.VERBOSE_FORMAT))
-        Config.file_handler.addFilter(lambda r: r.levelno == logging.DEBUG)
-
-        Config.stdout_handler.setLevel(logging.DEBUG)
-        Config.stdout_handler.setFormatter(
-            LogCompressor(Config.SIMPLE_FORMAT, LogCompressor.DEFAULT_MAX_BYTES / 4))
-        Config.stdout_handler.addFilter(lambda r: r.levelno <= logging.INFO)
-        
-        Config.stderr_handler.setLevel(logging.WARNING)
-        Config.stderr_handler.setFormatter(LogCompressor(Config.DANGER_FORMAT))
-
-    @staticmethod
-    def get_logger(name: str) -> logging.Logger:
-        """
-        Retrieves a configured logger instance.
-
-        Attaches the standard file, stdout, and stderr handlers to the logger.
-
-        Parameters:
-            name (str): The name of the logger (usually __name__).
-
-        Returns:
-            logging.Logger: The configured logger instance.
-        """
-        if Config.cli == None:
-            Config._init()
-        
-        logger = logging.getLogger(name)
-        logger.setLevel(logging.DEBUG)
-
-        logger.addHandler(Config.file_handler)
-        logger.addHandler(Config.stdout_handler)
-        logger.addHandler(Config.stderr_handler)
-
-        return logger
+# Finally log every assigned setting.
+logger = get_logger(__name__)
+logger.info("Configuration initialized.")
+logger.info(
+    "Stage: %s\n"
+    "TLS enforced: %s\n"
+    "Max connections: %s\n"
+    "File handler: %s\n"
+    "Stdout handler: %s\n"
+    "Stderr handler: %s\n",
+    STAGE,
+    TLS_ENFORCED,
+    MAX_CONNECTIONS,
+    FILE_HANDLER,
+    STDOUT_HANDLER,
+    STDERR_HANDLER
+)
+logger.info("Discrepancies between the active configuration and the \".env\" file indicate that the provided values were invalid and have reverted to their defaults.")

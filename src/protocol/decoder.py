@@ -12,7 +12,7 @@ from .output import Output, OutputStr, OutputErr, OutputSeq, OutputMap, OutputAt
 
 logger = get_logger(__name__)
 
-logger = Config.get_logger(__name__)
+logger = get_logger(__name__)
 
 def decoder(receiver: Receiver) -> Output:
     """
