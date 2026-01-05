@@ -117,7 +117,7 @@ class _Decoder:
         self._traverse_string()
         return OutputStr(NULL)
     
-    def _traverse_bulk(self) -> OutputStr:
+    def _traverse_bulk_string(self) -> OutputStr:
         """
         Internal method.
 

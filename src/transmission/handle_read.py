@@ -30,7 +30,7 @@ def handle_read(connection: Connection, response_lambda: Callable[[str], None]) 
         output = process_output(connection.receiver)
         process_transmission(connection, connection.synchronizer.last_raw_input, output)
         
-        response_lambda(output)
+        response_lambda(str(output))
         connection.synchronizer.all_recv = True
         
     # When a partial response is encountered, 
