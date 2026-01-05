@@ -80,7 +80,7 @@ def add_connection(connection: Connection, on_response: Callable) -> None:
     
     Closes the connection if it fails to be registered.
     
-    Parameters:
+    Args:
         connection (obj): The connection to register.
         on_response (lambda): The callback function to be called when a response is received.
     """
@@ -100,7 +100,7 @@ def rem_connection(connection: Connection) -> None:
     "A file object shall be unregistered prior to being closed."
     https://docs.python.org/3/library/selectors.html#selectors.BaseSelector.unregister
     
-    Parameters:
+    Args:
         connection (obj): The connection to remove.
     """
     try:

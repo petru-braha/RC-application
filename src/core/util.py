@@ -25,7 +25,7 @@ class LogCompressor(Formatter):
         """
         Initializes the formatter with the specified format, date format, and maximum byte limit.
 
-        Parameters:
+        Args:
             fmt: The format string for the formatter.
             datefmt: The date format string for the formatter.
             max_bytes: The maximum byte limit for message truncation.
@@ -42,7 +42,7 @@ class LogCompressor(Formatter):
         """
         Formats the log record by truncating the message if it exceeds the byte limit.
 
-        Parameters:
+        Args:
             record: The log record to format.
 
         Returns:

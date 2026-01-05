@@ -22,7 +22,6 @@ def parser(input: str) -> tuple[str, list[str]]:
     Raises:
         ValueError: If the input is empty.
         ParseError: In case of parsing errors related to either argument separators or quoting.
-        SpaceError: If argument separation rules are violated.
     """
     input_len = len(input)
 

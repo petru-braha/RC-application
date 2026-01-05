@@ -26,6 +26,12 @@ class PartialResponseError(NetworkError):
     """
     pass
 
+class PartialRequestError(NetworkError):
+    """
+    To be raised when a command was not fully sent to the server, and the socket is readable.
+    """
+    pass
+
 class ConnectionCountError(NetworkError):
     """
     To be raised when the maximum number of connections is reached.
