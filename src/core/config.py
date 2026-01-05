@@ -32,15 +32,15 @@ Default path for the log file.
 """
 
 # See more: https://docs.python.org/3/library/logging.html#logrecord-attributes
-_VERBOSE_FORMAT: str = "%(asctime)s %(levelname)s - %(message)s --- %(name)s[%(lineno)d]"
+_VERBOSE_FORMAT: str = "%(asctime)s %(levelname)s <%(name)s[%(lineno)d]> --- %(message)s"
 """
 Format string for verbose logging (used in file logs).
 """
-_DANGER_FORMAT: str = "%(levelname)s - %(message)s --- %(name)s[%(lineno)d]"
+_DANGER_FORMAT: str = "%(levelname)s <%(name)s[%(lineno)d]> --- %(message)s"
 """
 Format string for warnings and errors logging.
 """
-_SIMPLE_FORMAT: str = "%(levelname)s - %(message)s --- %(name)s"
+_SIMPLE_FORMAT: str = "%(levelname)s <%(name)s> --- %(message)s"
 """
 Format string for simple logging (used in console output).
 """
@@ -149,18 +149,11 @@ def get_logger(name: str) -> logging.Logger:
 # Finally log every assigned setting.
 logger = get_logger(__name__)
 logger.info("Configuration initialized.")
-logger.info(
-    "Stage: %s\n"
-    "TLS enforced: %s\n"
-    "Max connections: %s\n"
-    "File handler: %s\n"
-    "Stdout handler: %s\n"
-    "Stderr handler: %s\n",
-    STAGE,
-    TLS_ENFORCED,
-    MAX_CONNECTIONS,
-    FILE_HANDLER,
-    STDOUT_HANDLER,
-    STDERR_HANDLER
-)
-logger.info("Discrepancies between the active configuration and the \".env\" file indicate that the provided values were invalid and have reverted to their defaults.")
+logger.info("Stage: %s", STAGE.name)
+logger.info("TLS enforced: %s", TLS_ENFORCED)
+logger.info("Max connections: %s", MAX_CONNECTIONS)
+logger.info("File handler: %s", FILE_HANDLER)
+logger.info("Stdout handler: %s", STDOUT_HANDLER)
+logger.info("Stderr handler: %s", STDERR_HANDLER)
+logger.info("Discrepancies between the active configuration and the \".env\" file indicate "
+    "that the provided values were invalid and have reverted to their defaults.\n")

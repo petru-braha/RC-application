@@ -35,7 +35,7 @@ def enque_close_connection(connection: Connection) -> None:
     logger.info(f"Enqueuing connection {str(connection.addr)} to be removed.")
     _connections_to_rem.append(connection)
 
-def close_application() -> None:
+def close_selector() -> None:
     """
     Removes any active connections and closes the selector.
 

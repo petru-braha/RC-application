@@ -16,6 +16,11 @@ import reactor
 
 logger = get_logger(__name__)
 
+_DEFAULT_TIMEOUT: float = 1
+"""
+The default timeout for the event loop.
+"""
+
 def run_multiplexing_loop(stay_alive: Event) -> None:
     """
     The socket selection loop.
@@ -88,8 +93,3 @@ def _select_and_dispatch(timeout: float = _DEFAULT_TIMEOUT) -> None:
         
         except Exception as e:
             logger.error(f"Failed to handle event for connection {str(connection.addr)}: {e}.", exc_info=True)
-
-_DEFAULT_TIMEOUT: float = 1
-"""
-The default timeout for the event loop.
-"""

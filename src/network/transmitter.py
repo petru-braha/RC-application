@@ -15,6 +15,7 @@ class Transmitter:
     """
     
     def __init__(self, addr: Address) -> None:
+        self.addr = addr
         self.sock = Sock(addr)
         self.receiver = Receiver(self.sock._socket)
         self.sender = Sender(self.sock._socket)
