@@ -52,6 +52,13 @@ Internal constant.
 Represents a single space character used for indentation padding.
 """
 
+_FIRST_ITEM_PREFIX: str = "1) "
+"""
+Internal constant.
+
+Represents the prefix for the first item in an iterable.
+"""
+
 _EMPTY_SEQ_MSG: str = "(empty sequence)"
 """
 Internal constant.
@@ -79,6 +86,20 @@ Internal constant.
 
 Header text displayed before the payload section of an Attributed output.
 """
+
+def _is_first(prefix: str) -> bool:
+    """
+    Internal method.
+
+    Checks if the given prefix is for the first item in an iterable.
+
+    Args:
+        prefix (str): The indentation string to prepend.
+
+    Returns:
+        bool: True if the prefix is for the first item, False otherwise.
+    """
+    return prefix == EMPTY_STR or prefix.startswith(_FIRST_ITEM_PREFIX)
 
 def _set_prefix(prefix: str, idx: int) -> str:
     """
@@ -108,7 +129,9 @@ def _format_str(output: str, prefix: str) -> str:
     Returns:
         str: The indented string followed by newline.
     """
-    return prefix + output + _LF
+    if _is_first(prefix):
+        return prefix + output
+    return _LF + prefix + output
 
 def _format_seq(output: OutputSeq, prefix: str) -> str:
     """
@@ -205,10 +228,15 @@ def _format_att(output: OutputAtt, prefix: str) -> str:
         return formatter(output.payload, prefix)
 
     indent_padding = _INDENT_CHAR * len(prefix)
+    optional_lf = EMPTY_STR
+    if _is_first(indent_padding):
+        optional_lf = _LF
+
     formatted = _format_str(_ATTR_HEADER, indent_padding)
-    formatted += _format_map(output.attributes, indent_padding)
-    formatted += _format_str(_PAYLOAD_HEADER, indent_padding)
+    formatted += optional_lf + _format_map(output.attributes, indent_padding)
+
+    formatted += optional_lf + _format_str(_PAYLOAD_HEADER, indent_padding)
     # All of the above strings are considered additional.
     # It should not use the actual prefix.
-    formatted += formatter(output.payload, prefix)
+    formatted += optional_lf + formatter(output.payload, prefix)
     return formatted

@@ -13,7 +13,7 @@ class TestOutput(TestCase):
         
         expected = (
             "1) a\n"
-            "2) b\n"
+            "2) b"
         )
         self.assertEqual(str(output), expected)
 
@@ -24,7 +24,7 @@ class TestOutput(TestCase):
         
         expected = (
             "1) k\n"
-            "2) v\n"
+            "2) v"
         )
         self.assertEqual(str(output), expected)
 
@@ -52,6 +52,6 @@ class TestOutput(TestCase):
             "2) 1) 1) id\n"
             "      2) 1\n"
             "   2) 1) id\n"
-            "      2) 2\n"
+            "      2) 2"
         )
         self.assertEqual(str(output), expected)
