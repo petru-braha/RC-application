@@ -25,13 +25,16 @@ def handle_read(connection: Connection, response_lambda: Callable[[str], None]) 
         _handle_recv(connection)
         return
     
-    try:
-        initial_buf_idx = connection.receiver._idx
+    def job():
         output = process_output(connection.receiver)
         process_transmission(connection, connection.synchronizer.last_raw_input, output)
         
         response_lambda(str(output))
         connection.synchronizer.all_recv = True
+
+    try:
+        initial_buf_idx = connection.receiver._idx
+        job()
         
     # When a partial response is encountered, 
     # the buffer index is restored to the initial position, 
@@ -39,6 +42,10 @@ def handle_read(connection: Connection, response_lambda: Callable[[str], None]) 
     except PartialResponseError as e:
         connection.receiver.restore_buf(initial_buf_idx)
         _handle_recv(connection)
+        try:
+            job()
+        except PartialResponseError:
+            pass
 
 def _handle_recv(connection: Connection) -> None:
     """

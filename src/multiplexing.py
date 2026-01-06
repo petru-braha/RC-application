@@ -39,7 +39,10 @@ def run_multiplexing_loop(stay_alive: Event) -> None:
             logger.critical(f"Multiplexing loop error: {e}.", exc_info=True)
     # The application prepares to completely shutdown.
     # Handle any remaining connections.
+
+    logger.info("Closing selector...")
     _handle_connection_queues()
+    reactor.close_selector()
 
 def _handle_connection_queues() -> None:
     """

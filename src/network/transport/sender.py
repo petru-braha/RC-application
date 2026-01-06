@@ -13,8 +13,8 @@ class Sender(Communicator):
     Handles buffering and sending commands to the socket.
     """
         
-    def __init__(self, sock: socket) -> None:
-        self._socket = sock
+    def __init__(self, socket: socket) -> None:
+        self._socket = socket
         self._pending_inputs: deque[str | bytes] = deque()
 
     def add_pending(self, pending: str) -> None:

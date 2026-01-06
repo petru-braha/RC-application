@@ -18,8 +18,8 @@ class Receiver(Communicator):
     Default buffer size for read operations (4KB).
     """
 
-    def __init__(self, sock: socket) -> None:
-        self._socket = sock
+    def __init__(self, socket: socket) -> None:
+        self._socket = socket
         self._buf = bytearray()
         self._idx = 0
 
@@ -116,8 +116,8 @@ class Receiver(Communicator):
         if len(data) == EMPTY_LEN:
             raise ConnectionError("Socket closed by peer")
 
-        logger.debug(f"Received {len(data)} bytes from socket. Available: {len(self._buf) - self._idx}.")
         self._buf.extend(data)
+        logger.debug(f"Received {len(data)} bytes from socket. Available: {len(self._buf) - self._idx}.")
         return len(data)
     
     def cleanup(self) -> None:

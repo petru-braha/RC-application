@@ -35,6 +35,8 @@ def enque_close_connection(connection: Connection) -> None:
     logger.info(f"Enqueuing connection {str(connection.addr)} to be removed.")
     _connections_to_rem.append(connection)
 
+# Calling these functions in the main thread provokes race-conditions.
+# Should only be used by the multiplexing thread.
 def close_selector() -> None:
     """
     Removes any active connections and closes the selector.
@@ -71,8 +73,6 @@ def close_selector() -> None:
     except Exception as e:
         logger.critical(f"Failed to close resources: {e}.", exc_info=True)
 
-# Calling these functions in the main thread provokes race-conditions.
-# Should only be used by the multiplexing thread.
 def add_connection(connection: Connection, on_response: Callable) -> None:
     """
     Registers a connection to the selector.
