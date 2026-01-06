@@ -7,8 +7,10 @@ This method selects the sockets ready for either reading/writing and dispatches 
 from selectors import EVENT_READ, EVENT_WRITE
 from threading import Event
 from time import sleep
+from typing import Callable
 
-from core import get_logger
+from core.config import get_logger
+from core.exceptions import PartialResponseError, PartialRequestError
 from network import Connection
 import transmission
 
@@ -34,7 +36,7 @@ def run_multiplexing_loop(stay_alive: Event) -> None:
     while stay_alive.is_set():
         try:
             _handle_connection_queues()
-            _select_and_dispatch()
+            _sel_and_dispatch()
         except Exception as e:
             logger.critical(f"Multiplexing loop error: {e}.", exc_info=True)
     # The application prepares to completely shutdown.
@@ -56,10 +58,12 @@ def _handle_connection_queues() -> None:
         connection = reactor._connections_to_rem.popleft()
         reactor.rem_connection(connection)
 
-def _select_and_dispatch(timeout: float = _DEFAULT_TIMEOUT) -> None:
+def _sel_and_dispatch(timeout: float = _DEFAULT_TIMEOUT) -> None:
     """
     Polls for I/O events and dispatches them to the registered handlers.
     
+    It also manages connection related issues.
+
     Args:
         timeout: The maximum time to wait for events.
     """
@@ -78,21 +82,67 @@ def _select_and_dispatch(timeout: float = _DEFAULT_TIMEOUT) -> None:
             response_lambda = reactor._response_lambdas[connection]
             
             if mask & EVENT_READ:
-                transmission.handle_read(connection, response_lambda)
+                _sel_readable(connection, response_lambda)
             if mask & EVENT_WRITE:
-                try:
-                    transmission.handle_write(connection)
-                except ValueError as e:
-                    # If the user makes a syntax error.
-                    # The error is both logged and printed on his screen as a response.
-                    response_lambda(e)
-                    logger.error(f"Error when encoding data to {str(connection.addr)}: {e}.", exc_info=True)
-                    raise
+                _sel_writable(connection, response_lambda)
         
         except ConnectionError as e:
-            logger.warning(f"The connection {str(connection.addr)} was closed by peer: {e}.")
+            logger.warning(f"The connection {connection.addr} was closed by peer: {e}.")
             logger.info("Removing the connection.")
             reactor.rem_connection(connection)
-        
+            continue
         except Exception as e:
-            logger.error(f"Failed to handle event for connection {str(connection.addr)}: {e}.", exc_info=True)
+            logger.error(f"Failed to handle event for connection {connection.addr}: {str(e)}.", exc_info=True)
+            continue
+
+def _sel_readable(connection: Connection, response_lambda: Callable[[str], None]) -> None:
+    """
+    Handles and processes readable sockets.
+
+    It also manages partial operations results,
+    and re-negotiates the protocol if necessary and possible (from RESP3 to RESP2)
+    in case the server does not support the newer version.
+    
+    Args:
+        connection (obj): The connection to handle.
+        response_lambda (lambda): The lambda function to forward the response to the client.
+    """
+    try:
+        output_str = transmission.handle_read(
+            connection.addr,
+            connection.receiver,
+            connection.synchronizer.last_raw_input,
+            connection.synchronizer.all_sent)
+        response_lambda(output_str)
+        connection.synchronizer.all_recv = True
+    
+    except PartialResponseError:
+        logger.debug("The response is not completely received.")
+    except PartialRequestError:
+        logger.debug("The request is not completely sent.")
+    except transmission.Resp3NotSupportedError:
+        logger.warning("RESP3 not supported; retrying with RESP2.")
+        connection.say_hello(connection.initial_user,
+                             connection.initial_pasw,
+                             Connection.RESP2)
+
+# todo more modular than this? maybe handle synchronizer only from here
+def _sel_writable(connection: Connection, response_lambda: Callable[[str], None]) -> None:
+    """
+    Handles and processes writable sockets and manages invalid input and partial response issues.
+    
+    Args:
+        connection (obj): The connection to handle.
+        response_lambda (lambda): The lambda function to forward potential input errors to the client.
+    """
+    try:
+        transmission.handle_write(
+            connection.addr,
+            connection.sender,
+            connection.synchronizer)
+    except PartialResponseError:
+        logger.debug("The last result was not completely received.")
+    except ValueError as e:
+        # If the user makes an error, the error is both logged and printed on his screen as a response.
+        response_lambda(str(e))
+        logger.error(f"Error when encoding data to {connection.addr}: {e}.", exc_info=True)

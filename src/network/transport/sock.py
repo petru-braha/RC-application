@@ -84,12 +84,12 @@ class Sock:
         if self._socket._closed:
             return
         
-        logger.info(f"Closing connection to {str(self.addr)}.")
+        logger.info(f"Closing connection to {self.addr}.")
         try:
             self._socket.shutdown(socket.SHUT_RDWR)
         except OSError as e:
             # The socket might be broken or closed by the peer first.
-            logger.debug(f"Error when shutting down {str(self.addr)} (likely already closed): {e}.")
+            logger.debug(f"Error when shutting down {self.addr} (likely already closed): {e}.")
         finally:
             self._socket.close()
 

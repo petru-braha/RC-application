@@ -57,24 +57,25 @@ class Chat(ft.Container, PresenceChangeable):
         if not req:
             return
 
-        logger.debug(f"Processing request: {req}.")
+        logger.debug(f"Frontend printing of the request: {req}.")
         self._on_enter(req)
         
         self.cmd_input.value = ""
         
         bubble = self._create_client_bubble(req)
         self.history_box.controls.append(bubble)
-        
-        self.history_box.update()
+        self.page.update()
+        logger.debug("Request printed.")
 
     def on_response(self, res: str) -> None:
         """
         Called by reactor.
         """
-        logger.debug(f"Processing response: {res}.")
+        logger.debug(f"Frontend printing of the response: {res}.")
         bubble = self._create_server_bubble(res)
         self.history_box.controls.append(bubble)
-        self.update()
+        self.page.update()
+        logger.debug("Response printed.")
 
     def _create_client_bubble(self, text: str) -> ft.Row:
         return ft.Row(

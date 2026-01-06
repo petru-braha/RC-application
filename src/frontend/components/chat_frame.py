@@ -35,11 +35,9 @@ class ChatFrame(ft.Stack):
         self.active_layer = None
 
     def add_chat(self, chat: Chat) -> None:
-        if self.active_layer != None:
-            self.active_layer.hide()
         self.controls.append(chat)
-        self.active_layer = chat
         self.update()
+        self.set_chat(chat)
 
     def rem_chat(self, chat: Chat) -> None:
         chat.hide()
@@ -68,12 +66,10 @@ class ChatFrame(ft.Stack):
             self._set_active(next_chat)
     
     def set_chat(self, chat: Chat) -> None:
-        assert chat in self.controls
         self._set_active(chat)
-        self.update()
 
     def _set_active(self, chat: Chat) -> None:
         if self.active_layer:
             self.active_layer.hide()
-        chat.show()
         self.active_layer = chat
+        self.active_layer.show()

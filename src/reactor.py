@@ -25,14 +25,14 @@ def enque_new_connection(connection: Connection, on_response: Callable[[str], No
     """
     Enqueues a new connection to be added to the selector.
     """
-    logger.info(f"Enqueuing connection {str(connection.addr)} to be added.")
+    logger.info(f"Enqueuing connection {connection.addr} to be added.")
     _connections_to_add.append((connection, on_response))
 
 def enque_close_connection(connection: Connection) -> None:
     """
     Enqueues a connection to be removed from the selector.
     """
-    logger.info(f"Enqueuing connection {str(connection.addr)} to be removed.")
+    logger.info(f"Enqueuing connection {connection.addr} to be removed.")
     _connections_to_rem.append(connection)
 
 # Calling these functions in the main thread provokes race-conditions.
@@ -88,11 +88,11 @@ def add_connection(connection: Connection, on_response: Callable) -> None:
         _selector.register(connection, selectors.EVENT_READ | selectors.EVENT_WRITE)
         _response_lambdas[connection] = on_response
     except KeyError as e:
-        logger.error(f"Failed to register connection {str(connection.addr)}: {e}.")
+        logger.error(f"Failed to register connection {connection.addr}: {e}.")
         connection.close()
-        logger.info(f"Closed connection {str(connection.addr)}.")
+        logger.info(f"Closed connection {connection.addr}.")
     else:
-        logger.info(f"Added connection {str(connection.addr)} to selector.")
+        logger.info(f"Added connection {connection.addr} to selector.")
 
 def rem_connection(connection: Connection) -> None:
     """
@@ -107,12 +107,12 @@ def rem_connection(connection: Connection) -> None:
         _selector.unregister(connection)
         _response_lambdas.pop(connection)
     except (KeyError, ValueError) as e:
-        logger.error(f"Failed to remove connection {str(connection.addr)}: {e}.")
+        logger.error(f"Failed to remove connection {connection.addr}: {e}.")
     else:
-        logger.info(f"Removed connection {str(connection.addr)} from selector.")
+        logger.info(f"Removed connection {connection.addr} from selector.")
     finally:
         connection.close()
-        logger.info(f"Closed connection {str(connection.addr)}.")
+        logger.info(f"Closed connection {connection.addr}.")
 
 _selector = selectors.DefaultSelector()
 """

@@ -9,11 +9,11 @@ class Layout(ft.Stack):
         agenda = Agenda()
         chat_frame = ChatFrame()
         modal_controller = ModalController(
-            on_agenda_insert=agenda.insert,
-            on_agenda_remove=agenda.remove,
-            on_chat_insert=chat_frame.add_chat,
-            on_chat_select=chat_frame.set_chat,
-            on_chat_remove=chat_frame.rem_chat)
+            on_agenda_add=agenda.add_box,
+            on_agenda_rem=agenda.rem_box,
+            on_chat_add=chat_frame.add_chat,
+            on_chat_sel=chat_frame.set_chat,
+            on_chat_rem=chat_frame.rem_chat)
         connect_button = ft.Button("Connect", on_click=modal_controller.show)
         
         controls: list[ft.Control] = [
