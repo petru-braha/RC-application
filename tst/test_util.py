@@ -1,18 +1,9 @@
 from unittest import TestCase
 
-from src.util import process_input, process_redis_url
+from src.util import process_redis_url
 
 class TestUtil(TestCase):
-    # ------------------------------
-    # ---- process_input method ----
-    # ------------------------------
-
-    def test_process_input(self):
-        pass
-        #expected = "test"
-        #actual = process_input("test")
-        #sself.assertEqual(actual, expected)
-
+    
     # ------------------------------
     # -- process_redis_url method --
     # ------------------------------
@@ -36,6 +27,10 @@ class TestUtil(TestCase):
     def test_process_url_invalid_scheme(self):
         with self.assertRaises(ValueError):
             process_redis_url("red://localhost:6379")
+    
+    def test_raise_when_tls_enforced(self):
+        with self.assertRaises(ValueError):
+            process_redis_url("redis://localhost:6379", tls_enforced=True)
     
     def test_process_url_invalid_db(self):
         with self.assertRaises(ValueError):

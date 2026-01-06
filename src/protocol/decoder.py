@@ -172,8 +172,8 @@ class _Decoder:
         length_str = self._traverse_string().value
         length = int(length_str)
 
-        if length == NULL_LENGTH:
-            return OutputErr(NULL)
+        # RESP2 NULLS can only be represented through the bulk strings and arrays.
+        assert length != NULL_LENGTH
 
         value = self._receiver.consume(length)
         self._receiver.consume(len(CRLF))

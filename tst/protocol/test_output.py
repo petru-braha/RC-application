@@ -12,8 +12,8 @@ class TestOutput(TestCase):
         ))
         
         expected = (
-            "1) a\r\n"
-            "2) b\r\n"
+            "1) a\n"
+            "2) b\n"
         )
         self.assertEqual(str(output), expected)
 
@@ -23,8 +23,8 @@ class TestOutput(TestCase):
         }))
         
         expected = (
-            "1) k\r\n"
-            "2) v\r\n"
+            "1) k\n"
+            "2) v\n"
         )
         self.assertEqual(str(output), expected)
 
@@ -48,10 +48,10 @@ class TestOutput(TestCase):
         }))
         
         expected = (
-            "1) users\r\n"
-            "2) 1) 1) id\r\n"
-            "      2) 1\r\n"
-            "   2) 1) id\r\n"
-            "      2) 2\r\n"
+            "1) users\n"
+            "2) 1) 1) id\n"
+            "      2) 1\n"
+            "   2) 1) id\n"
+            "      2) 2\n"
         )
         self.assertEqual(str(output), expected)

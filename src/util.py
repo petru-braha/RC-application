@@ -5,7 +5,7 @@ from core.constants import EMPTY_STR, SCHEME_LIST
 
 logger = get_logger(__name__)
 
-def process_redis_url(url: str) -> tuple[str, str, str, str, str]:
+def process_redis_url(url: str, tls_enforced: bool = TLS_ENFORCED) -> tuple[str, str, str, str, str]:
     """
     Processes and extracts data from a Redis URL string.
     
@@ -27,7 +27,7 @@ def process_redis_url(url: str) -> tuple[str, str, str, str, str]:
 
     if parsed.scheme not in SCHEME_LIST:
         raise ValueError(f"Invalid url scheme: '{parsed.scheme}'")
-    if TLS_ENFORCED and parsed.scheme == SCHEME_LIST[0]:
+    if tls_enforced and parsed.scheme == SCHEME_LIST[0]:
         raise ValueError("TLS is enforced, and an invalid scheme was provided.")
 
     host = parsed.hostname if parsed.hostname else EMPTY_STR

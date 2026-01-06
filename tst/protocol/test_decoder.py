@@ -5,7 +5,7 @@ from src.core.exceptions import PartialResponseError
 
 from src.protocol.constants_resp import NULL
 from src.protocol.decoder import decoder
-from src.protocol.output import OutputStr, OutputSeq, OutputMap, OutputAtt
+from src.protocol.output import OutputStr, OutputErr, OutputSeq, OutputMap, OutputAtt
 
 class MockReceiver:
     """
@@ -71,7 +71,7 @@ class TestDecoder(TestCase):
     def test_simple_error(self):
         receiver = MockReceiver("-ERR unknown command\r\n")
         actual = decoder(receiver)
-        expected = OutputStr("ERR unknown command")
+        expected = OutputErr("ERR unknown command")
         self.assertEqual(actual, expected)
 
     # ------------------------------
@@ -105,7 +105,7 @@ class TestDecoder(TestCase):
     def test_bulk_error(self):
         receiver = MockReceiver("!21\r\nSYNTAX invalid syntax\r\n")
         actual = decoder(receiver)
-        expected = OutputStr("SYNTAX invalid syntax")
+        expected = OutputErr("SYNTAX invalid syntax")
         self.assertEqual(actual, expected)
 
     def test_verbatim_string(self):

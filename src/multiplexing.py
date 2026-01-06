@@ -91,7 +91,7 @@ def _select_and_dispatch(timeout: float = _DEFAULT_TIMEOUT) -> None:
         
         except ConnectionError as e:
             logger.warning(f"The connection {str(connection.addr)} was closed by peer: {e}.")
-            logger.info(f"Removing the connection.")
+            logger.info("Removing the connection.")
             reactor.rem_connection(connection)
         
         except Exception as e:

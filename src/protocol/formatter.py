@@ -1,4 +1,4 @@
-from core.constants import EMPTY_STR, STR_TRAVERSAL_STRIDE, CRLF
+from core.constants import EMPTY_STR, STR_TRAVERSAL_STRIDE
 
 from .output import Output, OutputStr, OutputErr, OutputSeq, OutputMap, OutputAtt
 
@@ -10,7 +10,7 @@ def formatter(output: Output, prefix: str = EMPTY_STR) -> str:
     Dispatches aggregate types to their specific formatting methods.
 
     Args:
-        output: The Output object (Str, Seq, Map, or Att) to format.
+        output (obj): The Output object (Str, Err, Seq, Map, or Att) to format.
         prefix (str): Optional indentation string. Defaults to empty string.
 
     Returns:
@@ -39,6 +39,12 @@ Defines the number of items in a key-value pair (key + value).
 Used for calculating indices in map formatting.
 """
 
+_LF: str = "\n"
+"""
+Internal constant.
+
+Represents a newline character used for line breaks in formatted output.
+"""
 _INDENT_CHAR: str = " "
 """
 Internal constant.
@@ -100,9 +106,9 @@ def _format_str(output: str, prefix: str) -> str:
         prefix (str): The indentation string to prepend.
 
     Returns:
-        str: The indented string followed by CRLF.
+        str: The indented string followed by newline.
     """
-    return prefix + output + CRLF
+    return prefix + output + _LF
 
 def _format_seq(output: OutputSeq, prefix: str) -> str:
     """
