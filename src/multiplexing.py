@@ -41,8 +41,6 @@ def run_multiplexing_loop(stay_alive: Event) -> None:
             logger.critical(f"Multiplexing loop error: {e}.", exc_info=True)
     # The application prepares to completely shutdown.
     # Handle any remaining connections.
-
-    logger.info("Closing selector...")
     _handle_connection_queues()
     reactor.close_selector()
 
@@ -126,7 +124,6 @@ def _sel_readable(connection: Connection, response_lambda: Callable[[str], None]
                              connection.initial_pasw,
                              Connection.RESP2)
 
-# todo more modular than this? maybe handle synchronizer only from here
 def _sel_writable(connection: Connection, response_lambda: Callable[[str], None]) -> None:
     """
     Handles and processes writable sockets and manages invalid input and partial response issues.
