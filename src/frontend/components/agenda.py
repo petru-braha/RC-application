@@ -16,11 +16,11 @@ class Agenda(ft.Column):
             expand=True,
         )
 
-    def insert(self, connection_box: ConnectionBox) -> None:
+    def add_box(self, connection_box: ConnectionBox) -> None:
         self.list_view.controls.append(connection_box)
         self.update()
 
-    def remove(self, connection_box: ConnectionBox) -> None:
+    def rem_box(self, connection_box: ConnectionBox) -> None:
         """
         Remove first occurrence of presentation.
 

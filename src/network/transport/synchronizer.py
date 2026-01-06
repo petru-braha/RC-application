@@ -24,3 +24,13 @@ class Synchronizer:
         self.last_raw_input = pending
         self.all_sent = False
         self.all_recv = False
+
+    def unsync(self) -> None:
+        """
+        Unsyncs the input with the output.
+
+        This should be called when an error occurs while processing the input.
+        """
+        self.last_raw_input = None
+        self.all_sent = None
+        self.all_recv = None

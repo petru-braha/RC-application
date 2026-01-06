@@ -18,21 +18,21 @@ class ControllerBase:
     """
 
     def __init__(self,
-                 on_agenda_insert: Callable,
-                 on_agenda_remove: Callable,
-                 on_chat_insert: Callable,
-                 on_chat_select: Callable,
-                 on_chat_remove: Callable):
-        self._on_agenda_insert = on_agenda_insert
-        self._on_agenda_remove = on_agenda_remove
-        self._on_chat_insert = on_chat_insert
-        self._on_chat_select = on_chat_select
-        self._on_chat_remove = on_chat_remove
+                 on_agenda_add: Callable,
+                 on_agenda_rem: Callable,
+                 on_chat_add: Callable,
+                 on_chat_sel: Callable,
+                 on_chat_rem: Callable):
+        self._on_agenda_add = on_agenda_add
+        self._on_agenda_rem = on_agenda_rem
+        self._on_chat_add = on_chat_add
+        self._on_chat_sel = on_chat_sel
+        self._on_chat_rem = on_chat_rem
 
     def on_continue(self, connection_data: tuple) -> None:
         try:
             connection = Connection(*connection_data)
-        except ConnectionCountError as e:
+        except ConnectionCountError:
             logger.error(
                 "Can not add a new connection.\n"
                 "Remove old connections or restart the application with a new \".env\" configuration.")
@@ -41,17 +41,17 @@ class ControllerBase:
         chat = Chat(
             text=str(connection.addr),
             on_enter=connection.sender.add_pending)
-        self._on_chat_insert(chat)
+        self._on_chat_add(chat)
 
         def on_connection_close():
             enque_close_connection(connection)
-            self._on_chat_remove(chat)
+            self._on_chat_rem(chat)
         connection_box = ConnectionBox(
             text=str(connection.addr),
-            on_click=lambda: self._on_chat_select(chat),
+            on_click=lambda: self._on_chat_sel(chat),
             on_connection_close=on_connection_close,
-            on_agenda_remove=self._on_agenda_remove)
-        self._on_agenda_insert(connection_box)
+            on_agenda_rem=self._on_agenda_rem)
+        self._on_agenda_add(connection_box)
         
         enque_new_connection(connection, on_response=chat.on_response)
         self.hide()
@@ -64,18 +64,18 @@ class ModalController(ft.Container, ControllerBase, PresenceChangeable):
     """
 
     def __init__(self,
-                 on_agenda_insert: Callable,
-                 on_agenda_remove: Callable,
-                 on_chat_insert: Callable,
-                 on_chat_select: Callable,
-                 on_chat_remove: Callable):
+                 on_agenda_add: Callable,
+                 on_agenda_rem: Callable,
+                 on_chat_add: Callable,
+                 on_chat_sel: Callable,
+                 on_chat_rem: Callable):
         ControllerBase.__init__(
             self,
-            on_agenda_insert,
-            on_agenda_remove,
-            on_chat_insert,
-            on_chat_select,
-            on_chat_remove
+            on_agenda_add,
+            on_agenda_rem,
+            on_chat_add,
+            on_chat_sel,
+            on_chat_rem
         )
 
         close_btn = ft.IconButton(ft.Icons.CLOSE, on_click=self.hide, tooltip="Close")

@@ -52,7 +52,7 @@ class Sock:
                 sock.connect(sockaddr)
                 # Enable multiplexing only after successful connection.
                 sock.setblocking(False)
-                logger.info(f"Successfully connected to {addr} ({sockaddr}).")
+                logger.info(f"Successfully connected to {addr} aka. {sockaddr}.")
                 break
             except (socket.error, InterruptedError) as e:
                 logger.warning(f"Failed to connect to {sockaddr}: {e}.")
@@ -63,7 +63,7 @@ class Sock:
         if sock == None:
             # No address available.
             logger.error(f"Could not establish connection to {addr} after trying all address families.")
-            raise ConnectionError(f"Failed to connect to {str(addr)}")
+            raise ConnectionError(f"Failed to connect to {addr}")
         
         # Initially, Sock was planned to inherit from socket.socket.
         # This can't be possible: "The newly created socket is non-inheritable".
@@ -82,12 +82,12 @@ class Sock:
         if self._socket._closed:
             return
         
-        logger.info(f"Closing connection to {str(self.addr)}.")
+        logger.info(f"Closing connection to {self.addr}.")
         try:
             self._socket.shutdown(socket.SHUT_RDWR)
         except OSError as e:
             # The socket might be broken or closed by the peer first.
-            logger.debug(f"Error when shutting down {str(self.addr)} (likely already closed): {e}.")
+            logger.debug(f"Error when shutting down {self.addr} (likely already closed): {e}.")
         finally:
             self._socket.close()
 

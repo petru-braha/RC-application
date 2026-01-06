@@ -5,6 +5,8 @@ from core.exceptions import PartialResponseError
 from network import Connection, Receiver
 from protocol import parser, encoder, decoder, Output, OutputErr, ParserError
 
+from .exceptions import Resp3NotSupportedError
+
 logger = get_logger(__name__)
 
 def process_input(input_str: str) -> bytes:
@@ -48,12 +50,10 @@ def process_output(receiver: Receiver) -> str:
         PartialResponseError: If the buffer provided by receiver is incomplete.
         AssertionError: If the output type is NOT one of the expected Output subclasses.
     """
-    logger.debug(f"Processing output.")
+    logger.debug("Processing output.")
 
     try:
-        output = decoder(receiver)
-        logger.debug(f"Decoded output: {output}.")
-        return output
+        return decoder(receiver)
     
     except PartialResponseError as e:
         logger.debug(f"Partial output received: {e}.")
@@ -63,7 +63,7 @@ def process_output(receiver: Receiver) -> str:
         logger.error(f"Error when decoding output: {e}.", exc_info=True)
         raise
 
-def process_transmission(connection: Connection, raw_input: str, output: Output) -> None:
+def process_transmission(raw_input: str, output: Output) -> None:
     """
     Checks if the input was responsible for the initialization of the connection (HELLO and SELECT).
     If so checks if they returned an error.
@@ -72,9 +72,11 @@ def process_transmission(connection: Connection, raw_input: str, output: Output)
     If SELECT failed, notify the client .
     
     Args:
-        connection (obj): The connection object.
         raw_input (str): The raw input string.
-        output (obj): The output output.
+        output (obj): The output object.
+
+    Raises:
+        Resp3NotSupportedError: If the third protocol version is not supported by the remote instance.
     """
     logger.debug(f"Processing transmission: {raw_input} -> {output}.")
 
@@ -94,13 +96,12 @@ def process_transmission(connection: Connection, raw_input: str, output: Output)
         return
     
     logger.error(f"HELLO command failed: {output.value}.")
-    # Check if we should retry with RESP2.
-    # Only retry if we were trying RESP3 and it wasn't a manual retry.
-    if Connection.RESP3 in raw_input:
-        logger.info("Retrying with RESP2...")
-        connection.say_hello(connection.initial_user, 
-                             connection.initial_pasw, 
-                             Connection.RESP2)
-    elif Connection.RESP2 in raw_input:
+    # Check if `HELLO 3` and `HELLO 2` both failed.
+    # If so, there is nothing else to do.
+    if f"{Connection.HELLO_CMD} {Connection.RESP2}" in raw_input:
         logger.error("HELLO command failed with RESP2 protocol version.")
         logger.info("The user should try authentication with AUTH command.")
+    
+    # Only `HELLO 3` failed, so retry with RESP2.
+    if f"{Connection.HELLO_CMD} {Connection.RESP3}" in raw_input:
+        raise Resp3NotSupportedError("Invalid protocol version: 3")
