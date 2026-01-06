@@ -61,7 +61,6 @@ class Chat(ft.Container, PresenceChangeable):
         self._on_enter(req)
         
         self.cmd_input.value = ""
-        self.cmd_input.focus()
         
         bubble = self._create_client_bubble(req)
         self.history_box.controls.append(bubble)

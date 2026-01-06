@@ -4,7 +4,7 @@ from typing import Callable
 class ConnectionBox(ft.Container):
 
     def __init__(self, text: str, on_click: Callable, on_connection_close: Callable, on_agenda_remove: Callable) -> None:
-        def on_close():
+        def on_rem() -> None:
             on_connection_close()
             on_agenda_remove(self)
         
@@ -21,7 +21,7 @@ class ConnectionBox(ft.Container):
                 icon_size=20,
                 right=0,
                 top=0,
-                on_click=on_close
+                on_click=on_rem
             )
         ])
 

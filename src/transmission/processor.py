@@ -32,8 +32,6 @@ def process_input(input_str: str) -> bytes:
     # todo sanitizer
     
     encoded = encoder(cmd, argv)
-    logger.debug(f"Encoded command: {encoded}.")
-    
     return encoded.encode(ASCII_ENC)
 
 def process_output(receiver: Receiver) -> str:
@@ -50,7 +48,7 @@ def process_output(receiver: Receiver) -> str:
         PartialResponseError: If the buffer provided by receiver is incomplete.
         AssertionError: If the output type is NOT one of the expected Output subclasses.
     """
-    logger.debug(f"Processing output for {str(receiver.addr)}.")
+    logger.debug(f"Processing output.")
 
     try:
         output = decoder(receiver)
@@ -62,7 +60,7 @@ def process_output(receiver: Receiver) -> str:
         raise
     
     except Exception as e:
-        logger.error(f"Error when processing data from {receiver.addr}: {e}.", exc_info=True)
+        logger.error(f"Error when decoding output: {e}.", exc_info=True)
         raise
 
 def process_transmission(connection: Connection, raw_input: str, output: Output) -> None:

@@ -11,7 +11,7 @@ class RCException(Exception):
                 msg = str(msg)
         elif argc > 1:
             msg = str(self.args)
-        return self.MSG_PREFIX + " --- " + msg
+        return self.MSG_PREFIX + " *** " + msg
 
 class AssignmentError(RCException):
     MSG_PREFIX = "Immutable Exception"

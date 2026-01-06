@@ -34,7 +34,7 @@ def handle_write(connection: Connection) -> None:
         assert isinstance(pending, str)
         # If the previous command was not fully received by the peer,
         # do NOT send this one.
-        if connection.synchronizer.all_recv != True:
+        if connection.synchronizer.all_recv == False:
             return
         connection.synchronizer.sync_input(pending)
         # This might raise ValueError.
