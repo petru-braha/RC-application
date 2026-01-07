@@ -1,6 +1,7 @@
 import flet as ft
 from threading import Thread
 from typing import Callable
+from time import sleep
 
 from core import get_logger
 
@@ -21,7 +22,8 @@ class Chat(ft.Container, PresenceChangeable):
         self.cmd_input = ft.TextField(
             hint_text="Type a command.",
             autofocus=True,
-            on_submit=self.on_submit)
+            on_submit=self.on_submit,
+            on_change=lambda: logger.debug(f"input value changed to {self.cmd_input.value}"))
         
         header = ft.Container(
             content=ft.Row(
@@ -61,12 +63,11 @@ class Chat(ft.Container, PresenceChangeable):
 
         logger.debug(f"Frontend printing of the request: {req}.")
         self._on_enter(req)
-        self.cmd_input.value = ""
         await self.cmd_input.focus()
-        
+        self.cmd_input.value = ""
+
         bubble = self._add_client_bubble(req)
         self.history_box.controls.append(bubble)
-        self.update()
         logger.debug("Request printed.")
 
     def on_response(self, res: str) -> None:
@@ -75,8 +76,7 @@ class Chat(ft.Container, PresenceChangeable):
         """
         logger.debug(f"Frontend printing of the response: {res}.")
         bubble = self._add_server_bubble(res)
-        self.history_box.controls.append(bubble)
-        self.update()
+        self.history_box.controls.append(bubble)      
         logger.debug("Response printed.")
 
     def _add_client_bubble(self, text: str) -> ft.Row:
