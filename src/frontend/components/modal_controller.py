@@ -20,12 +20,10 @@ class ControllerBase:
     def __init__(self,
                  on_agenda_add: Callable,
                  on_agenda_rem: Callable,
-                 on_chat_add: Callable,
                  on_chat_sel: Callable,
                  on_chat_rem: Callable):
         self._on_agenda_add = on_agenda_add
         self._on_agenda_rem = on_agenda_rem
-        self._on_chat_add = on_chat_add
         self._on_chat_sel = on_chat_sel
         self._on_chat_rem = on_chat_rem
 
@@ -41,7 +39,7 @@ class ControllerBase:
         chat = Chat(
             text=str(connection.addr),
             on_enter=connection.sender.add_pending)
-        self._on_chat_add(chat)
+        self._on_chat_sel(chat)
 
         def on_connection_close():
             enque_close_connection(connection)
@@ -66,14 +64,12 @@ class ModalController(ft.Container, ControllerBase, PresenceChangeable):
     def __init__(self,
                  on_agenda_add: Callable,
                  on_agenda_rem: Callable,
-                 on_chat_add: Callable,
                  on_chat_sel: Callable,
                  on_chat_rem: Callable):
         ControllerBase.__init__(
             self,
             on_agenda_add,
             on_agenda_rem,
-            on_chat_add,
             on_chat_sel,
             on_chat_rem
         )
