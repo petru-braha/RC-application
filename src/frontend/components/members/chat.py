@@ -1,4 +1,5 @@
 import flet as ft
+from threading import Thread
 from typing import Callable
 
 from core import get_logger
@@ -14,11 +15,12 @@ class Chat(ft.Container, PresenceChangeable):
             expand=True,
             auto_scroll=True,
             spacing=10,
-            scroll=ft.ScrollMode.ALWAYS,
+            scroll=ft.ScrollMode.AUTO,
         )
         
         self.cmd_input = ft.TextField(
             hint_text="Type a command.",
+            autofocus=True,
             on_submit=self.on_submit)
         
         header = ft.Container(
@@ -52,19 +54,19 @@ class Chat(ft.Container, PresenceChangeable):
             expand=True,
         )
 
-    def on_submit(self, e) -> None:
+    async def on_submit(self, e) -> None:
         req = self.cmd_input.value
         if not req:
             return
 
         logger.debug(f"Frontend printing of the request: {req}.")
         self._on_enter(req)
-        
         self.cmd_input.value = ""
+        await self.cmd_input.focus()
         
-        bubble = self._create_client_bubble(req)
+        bubble = self._add_client_bubble(req)
         self.history_box.controls.append(bubble)
-        self.page.update()
+        self.update()
         logger.debug("Request printed.")
 
     def on_response(self, res: str) -> None:
@@ -72,12 +74,12 @@ class Chat(ft.Container, PresenceChangeable):
         Called by reactor.
         """
         logger.debug(f"Frontend printing of the response: {res}.")
-        bubble = self._create_server_bubble(res)
+        bubble = self._add_server_bubble(res)
         self.history_box.controls.append(bubble)
-        self.page.update()
+        self.update()
         logger.debug("Response printed.")
 
-    def _create_client_bubble(self, text: str) -> ft.Row:
+    def _add_client_bubble(self, text: str) -> ft.Row:
         return ft.Row(
             [
                 ft.Container(
@@ -92,7 +94,7 @@ class Chat(ft.Container, PresenceChangeable):
             alignment=ft.MainAxisAlignment.END,
         )
 
-    def _create_server_bubble(self, text: str) -> ft.Row:
+    def _add_server_bubble(self, text: str) -> ft.Row:
         return ft.Row(
             [
                 ft.Container(

@@ -9,7 +9,8 @@ class Agenda(ft.Column):
             expand=True,
             spacing=10,
             padding=10,
-            auto_scroll=True
+            auto_scroll=True,
+            scroll=ft.ScrollMode.AUTO,
         )
         super().__init__(
             controls=[self.list_view],
