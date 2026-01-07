@@ -22,8 +22,7 @@ class Chat(ft.Container, PresenceChangeable):
         self.cmd_input = ft.TextField(
             hint_text="Type a command.",
             autofocus=True,
-            on_submit=self.on_submit,
-            on_change=lambda: logger.debug(f"input value changed to {self.cmd_input.value}"))
+            on_submit=self.on_submit)
         
         header = ft.Container(
             content=ft.Row(
