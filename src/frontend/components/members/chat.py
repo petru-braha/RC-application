@@ -1,7 +1,5 @@
 import flet as ft
-from threading import Thread
 from typing import Callable
-from time import sleep
 
 from core import get_logger
 
@@ -73,10 +71,14 @@ class Chat(ft.Container, PresenceChangeable):
         """
         Called by reactor.
         """
-        logger.debug(f"Frontend printing of the response: {res}.")
-        bubble = self._add_server_bubble(res)
-        self.history_box.controls.append(bubble)      
-        logger.debug("Response printed.")
+        async def update_ui():
+            logger.debug(f"Frontend printing of the response: {res}.")
+            bubble = self._add_server_bubble(res)
+            self.history_box.controls.append(bubble)
+            self.history_box.update()
+            logger.debug("Response printed.")
+
+        self.page.run_task(update_ui)
 
     def _add_client_bubble(self, text: str) -> ft.Row:
         return ft.Row(

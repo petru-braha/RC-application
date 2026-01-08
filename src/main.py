@@ -1,29 +1,17 @@
-import asyncio
 import flet as ft
-from threading import Thread, Event
+from threading import Event
 
 from core import IS_CLI, get_logger
 from frontend import Layout
 
-from multiplexing import run_multiplexing_loop
+from multiplexing import loop_multiplexing
 
 logger = get_logger(__name__)
 
-def start_multiplexing_thread() -> tuple[Event, Thread]:
-    multiplexing_event = Event()
-    multiplexing_thread = Thread(target=run_multiplexing_loop, args=[multiplexing_event])
-    multiplexing_event.set()
-    multiplexing_thread.start()
-    return multiplexing_event, multiplexing_thread
-
-async def close_application(multiplexing_event: Event,
-                            multiplexing_thread: Thread,
-                            page: ft.Page) -> None:
+async def close_page(multiplexing_event: Event, page: ft.Page) -> None:
     logger.info("Closing application...")
     try:
         multiplexing_event.clear()
-        multiplexing_thread.join()
-        logger.info("Multiplexing thread joined.")
     except BaseException as e:
         logger.error(f"Application failed: {e}.", exc_info=True)
     finally:
@@ -32,21 +20,21 @@ async def close_application(multiplexing_event: Event,
         await page.window.destroy()
         await page.window.close()
 
-
-
 def build_page(page: ft.Page) -> None:
     try:
-        multiplexing_event, multiplexing_thread = start_multiplexing_thread()
+        multiplexing_event = Event()
+        multiplexing_event.set()
+        
+        # Run the multiplexing loop in a background thread managed by Flet.
+        page.run_thread(loop_multiplexing, multiplexing_event)
         logger.info("Multiplexing thread started.")
         
-        async def handle_exit(event: ft.WindowEvent | None = None) -> None:
+        async def handle_close(event: ft.WindowEvent | None = None) -> None:
             if event and event.data != "close" and event.type != ft.WindowEventType.CLOSE:
                 return
-            await close_application(multiplexing_event,
-                                    multiplexing_thread,
-                                    page)
+            await close_page(multiplexing_event, page)
         
-        page.window.on_event = handle_exit
+        page.window.on_event = handle_close
         page.window.prevent_close = True
         page.theme_mode = ft.ThemeMode.DARK
         page.title = "RC-application"
@@ -59,16 +47,12 @@ def build_page(page: ft.Page) -> None:
     
     except Exception as e:
         logger.error(f"Application failed: {e}.", exc_info=True)
-        close_application(
-            multiplexing_event,
-            multiplexing_thread,
-            page)
+        # Verify page is still open before closing? 
+        # For now, just try to close cleanly.
+        page.window.close()
     except BaseException as e:
         logger.error(f"Application forcely closed: {e}.", exc_info=True)
-        close_application(
-            multiplexing_event,
-            multiplexing_thread,
-            page)
+        page.window.close()
 
 if __name__ == "__main__":
     if IS_CLI:
