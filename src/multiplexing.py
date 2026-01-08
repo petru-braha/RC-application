@@ -23,7 +23,7 @@ _DEFAULT_TIMEOUT: float = 1
 The default timeout for the event loop.
 """
 
-def run_multiplexing_loop(stay_alive: Event) -> None:
+def loop_multiplexing(stay_alive: Event) -> None:
     """
     The socket selection loop.
     
