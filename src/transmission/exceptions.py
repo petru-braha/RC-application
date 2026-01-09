@@ -1,6 +1,6 @@
-from core.exceptions import RCException
+from core.exceptions import RCError
 
-class TransmissionError(RCException):
+class TransmissionError(RCError):
     MSG_PREFIX = "Transmission Exception"
 
 class Resp3NotSupportedError(TransmissionError):

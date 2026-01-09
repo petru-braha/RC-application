@@ -1,18 +1,9 @@
-NOT_FOUND_INDEX = -1
-"""
-Returned by `find()` if the lookup value was not found.
-"""
+from enum import IntEnum
 
 EMPTY_STR: str = ""
 """
 Represents an empty string literal.
 """
-
-STR_TRAVERSAL_STRIDE: int = 1
-"""
-How many characters must be processed at once when traversing a string.
-"""
-
 EMPTY_LEN: int = 0
 """
 How many elements are present in a empty container.
@@ -33,3 +24,24 @@ CRLF: str = "\r\n"
 """
 Standard RESP encoded data suffix.
 """
+
+NOT_FOUND_INDEX: int = -1
+"""
+Returned by `find()` if the lookup value was not found.
+"""
+
+STR_TRAVERSAL_STRIDE: int = 1
+"""
+How many characters must be processed at once when traversing a string.
+"""
+
+class RespVer(IntEnum):
+    """
+    Redis Serialization Protocol supported versions.
+    """
+
+    RESP3: int = 3
+    RESP2: int = 2
+    """
+    The stable version.
+    """
