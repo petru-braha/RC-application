@@ -2,6 +2,10 @@ import flet as ft
 from typing import Callable
 
 class ConnectionBox(ft.Container):
+    """
+    A visual representation of an active connection in the agenda.
+    Allows selection and closing of the connection.
+    """
 
     def __init__(self, text: str, on_click: Callable, on_connection_close: Callable, on_agenda_rem: Callable) -> None:
         def on_rem() -> None:
@@ -14,7 +18,7 @@ class ConnectionBox(ft.Container):
                 bottom=5, 
                 color=ft.Colors.WHITE,
                 weight=ft.FontWeight.BOLD),
-            # Close button of the connection
+            # Close button of the connection.
             ft.IconButton(
                 icon=ft.Icons.CLOSE,
                 icon_color=ft.Colors.WHITE_54,

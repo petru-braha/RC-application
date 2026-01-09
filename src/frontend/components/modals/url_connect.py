@@ -9,7 +9,19 @@ from .interfaces import ModalBase
 logger = get_logger(__name__)
 
 class UrlConnect(ModalBase):
+    """
+    A view for connecting to a Redis server using a connection URL.
+    """
+
     def __init__(self, on_continue: Callable, switch_btn: ft.Button, close_btn: ft.Button):
+        """
+        Initialize the UrlConnect view.
+
+        Args:
+            on_continue (Callable): Callback to proceed with connection.
+            switch_btn (ft.Button): Button to switch to manual mode.
+            close_btn (ft.Button): Button to close the modal.
+        """
         super().__init__()
         self._on_continue_callback = on_continue
         
@@ -41,7 +53,13 @@ class UrlConnect(ModalBase):
             horizontal_alignment=ft.CrossAxisAlignment.CENTER
         )
 
-    def on_process_url(self, e) -> None:
+    def on_process_url(self, event) -> None:
+        """
+        Processes the URL input, parses it, and triggers the continue callback.
+
+        Args:
+            event (obj): The event object.
+        """
         url = self.url_input.value
         self.url_input.value = ""
         try:

@@ -8,7 +8,18 @@ from .interfaces import PresenceChangeable
 logger = get_logger(__name__)
 
 class Chat(ft.Container, PresenceChangeable):
+    """
+    A chat Interface container that displays the command history in a request-response format.
+    """
+
     def __init__(self, text: str, on_enter: Callable[[str], None]) -> None:
+        """
+        Initialize the Chat interface.
+
+        Args:
+            text (str): The initial text to display in the header (e.g. connection address).
+            on_enter (lambda): Callback function to handle command submission.
+        """
         self._on_enter = on_enter
         self.history_box = ft.ListView(
             expand=True,
@@ -53,7 +64,13 @@ class Chat(ft.Container, PresenceChangeable):
             expand=True,
         )
 
-    async def on_submit(self, e) -> None:
+    async def on_submit(self, event) -> None:
+        """
+        Handles the submission of a new command from the input field.
+
+        Args:
+            event (obj): The event object.
+        """
         req = self.cmd_input.value
         if not req:
             return
@@ -63,49 +80,59 @@ class Chat(ft.Container, PresenceChangeable):
         await self.cmd_input.focus()
         self.cmd_input.value = ""
 
-        bubble = self._add_client_bubble(req)
+        bubble = self._add_msg_bubble(req, ft.MainAxisAlignment.END, ft.Colors.BLUE_600)
         self.history_box.controls.append(bubble)
         logger.debug("Request printed.")
 
     def on_response(self, res: str) -> None:
         """
-        Called by reactor.
+        Called by the reactor to display a server response.
+        Updates the UI thread-safely.
+
+        Args:
+            res (str): The response string from the server.
         """
-        async def update_ui():
-            logger.debug(f"Frontend printing of the response: {res}.")
-            bubble = self._add_server_bubble(res)
-            self.history_box.controls.append(bubble)
-            self.history_box.update()
-            logger.debug("Response printed.")
+        self.page.run_task(self._auto_add_res, res)
 
-        self.page.run_task(update_ui)
+    async def _auto_add_res(self, res: str) -> None:
+        """
+        Adds a response to the chat history box automaticallly when it is ready.
 
-    def _add_client_bubble(self, text: str) -> ft.Row:
+        Args:
+            res (str): The response string from the server.
+        """
+        logger.debug(f"Frontend printing of the response: {res}.")
+
+        bubble = self._add_msg_bubble(res, ft.MainAxisAlignment.START, ft.Colors.BLUE_GREY_700)
+        self.history_box.controls.append(bubble)
+        self.history_box.update()
+        
+        logger.debug("Response printed.")
+
+    def _add_msg_bubble(self, text: str, alignment: ft.MainAxisAlignment, bgcolor: ft.Colors) -> ft.Row:
+        """
+        Creates a message bubble for client requests or server responses.
+
+        Args:
+            text (str): The request text.
+            alignment (obj): The alignment of the message bubble.
+                             The requests are aligned to the right,
+                             and the responses to the left.
+            bgcolor (obj): The background color of the message bubble.
+
+        Returns:
+            ft.Row: The formatted row containing the message bubble.
+        """
         return ft.Row(
             [
                 ft.Container(
                     content=ft.Text(text, color=ft.Colors.WHITE, selectable=True),
                     padding=10,
                     border_radius=10,
-                    bgcolor=ft.Colors.BLUE_600,
+                    bgcolor=bgcolor,
                     width=400,
                     ink=True
                 )
             ],
-            alignment=ft.MainAxisAlignment.END,
-        )
-
-    def _add_server_bubble(self, text: str) -> ft.Row:
-        return ft.Row(
-            [
-                ft.Container(
-                    content=ft.Text(text, color=ft.Colors.WHITE, selectable=True),
-                    padding=10,
-                    border_radius=10,
-                    bgcolor=ft.Colors.BLUE_GREY_700,
-                    width=400,
-                    ink=True
-                )
-            ],
-            alignment=ft.MainAxisAlignment.START,
+            alignment=alignment,
         )

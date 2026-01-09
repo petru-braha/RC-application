@@ -4,7 +4,14 @@ from .components import Agenda, ChatFrame, ModalController
 from .left_panel import LeftPanel
 
 class Layout(ft.Stack):
+    """
+    Configures and arranges the main semantic sections of the application.
+    """
+    
     def __init__(self) -> None:
+        """
+        Initializes the layout controls, including Agenda, ChatFrame, and ModalController.
+        """
 
         agenda = Agenda()
         chat_frame = ChatFrame()

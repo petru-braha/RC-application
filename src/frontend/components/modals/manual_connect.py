@@ -4,7 +4,19 @@ from typing import Callable
 from .interfaces import ModalBase
 
 class ManualConnect(ModalBase):
+    """
+    A view for manually inputting Redis connection details (host, port, auth).
+    """
+
     def __init__(self, on_continue: Callable, switch_btn: ft.Control, close_btn: ft.Control):
+        """
+        Initialize the ManualConnect view with input fields.
+
+        Args:
+            on_continue (lambda): Callback to proceed with connection.
+            switch_btn (obj): Button to switch to URL mode.
+            close_btn (obj): Button to close the modal.
+        """
         super().__init__()
         self._on_continue_callback = on_continue
         
@@ -42,7 +54,13 @@ class ManualConnect(ModalBase):
             horizontal_alignment=ft.CrossAxisAlignment.CENTER
         )
 
-    def on_process_manual(self, e) -> None:
+    def on_process_manual(self, event) -> None:
+        """
+        Processes the manual input, validates (implicitly), and triggers the continue callback.
+
+        Args:
+            event (obj): The event object.
+        """
         host = self.host_input.value
         port = self.port_input.value
         user = self.user_input.value
