@@ -2,7 +2,6 @@ from unittest import TestCase
 from unittest.mock import MagicMock
 
 from core.exceptions import PartialResponseError
-from src.core.constants import CRLF
 from src.network.transport.receiver import Receiver
 
 class TestReceiver(TestCase):

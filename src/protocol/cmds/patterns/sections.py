@@ -1,9 +1,9 @@
-from core.util import Immutable
+import core
 
 from .interfaces import RequiredPattern, OptionalPattern
 from .types import VariadicKey
 
-class Section(Immutable):
+class Section(core.Immutable):
     """
     Interface for a high-level command syntax section.
     

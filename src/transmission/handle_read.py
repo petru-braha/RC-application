@@ -1,14 +1,12 @@
-from core.config import get_logger
-from core.exceptions import PartialResponseError, PartialRequestError
-from core.structs import Address
+import core
 from network import Receiver
 
 from .processor import process_output, process_transmission
 from .exceptions import Resp3NotSupportedError
 
-logger = get_logger(__name__)
+logger = core.get_logger(__name__)
 
-def handle_read(addr: Address, receiver: Receiver, last_raw_input: str, all_sent: bool) -> str:
+def handle_read(addr: core.Addr, receiver: Receiver, last_raw_input: str, all_sent: bool) -> str:
     """
     Reads from the socket, decodes data, and updates history.
 
@@ -32,7 +30,7 @@ def handle_read(addr: Address, receiver: Receiver, last_raw_input: str, all_sent
     # Reductio ad absurdum there are bytes to be read; then do it.
     _handle_recv(receiver, addr)
     if all_sent != True:
-        raise PartialRequestError("The request is not completely sent")
+        raise core.PartialRequestError("The request is not completely sent")
     
     try:
         initial_buf_idx = receiver._idx
@@ -44,11 +42,11 @@ def handle_read(addr: Address, receiver: Receiver, last_raw_input: str, all_sent
     # When a partial response is encountered, 
     # the buffer index is restored to the initial position, 
     # and the next chunk of data is read and concatenated to the initial buffer. 
-    except PartialResponseError:
+    except core.PartialResponseError:
         receiver.restore_buf(initial_buf_idx)
         raise
 
-def _handle_recv(receiver: Receiver, addr: Address) -> None:
+def _handle_recv(receiver: Receiver, addr: core.Addr) -> None:
     """
     Handles receiving data from the socket.
 

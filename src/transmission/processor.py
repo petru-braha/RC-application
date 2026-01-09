@@ -1,13 +1,11 @@
-from core.config import get_logger
-from core.constants import ASCII_ENC
-from core.exceptions import PartialResponseError
+import core
 
 from network import Connection, Receiver
 from protocol import parser, encoder, decoder, Output, OutputErr, ParserError
 
 from .exceptions import Resp3NotSupportedError
 
-logger = get_logger(__name__)
+logger = core.get_logger(__name__)
 
 def process_input(input_str: str) -> bytes:
     """
@@ -34,7 +32,7 @@ def process_input(input_str: str) -> bytes:
     # todo sanitizer
     
     encoded = encoder(cmd, argv)
-    return encoded.encode(ASCII_ENC)
+    return encoded.encode(core.ASCII_ENC)
 
 def process_output(receiver: Receiver) -> str:
     """
@@ -55,7 +53,7 @@ def process_output(receiver: Receiver) -> str:
     try:
         return decoder(receiver)
     
-    except PartialResponseError as e:
+    except core.PartialResponseError as e:
         logger.debug(f"Partial output received: {e}.")
         raise
     

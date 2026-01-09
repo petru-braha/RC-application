@@ -1,12 +1,12 @@
 import flet as ft
 from threading import Event
 
-from core import IS_CLI, get_logger
+import core
 from frontend import Layout
 
 from multiplexing import loop_multiplexing
 
-logger = get_logger(__name__)
+logger = core.get_logger(__name__)
 
 async def close_page(multiplexing_event: Event, page: ft.Page) -> None:
     logger.info("Closing application...")
@@ -55,7 +55,7 @@ def build_page(page: ft.Page) -> None:
         page.window.close()
 
 if __name__ == "__main__":
-    if IS_CLI:
+    if core.IS_CLI:
         raise NotImplementedError("CLI mode is not implemented yet")
         logger.info("CLI mode enabled.")
     else:

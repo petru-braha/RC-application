@@ -1,12 +1,11 @@
 from socket import socket
 from collections import deque
 
-from core.config import get_logger
-from core.constants import EMPTY_LEN
+import core
 
 from .interfaces import Communicator
 
-logger = get_logger(__name__)
+logger = core.get_logger(__name__)
 
 class Sender(Communicator):
     """
@@ -34,7 +33,7 @@ class Sender(Communicator):
         Returns:
             bool: True if there are pending commands, False otherwise.
         """
-        return len(self._pending_inputs) > EMPTY_LEN
+        return len(self._pending_inputs) > core.EMPTY_LEN
 
     def get_first_pending(self) -> str | bytes | None:
         """

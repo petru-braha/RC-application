@@ -1,5 +1,5 @@
 from unittest import TestCase
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 from src.frontend.components.chat_frame import ChatFrame
 
@@ -9,9 +9,7 @@ class TestChatFrame(TestCase):
         self.chat_frame = ChatFrame()
         self.chat_frame._page = MagicMock()
         self.chat_frame.update = MagicMock()
-        # default_layer is created real.
         self.chat_frame.default_layer = MagicMock()
-        # Reset content to default_layer as expected by some tests
         self.chat_frame.content = self.chat_frame.default_layer
 
     def test_init(self):
@@ -26,7 +24,6 @@ class TestChatFrame(TestCase):
         self.chat_frame.update.assert_called()
 
     def test_rem_chat(self):
-        # Set content to something else first.
         mock_chat = MagicMock()
         self.chat_frame.content = mock_chat
         

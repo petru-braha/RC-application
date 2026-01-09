@@ -1,6 +1,6 @@
-from core.util import Immutable
+import core
 
-class RequiredPattern(Immutable):
+class RequiredPattern(core.Immutable):
     """
     Interface representing a mandatory pattern.
     
@@ -10,7 +10,7 @@ class RequiredPattern(Immutable):
     """
     pass
 
-class OptionalPattern(Immutable):
+class OptionalPattern(core.Immutable):
     """
     Interface representing a pattern that is optional.
     
@@ -20,7 +20,7 @@ class OptionalPattern(Immutable):
     """
     pass
 
-class StrictPattern(Immutable):
+class StrictPattern(core.Immutable):
     """
     Interface representing a pattern with strict matching constraints.
     

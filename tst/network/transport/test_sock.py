@@ -2,26 +2,26 @@ from unittest import TestCase
 from unittest.mock import MagicMock, patch, call
 import socket
 
-from core.structs import Address
+from src.core.structs import Addr
 from src.network.transport.sock import Sock
 
 class TestSock(TestCase):
     
+    socket_cls_patcher = patch("src.network.transport.sock.socket.socket")
+    getaddrinfo_patcher = patch("src.network.transport.sock.socket.getaddrinfo")
+    
     def setUp(self):
         self.host = "localhost"
         self.port = "6379"
-        self.addr = Address(self.host, self.port)
+        self.addr = Addr(self.host, self.port)
         self.sockaddr = (self.host, int(self.port))
         
-        self.socket_cls_patcher = patch("src.network.transport.sock.socket.socket")
-        self.getaddrinfo_patcher = patch("src.network.transport.sock.socket.getaddrinfo")
-        
-        self.mock_socket_cls = self.socket_cls_patcher.start()
-        self.mock_getaddrinfo = self.getaddrinfo_patcher.start()
+        self.mock_socket_cls = TestSock.socket_cls_patcher.start()
+        self.mock_getaddrinfo = TestSock.getaddrinfo_patcher.start()
 
     def tearDown(self):
-        self.socket_cls_patcher.stop()
-        self.getaddrinfo_patcher.stop()
+        TestSock.socket_cls_patcher.stop()
+        TestSock.getaddrinfo_patcher.stop()
 
     def test_init_success_ipv4(self):
         mock_socket_instance = MagicMock()

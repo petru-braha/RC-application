@@ -1,4 +1,4 @@
-from core.constants import CRLF
+import core
 
 from .constants_resp import RespDataType, RESP_SYMB
 
@@ -7,8 +7,8 @@ def _encode_arg(arg: str) -> str:
     Internal method.
     Encodes an argument as a bulk string.
     """
-    encoded = RESP_SYMB[RespDataType.BULK_STRINGS] + str(len(arg)) + CRLF
-    encoded += (arg + CRLF)
+    encoded = RESP_SYMB[RespDataType.BULK_STRINGS] + str(len(arg)) + core.CRLF
+    encoded += (arg + core.CRLF)
     return encoded
 
 def encoder(cmd: str, argv: list[str]) -> str:
@@ -26,7 +26,7 @@ def encoder(cmd: str, argv: list[str]) -> str:
     """
     argc = len(argv)
     # argc + 1 is necessary since we also send the command itself.
-    encoded = RESP_SYMB[RespDataType.ARRAYS] + str(argc + 1) + CRLF
+    encoded = RESP_SYMB[RespDataType.ARRAYS] + str(argc + 1) + core.CRLF
     encoded += _encode_arg(cmd)
     for idx in range(argc):
         encoded += _encode_arg(argv[idx])

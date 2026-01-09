@@ -15,10 +15,10 @@ from collections import deque
 import selectors
 from typing import Callable
 
-from core import get_logger
+import core
 from network import Connection
 
-logger = get_logger(__name__)
+logger = core.get_logger(__name__)
 
 # Client modules should only call these functions.
 def enque_new_connection(connection: Connection, on_response: Callable[[str], None]) -> None:

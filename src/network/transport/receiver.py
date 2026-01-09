@@ -1,12 +1,10 @@
 from socket import socket
 
-from core.config import get_logger
-from core.constants import EMPTY_LEN, CRLF
-from core.exceptions import PartialResponseError
+import core
 
 from .interfaces import Communicator
 
-logger = get_logger(__name__)
+logger = core.get_logger(__name__)
 
 class Receiver(Communicator):
     """
@@ -47,7 +45,7 @@ class Receiver(Communicator):
             PartialResponseError: If there are insufficient bytes in the buffer.
         """
         if self._idx + bufsize > len(self._buf):
-            raise PartialResponseError(f"Insufficient buffer bytes: {len(self._buf) - self._idx}. Needed: {bufsize}")
+            raise core.PartialResponseError(f"Insufficient buffer bytes: {len(self._buf) - self._idx}. Needed: {bufsize}")
         
         data = self._buf[self._idx : self._idx + bufsize]
         self._idx += bufsize
@@ -66,12 +64,12 @@ class Receiver(Communicator):
         Raises:
             PartialResponseError: If the buffer does not contain a CRLF.
         """
-        ASCII_CRLF = CRLF.encode()
+        ASCII_CRLF = core.CRLF.encode()
         try:
             # Search for CRLF starting from current index.
             end_idx = self._buf.index(ASCII_CRLF, self._idx)
         except ValueError:
-            raise PartialResponseError("Buffer does not contain a CRLF")
+            raise core.PartialResponseError("Buffer does not contain a CRLF")
         
         # Here we want to consume CRLF but not include it the returned string.
         data = self._buf[self._idx : end_idx]
@@ -112,7 +110,7 @@ class Receiver(Communicator):
             ConnectionError: If the socket is closed by the peer.
         """
         data = self._socket.recv(bufsize)
-        if len(data) == EMPTY_LEN:
+        if len(data) == core.EMPTY_LEN:
             raise ConnectionError("Socket closed by peer")
 
         self._buf.extend(data)
