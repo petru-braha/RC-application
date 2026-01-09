@@ -35,14 +35,13 @@ class TestChat(TestCase):
     def test_on_submit_empty(self):
         self.chat.cmd_input.value = ""
         
-        # Run async method
         asyncio.run(self.chat.on_submit(None))
         
         self.on_enter.assert_not_called()
 
     def test_on_submit_valid(self):
         self.chat.cmd_input.value = "GET key"
-        self.chat.cmd_input.focus = AsyncMock() # Mock awaitable
+        self.chat.cmd_input.focus = AsyncMock()
         
         asyncio.run(self.chat.on_submit(None))
         
@@ -50,18 +49,15 @@ class TestChat(TestCase):
         self.chat.cmd_input.focus.assert_called()
         self.assertEqual(self.chat.cmd_input.value, "")
         
-        # Verify bubble added
         self.chat.history_box.controls.append.assert_called()
     
     def test_on_response(self):
-        # on_response queues a task on page
         self.chat.on_response("OK")
         
         self.mock_page_val.run_task.assert_called()
         
-        # Extract the task function and run it
         task_func = self.mock_page_val.run_task.call_args[0][0]
-        asyncio.run(task_func())
+        asyncio.run(task_func("OK"))
         
         self.chat.history_box.controls.append.assert_called()
         self.chat.history_box.update.assert_called()

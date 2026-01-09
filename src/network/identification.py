@@ -1,11 +1,9 @@
-from core.config import get_logger
-from core.constants import EMPTY_STR, RespVer
-from core.structs import Address
+import core
 
 from .transmitter import Transmitter
 from .util import join_cmd_argv
 
-logger = get_logger(__name__)
+logger = core.get_logger(__name__)
 
 class Identification(Transmitter):
     """
@@ -44,11 +42,11 @@ class Identification(Transmitter):
 
         Note: Keep in mind that the initial username and password are mutable.
         """
-        host = Identification.DEFAULT_HOST if host == EMPTY_STR else host
-        port = Identification.DEFAULT_PORT if port == EMPTY_STR else port
-        addr = Address(host, port)
+        host = Identification.DEFAULT_HOST if host == core.EMPTY_STR else host
+        port = Identification.DEFAULT_PORT if port == core.EMPTY_STR else port
+        addr = core.Addr(host, port)
         
-        initial_user = Identification.DEFAULT_USER if user == EMPTY_STR else user
+        initial_user = Identification.DEFAULT_USER if user == core.EMPTY_STR else user
         initial_pasw = pasw
         
         super().__init__(addr)
@@ -56,7 +54,7 @@ class Identification(Transmitter):
         self.initial_user = initial_user
         self.initial_pasw = initial_pasw
     
-    def say_hello(self, user: str, pasw: str, protver: int = RespVer.RESP3) -> None:
+    def say_hello(self, user: str, pasw: str, protver: int = core.RespVer.RESP3) -> None:
         """
         Queues the HELLO command with the specified authentication credentials and protocol version.
 
@@ -68,9 +66,9 @@ class Identification(Transmitter):
         Raises:
             ValueError: If an invalid protocol version is specified.
         """
-        protver = RespVer(protver)
+        protver = core.RespVer(protver)
         argv = [str(protver), Identification._AUTH_ARG, user]
-        if pasw != EMPTY_STR:
+        if pasw != core.EMPTY_STR:
             argv.append(pasw)
         
         logger.info(f"Queueing HELLO handshake for user '{user}' (Protocol {protver}).")

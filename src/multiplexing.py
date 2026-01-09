@@ -9,15 +9,13 @@ from threading import Event
 from time import sleep
 from typing import Callable
 
-from core.config import get_logger
-from core.constants import RespVer
-from core.exceptions import PartialResponseError, PartialRequestError
+import core
 from network import Connection
 import transmission
 
 import reactor
 
-logger = get_logger(__name__)
+logger = core.get_logger(__name__)
 
 _DEFAULT_TIMEOUT: float = 1
 """
@@ -91,7 +89,7 @@ def _sel_and_dispatch(timeout: float = _DEFAULT_TIMEOUT) -> None:
             reactor.rem_connection(connection)
             continue
         except Exception as e:
-            logger.error(f"Failed to handle event for connection {connection.addr}: {str(e)}.", exc_info=True)
+            logger.error(f"Failed to handle event for connection {connection.addr}: {e}.", exc_info=True)
             continue
 
 def _sel_readable(connection: Connection, response_lambda: Callable[[str], None]) -> None:
@@ -115,15 +113,16 @@ def _sel_readable(connection: Connection, response_lambda: Callable[[str], None]
         response_lambda(output_str)
         connection.synchronizer.all_recv = True
     
-    except PartialResponseError:
+    except core.PartialResponseError:
         logger.debug("The response is not completely received.")
-    except PartialRequestError:
+    except core.PartialRequestError:
         logger.debug("The request is not completely sent.")
+    # todo what if it is an auth error?
     except transmission.Resp3NotSupportedError:
         logger.warning("RESP3 not supported; retrying with RESP2.")
         connection.say_hello(connection.initial_user,
                              connection.initial_pasw,
-                             RespVer.RESP2)
+                             core.RespVer.RESP2)
 
 def _sel_writable(connection: Connection, response_lambda: Callable[[str], None]) -> None:
     """
@@ -138,7 +137,7 @@ def _sel_writable(connection: Connection, response_lambda: Callable[[str], None]
             connection.addr,
             connection.sender,
             connection.synchronizer)
-    except PartialResponseError:
+    except core.PartialResponseError:
         logger.debug("The last result was not completely received.")
     except ValueError as e:
         # If the user makes an error, the error is both logged and printed on his screen as a response.

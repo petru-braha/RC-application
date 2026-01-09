@@ -1,11 +1,11 @@
 import flet as ft
 from typing import Callable
 
-from core import get_logger
+import core
 
 from .interfaces import PresenceChangeable
 
-logger = get_logger(__name__)
+logger = core.get_logger(__name__)
 
 class Chat(ft.Container, PresenceChangeable):
     """

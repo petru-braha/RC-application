@@ -1,4 +1,4 @@
-from core.constants import NOT_FOUND_INDEX, EMPTY_STR, STR_TRAVERSAL_STRIDE
+import core
 
 from .constants_resp import SPACE, QUOTE_DOUBLE, QUOTE_SINGLE, QUOTE_TYPE
 from .exceptions import QuoteError, SpaceError
@@ -32,14 +32,14 @@ def parser(input: str) -> tuple[str, list[str]]:
     # Skip first idx spaces.
     idx = 0
     while idx < input_len and input[idx] == SPACE:
-        idx += STR_TRAVERSAL_STRIDE
+        idx += core.STR_TRAVERSAL_STRIDE
     
     space_idx = input.find(SPACE, idx)
     
     # Assume that there is only one token - the command.
     # str.find() returns -1 if the substring is not found.
     # The command is updated if a white space was found.
-    if space_idx == NOT_FOUND_INDEX:
+    if space_idx == core.NOT_FOUND_INDEX:
         return input[idx:input_len], []
     
     cmd = input[idx:space_idx]
@@ -99,7 +99,7 @@ class _ArgumentParser:
         Advances the internal index past any sequence of spaces.
         """
         while self._idx < self._input_len and self._input[self._idx] == SPACE:
-            self._idx += STR_TRAVERSAL_STRIDE
+            self._idx += core.STR_TRAVERSAL_STRIDE
 
     def _traverse_arg(self) -> str:
         """
@@ -116,7 +116,7 @@ class _ArgumentParser:
         char = self._input[self._idx]
         if char == QUOTE_DOUBLE or char == QUOTE_SINGLE:
             # Skip the starting quote character.
-            self._idx += STR_TRAVERSAL_STRIDE
+            self._idx += core.STR_TRAVERSAL_STRIDE
             return self._visit_quoted(char)
         return self._visit_unquoted()
 
@@ -135,29 +135,29 @@ class _ArgumentParser:
         Raises:
             QuoteError: If a second quote of the same type as the starting one was NOT found.
         """
-        arg = EMPTY_STR
+        arg = core.EMPTY_STR
         while self._idx < self._input_len:
             char = self._input[self._idx]
 
             # Found the second quote, of the same type as the starting one.
             if char == QUOTE:
-                self._idx += STR_TRAVERSAL_STRIDE
+                self._idx += core.STR_TRAVERSAL_STRIDE
                 return arg
 
             if char != _ArgumentParser._ESCAPE_CHAR:
-                arg += char; self._idx += STR_TRAVERSAL_STRIDE; continue
+                arg += char; self._idx += core.STR_TRAVERSAL_STRIDE; continue
             
-            if self._idx + STR_TRAVERSAL_STRIDE == self._input_len:
-                arg += char; self._idx += STR_TRAVERSAL_STRIDE; continue
+            if self._idx + core.STR_TRAVERSAL_STRIDE == self._input_len:
+                arg += char; self._idx += core.STR_TRAVERSAL_STRIDE; continue
             
             # If the "\\" byte was encountered check if the next character can escape.
-            next_char = self._input[self._idx + STR_TRAVERSAL_STRIDE]
+            next_char = self._input[self._idx + core.STR_TRAVERSAL_STRIDE]
             escaped = QUOTE_TYPE[QUOTE].get(next_char)
             if escaped is not None:
                 arg += escaped
             else:
                 arg += (char + next_char)
-            self._idx += 2 * STR_TRAVERSAL_STRIDE
+            self._idx += 2 * core.STR_TRAVERSAL_STRIDE
         
        # Raised if an argument like "abc' is provided.
         raise QuoteError("Argument was not ended with a (correct) quote")
@@ -174,7 +174,7 @@ class _ArgumentParser:
         Raises:
             QuoteError: If a quote is encountered (they should NOT be present).
         """
-        arg = EMPTY_STR
+        arg = core.EMPTY_STR
         while self._idx < self._input_len:
             char = self._input[self._idx]
             
@@ -184,6 +184,6 @@ class _ArgumentParser:
             if char == SPACE:
                 return arg
             arg += char
-            self._idx += STR_TRAVERSAL_STRIDE
+            self._idx += core.STR_TRAVERSAL_STRIDE
 
         return arg

@@ -1,38 +1,38 @@
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
-from core.structs import Address
+from src.core.structs import Addr
 from src.network.identification import Identification
 
 class TestIdentification(TestCase):
     
+    sock_patcher = patch("src.network.transmitter.Sock")
+    receiver_patcher = patch("src.network.transmitter.Receiver")
+    sender_patcher = patch("src.network.transmitter.Sender")
+    sync_patcher = patch("src.network.transmitter.Synchronizer")
+    
     def setUp(self):
-        self.sock_patcher = patch("src.network.transmitter.Sock")
-        self.receiver_patcher = patch("src.network.transmitter.Receiver")
-        self.sender_patcher = patch("src.network.transmitter.Sender")
-        self.sync_patcher = patch("src.network.transmitter.Synchronizer")
-        
-        self.mock_sock_cls = self.sock_patcher.start()
-        self.mock_receiver_cls = self.receiver_patcher.start()
-        self.mock_sender_cls = self.sender_patcher.start()
-        self.mock_sync_cls = self.sync_patcher.start()
+        self.mock_sock_cls = TestIdentification.sock_patcher.start()
+        self.mock_receiver_cls = TestIdentification.receiver_patcher.start()
+        self.mock_sender_cls = TestIdentification.sender_patcher.start()
+        self.mock_sync_cls = TestIdentification.sync_patcher.start()
         
         self.mock_sender_instance = MagicMock()
         self.mock_sender_cls.return_value = self.mock_sender_instance
         
         self.mock_sock_instance = self.mock_sock_cls.return_value
-        self.mock_sock_instance.addr = Address("localhost", "6379")
+        self.mock_sock_instance.addr = Addr("localhost", "6379")
 
     def tearDown(self):
-        self.sock_patcher.stop()
-        self.receiver_patcher.stop()
-        self.sender_patcher.stop()
-        self.sync_patcher.stop()
+        TestIdentification.sock_patcher.stop()
+        TestIdentification.receiver_patcher.stop()
+        TestIdentification.sender_patcher.stop()
+        TestIdentification.sync_patcher.stop()
 
     def test_init_defaults(self):
         identification = Identification("", "", "", "")
         
-        self.assertEqual(identification.addr, Address("localhost", "6379"))
+        self.assertEqual(identification.addr, Addr("localhost", "6379"))
         self.assertEqual(identification.initial_user, "default")
         self.assertEqual(identification.initial_pasw, "")
         
@@ -40,10 +40,10 @@ class TestIdentification(TestCase):
         self.mock_sender_instance.add_pending.assert_called_with(expected_hello)
 
     def test_init_custom(self):
-        self.mock_sock_instance.addr = Address("127.0.0.1", "1234")
+        self.mock_sock_instance.addr = Addr("127.0.0.1", "1234")
         identification = Identification("127.0.0.1", "1234", "user", "pass")
         
-        self.assertEqual(identification.addr, Address("127.0.0.1", "1234"))
+        self.assertEqual(identification.addr, Addr("127.0.0.1", "1234"))
         self.assertEqual(identification.initial_user, "user")
         self.assertEqual(identification.initial_pasw, "pass")
         

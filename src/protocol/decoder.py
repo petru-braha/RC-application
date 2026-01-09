@@ -1,8 +1,7 @@
 from frozendict import frozendict
 from typing import Callable
 
-from core.config import get_logger
-from core.constants import STR_TRAVERSAL_STRIDE, CRLF
+import core
 from network import Receiver
 
 from .constants_resp import RespDataType, \
@@ -10,7 +9,7 @@ from .constants_resp import RespDataType, \
                             NULL
 from .output import Output, OutputStr, OutputErr, OutputSeq, OutputMap, OutputAtt
 
-logger = get_logger(__name__)
+logger = core.get_logger(__name__)
 
 logger = get_logger(__name__)
 
@@ -77,7 +76,7 @@ class _Decoder:
             KeyError: Invalid first byte of an output.
             PartialResponseError: If the buffer is empty.
         """
-        symb = self._receiver.consume(STR_TRAVERSAL_STRIDE)
+        symb = self._receiver.consume(core.STR_TRAVERSAL_STRIDE)
         try:
             data_type = SYMB_TYPE[symb]
         except KeyError:
@@ -133,7 +132,7 @@ class _Decoder:
             return OutputStr(NULL)
 
         value = self._receiver.consume(length)
-        self._receiver.consume(len(CRLF))
+        self._receiver.consume(len(core.CRLF))
         return OutputStr(value)
 
     def _traverse_verbatim_string(self) -> OutputStr:
@@ -178,7 +177,7 @@ class _Decoder:
         assert length != NULL_LENGTH
 
         value = self._receiver.consume(length)
-        self._receiver.consume(len(CRLF))
+        self._receiver.consume(len(core.CRLF))
         return OutputErr(value)
     
     def _traverse_sequence(self) -> OutputSeq:

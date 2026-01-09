@@ -11,8 +11,8 @@ class TestLeftPanel(TestCase):
         self.panel = LeftPanel(self.mock_agenda, self.mock_btn)
 
     def test_init(self):
-        # Verify structure
-        # panel is Container, content is Column
-        self.assertTrue(self.panel.content)
         col = self.panel.content
         self.assertIn(self.mock_agenda, col.controls)
+        
+        footer = col.controls[-1]
+        self.assertIn(self.mock_btn, footer.controls)

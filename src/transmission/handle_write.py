@@ -1,13 +1,11 @@
-from core.config import get_logger
-from core.exceptions import PartialResponseError
-from core.structs import Address
+import core
 from network import Sender, Synchronizer
 
 from .processor import process_input
 
-logger = get_logger(__name__)
+logger = core.get_logger(__name__)
 
-def handle_write(addr: Address, sender: Sender, synchronizer: Synchronizer) -> None:
+def handle_write(addr: core.Addr, sender: Sender, synchronizer: Synchronizer) -> None:
     """
     Sends pending commands to the socket.
     
@@ -27,7 +25,7 @@ def handle_write(addr: Address, sender: Sender, synchronizer: Synchronizer) -> N
     pending = sender.get_first_pending()
     
     # Encoding the command.
-    if pending == None:
+    if pending is None:
         return
     # Note that an input might be transmitted by n number of `send()` calls.
     # When partial send occurs,
@@ -40,7 +38,7 @@ def handle_write(addr: Address, sender: Sender, synchronizer: Synchronizer) -> N
         # If the previous command was not fully received by the peer,
         # do NOT send this one.
         if synchronizer.all_recv == False:
-            raise PartialResponseError("The previous command's result was not fully received")
+            raise core.PartialResponseError("The previous command's result was not fully received")
         
         logger.debug(f"Syncing input for {addr}: {pending}.")
         synchronizer.sync_input(pending)
@@ -55,7 +53,7 @@ def handle_write(addr: Address, sender: Sender, synchronizer: Synchronizer) -> N
     # Sending the command.
     _handle_send(addr, sender, synchronizer, encoded)
 
-def _handle_send(addr: Address, sender: Sender, synchronizer: Synchronizer, encoded: bytes) -> None:
+def _handle_send(addr: core.Addr, sender: Sender, synchronizer: Synchronizer, encoded: bytes) -> None:
     """
     Handles sending data to the socket.
 

@@ -3,7 +3,7 @@ skinparam classAttributeIconSize 0
 set namespaceSeparator none
 
 class Sock {
-  +address : Address
+  +address : Addr
 }
 
 class Selectable {

@@ -1,29 +1,29 @@
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
-from core.structs import Address
+from src.core.structs import Addr
 from src.network.transmitter import Transmitter
 
 class TestTransmitter(TestCase):
     
+    sock_patcher = patch("src.network.transmitter.Sock")
+    receiver_patcher = patch("src.network.transmitter.Receiver")
+    sender_patcher = patch("src.network.transmitter.Sender")
+    sync_patcher = patch("src.network.transmitter.Synchronizer")
+
     def setUp(self):
-        self.addr = Address("localhost", "6379")
+        self.addr = Addr("localhost", "6379")
         
-        self.sock_patcher = patch("src.network.transmitter.Sock")
-        self.receiver_patcher = patch("src.network.transmitter.Receiver")
-        self.sender_patcher = patch("src.network.transmitter.Sender")
-        self.sync_patcher = patch("src.network.transmitter.Synchronizer")
-        
-        self.mock_sock_cls = self.sock_patcher.start()
-        self.mock_receiver_cls = self.receiver_patcher.start()
-        self.mock_sender_cls = self.sender_patcher.start()
-        self.mock_sync_cls = self.sync_patcher.start()
+        self.mock_sock_cls = TestTransmitter.sock_patcher.start()
+        self.mock_receiver_cls = TestTransmitter.receiver_patcher.start()
+        self.mock_sender_cls = TestTransmitter.sender_patcher.start()
+        self.mock_sync_cls = TestTransmitter.sync_patcher.start()
 
     def tearDown(self):
-        self.sock_patcher.stop()
-        self.receiver_patcher.stop()
-        self.sender_patcher.stop()
-        self.sync_patcher.stop()
+        TestTransmitter.sock_patcher.stop()
+        TestTransmitter.receiver_patcher.stop()
+        TestTransmitter.sender_patcher.stop()
+        TestTransmitter.sync_patcher.stop()
 
     def test_init(self):
         mock_sock_instance = MagicMock()

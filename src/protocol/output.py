@@ -23,7 +23,7 @@ class Output:
     _callback: Callable | None = None
 
     def __str__(self) -> str:
-        if Output._callback == None:
+        if Output._callback is None:
             from .formatter import formatter
             Output._callback = formatter
         return Output._callback(self)

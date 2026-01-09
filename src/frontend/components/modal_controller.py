@@ -1,16 +1,14 @@
 import flet as ft
 from typing import Callable
 
-from core.config import get_logger
-from core.exceptions import ConnectionCountError
+import core
 from network import Connection
-
 from reactor import enque_new_connection, enque_close_connection
 
 from .members import Chat, ConnectionBox, PresenceChangeable
 from .modals import ManualConnect, UrlConnect
 
-logger = get_logger(__name__)
+logger = core.get_logger(__name__)
 
 class _ControllerBase:
     """
@@ -47,7 +45,7 @@ class _ControllerBase:
         """
         try:
             connection = Connection(*connection_data)
-        except ConnectionCountError:
+        except core.ConnectionCountError:
             logger.error(
                 "Can not add a new connection.\n"
                 "Remove old connections or restart the application with a new \".env\" configuration.")
@@ -92,7 +90,7 @@ class ModalController(ft.Container, _ControllerBase, PresenceChangeable):
              on_chat_sel (lambda): Callback to select a chat.
              on_chat_rem (lambda): Callback to remove a chat.
         """
-        ControllerBase.__init__(
+        _ControllerBase.__init__(
             self,
             on_agenda_add,
             on_agenda_rem,
