@@ -12,7 +12,7 @@ from .modals import ManualConnect, UrlConnect
 
 logger = get_logger(__name__)
 
-class ControllerBase:
+class _ControllerBase:
     """
     Base class for modal controller that handle the creation and deletion of connections.
     """
@@ -22,12 +22,29 @@ class ControllerBase:
                  on_agenda_rem: Callable,
                  on_chat_sel: Callable,
                  on_chat_rem: Callable):
+        """
+        Initializes the controller with callbacks for managing UI components.
+
+        Args:
+            on_agenda_add (lambda): Callback to add an item to the agenda.
+            on_agenda_rem (lambda): Callback to remove an item from the agenda.
+            on_chat_sel (lambda): Callback to select a chat.
+            on_chat_rem (lambda): Callback to remove a chat.
+        """
         self._on_agenda_add = on_agenda_add
         self._on_agenda_rem = on_agenda_rem
         self._on_chat_sel = on_chat_sel
         self._on_chat_rem = on_chat_rem
 
     def on_continue(self, connection_data: tuple) -> None:
+        """
+        Handles the continuation process after connection details are provided.
+        Creates a new Connection, sets up UI components (Chat, ConnectionBox),
+        and enqueues the connection to the reactor.
+
+        Args:
+            connection_data (arr): A tuple containing connection arguments (host, port, user, pass, db).
+        """
         try:
             connection = Connection(*connection_data)
         except ConnectionCountError:
@@ -54,7 +71,7 @@ class ControllerBase:
         enque_new_connection(connection, on_response=chat.on_response)
         self.hide()
 
-class ModalController(ft.Container, ControllerBase, PresenceChangeable):
+class ModalController(ft.Container, _ControllerBase, PresenceChangeable):
     """
     Handles the creation and the deletion of connections through the reactor.
     Manages switching between Manual and URL connection modes.
@@ -66,6 +83,15 @@ class ModalController(ft.Container, ControllerBase, PresenceChangeable):
                  on_agenda_rem: Callable,
                  on_chat_sel: Callable,
                  on_chat_rem: Callable):
+        """
+        Initializes the modal controller with views for manual and URL connection modes.
+
+        Args:
+             on_agenda_add (lambda): Callback to add an item to the agenda.
+             on_agenda_rem (lambda): Callback to remove an item from the agenda.
+             on_chat_sel (lambda): Callback to select a chat.
+             on_chat_rem (lambda): Callback to remove a chat.
+        """
         ControllerBase.__init__(
             self,
             on_agenda_add,
@@ -96,7 +122,13 @@ class ModalController(ft.Container, ControllerBase, PresenceChangeable):
         )
         self.is_manual = False
     
-    def switch_modal(self, e):
+    def switch_modal(self, event):
+        """
+        Switches between manual and URL connection views.
+        
+        Args:
+            event (obj): The event object.
+        """
         if self.is_manual:
             self.content = self.url_view
         else:

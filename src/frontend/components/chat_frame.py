@@ -6,7 +6,7 @@ class ChatFrame(ft.Container):
     """
     Predefined frame to encapsulate the chat history boxes.
 
-    Displays a standard default message.
+    Displays a standard default message when no chat is active or no connection was created.
     """
 
     _EMPTY_LEN: int = 1
@@ -15,6 +15,9 @@ class ChatFrame(ft.Container):
     """
 
     def __init__(self) -> None:
+        """
+        Initialize the ChatFrame with a default welcome message.
+        """
         default_layer=ft.Column([
             ft.Text("RC-application - a multi-connection Redis client.\n"
                     "Press \"Connect\" to get started.",
@@ -34,9 +37,21 @@ class ChatFrame(ft.Container):
         self.default_layer = default_layer
     
     def sel_chat(self, chat: Chat) -> None:
+        """
+        Selects and displays the specified chat interface.
+
+        Args:
+            chat (obj): The chat component to display.
+        """
         self.content = chat
         self.update()
 
     def rem_chat(self, chat: Chat) -> None:
+        """
+        Removes the specified chat and reverts to the default layer.
+
+        Args:
+            chat (obj): The chat component to remove.
+        """
         self.content = self.default_layer
         self.update()

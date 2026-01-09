@@ -1,8 +1,14 @@
 import flet as ft
 
 class ModalBase(ft.Container):
+    """
+    Base container style for all modal views.
+    """
     
     def __init__(self):
+        """
+        Initialize the modal base style with standard layout properties.
+        """
         super().__init__(
             bgcolor=ft.Colors.SURFACE,
             padding=20,
