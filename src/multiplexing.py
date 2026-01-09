@@ -10,6 +10,7 @@ from time import sleep
 from typing import Callable
 
 from core.config import get_logger
+from core.constants import RespVer
 from core.exceptions import PartialResponseError, PartialRequestError
 from network import Connection
 import transmission
@@ -122,7 +123,7 @@ def _sel_readable(connection: Connection, response_lambda: Callable[[str], None]
         logger.warning("RESP3 not supported; retrying with RESP2.")
         connection.say_hello(connection.initial_user,
                              connection.initial_pasw,
-                             Connection.RESP2)
+                             RespVer.RESP2)
 
 def _sel_writable(connection: Connection, response_lambda: Callable[[str], None]) -> None:
     """

@@ -1,4 +1,4 @@
-class RCException(Exception):
+class RCError(Exception):
     MSG_PREFIX = "Redis Client Exception"
     
     def __str__(self) -> str:
@@ -13,11 +13,11 @@ class RCException(Exception):
             msg = str(self.args)
         return self.MSG_PREFIX + " *** " + msg
 
-class AssignmentError(RCException):
+class AssignmentError(RCError):
     MSG_PREFIX = "Immutable Exception"
 
 #! Network errors.
-class NetworkError(RCException):
+class NetworkError(RCError):
     MSG_PREFIX = "Network Exception"
 
 class PartialResponseError(NetworkError):

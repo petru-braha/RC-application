@@ -1,5 +1,5 @@
 from core.config import get_logger
-from core.constants import EMPTY_STR
+from core.constants import EMPTY_STR, RespVer
 from core.structs import Address
 
 from .transmitter import Transmitter
@@ -31,16 +31,8 @@ class Identification(Transmitter):
     First command ever sent to a newly established connection.
     Negotiates the protocol, and authentificate the client.
     """
-    RESP3: str = "3"
-    """
-    The newest available RESP protocol version. 
-    """
-    RESP2: str = "2"
-    """
-    The stable version of RESP.
-    """
     _AUTH_ARG: str = "AUTH"
-    """
+    """ 
     The authentication argument for the HELLO command.
     """
     
@@ -52,29 +44,35 @@ class Identification(Transmitter):
 
         Note: Keep in mind that the initial username and password are mutable.
         """
-        host = Identification.DEFAULT_HOST if host == None else host
-        port = Identification.DEFAULT_PORT if port == None else port
+        host = Identification.DEFAULT_HOST if host == EMPTY_STR else host
+        port = Identification.DEFAULT_PORT if port == EMPTY_STR else port
         addr = Address(host, port)
         
-        initial_user = Identification.DEFAULT_USER if user == None else user
-        initial_pasw = EMPTY_STR if pasw == None else pasw
+        initial_user = Identification.DEFAULT_USER if user == EMPTY_STR else user
+        initial_pasw = pasw
         
         super().__init__(addr)
         self.say_hello(initial_user, initial_pasw)
         self.initial_user = initial_user
         self.initial_pasw = initial_pasw
     
-    def say_hello(self, user: str, pasw: str, protver: str = RESP3) -> None:
+    def say_hello(self, user: str, pasw: str, protver: int = RespVer.RESP3) -> None:
         """
         Queues the HELLO command with the specified authentication credentials and protocol version.
 
         Args:
             user (str): The username for authentication.
             pasw (str): The password for authentication.
-            protver (str): The RESP protocol version to negotiate (default is 3).
+            protver (int): The RESP protocol version to negotiate (default is 3).
+
+        Raises:
+            ValueError: If an invalid protocol version is specified.
         """
-        argv = [protver, Identification._AUTH_ARG, user, pasw]
-        pending_input = join_cmd_argv(Identification.HELLO_CMD, argv)
+        protver = RespVer(protver)
+        argv = [str(protver), Identification._AUTH_ARG, user]
+        if pasw != EMPTY_STR:
+            argv.append(pasw)
         
         logger.info(f"Queueing HELLO handshake for user '{user}' (Protocol {protver}).")
+        pending_input = join_cmd_argv(Identification.HELLO_CMD, argv)
         self.sender.add_pending(pending_input)
