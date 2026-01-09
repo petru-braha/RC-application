@@ -10,7 +10,7 @@ logger = get_logger(__name__)
 
 class Receiver(Communicator):
     """
-    Handles reading data from the socket and managing the output buffer.
+    Performs buffered reads from the socket and manages the output buffer.
     """
     
     _4KB_BUFSIZE: int = 4096
@@ -99,8 +99,7 @@ class Receiver(Communicator):
 
     def recv(self, bufsize: int = _4KB_BUFSIZE) -> int:
         """
-        Reads data from the socket into the buffer.
-        The socket must be ready for reading!
+        Reads data from the socket extending the buffer.
 
         Args:
             bufsize (int): The maximum number of bytes to read.

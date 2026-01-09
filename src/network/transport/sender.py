@@ -10,7 +10,7 @@ logger = get_logger(__name__)
 
 class Sender(Communicator):
     """
-    Handles buffering and sending commands to the socket.
+    Enqueues and buffers commands for sending to the socket.
     """
         
     def __init__(self, socket: socket) -> None:
@@ -79,7 +79,6 @@ class Sender(Communicator):
     def send(self, data: bytes) -> int:
         """
         Sends raw bytes to the socket.
-        Socket must be ready for writing!
 
         Args:
             data (bytes): The data to send.
