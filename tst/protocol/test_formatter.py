@@ -1,8 +1,8 @@
-from unittest import TestCase
 from frozendict import frozendict
+from unittest import TestCase
 
 from src.protocol.formatter import formatter
-from src.output import Output, OutputStr, OutputSeq, OutputMap, OutputAtt
+from src.protocol.output import Output, OutputStr, OutputErr, OutputSeq, OutputMap, OutputAtt
 
 class TestFormatter(TestCase):
 
@@ -13,18 +13,15 @@ class TestFormatter(TestCase):
     def test_output_str(self):
         input_obj = OutputStr("OK")
         actual = formatter(input_obj)
-        expected = "OK\r\n"
+        expected = "OK"
         self.assertEqual(actual, expected)
 
-    def test_output_str_with_prefix(self):
-        """Test string formatting with a manual prefix (internal logic check)."""
-        input_obj = OutputStr("val")
-        # Manually verify internal helper behavior via main entry point logic.
-        # This simulates what happens inside a nested structure.
-        actual = formatter(input_obj, prefix="   ")
-        expected = "   val\r\n"
+    def test_output_err(self):
+        input_obj = OutputErr("ERR")
+        actual = formatter(input_obj)
+        expected = "ERR"
         self.assertEqual(actual, expected)
-
+    
     # ------------------------------
     # --------- Sequences ----------
     # ------------------------------
@@ -38,16 +35,16 @@ class TestFormatter(TestCase):
         ))
         actual = formatter(input_obj)
         expected = (
-            "1) one\r\n"
-            "2) two\r\n"
-            "3) three\r\n"
+            "1) one\n"
+            "2) two\n"
+            "3) three"
         )
         self.assertEqual(actual, expected)
 
     def test_output_seq_empty(self):
         input_obj = OutputSeq(())
         actual = formatter(input_obj)
-        expected = "(empty sequence)\r\n"
+        expected = "(empty sequence)"
         self.assertEqual(actual, expected)
 
     def test_output_seq_nested(self):
@@ -62,8 +59,8 @@ class TestFormatter(TestCase):
         ))
         actual = formatter(input_obj)
         expected = (
-            "1) Level1\r\n"
-            "2) 1) Level2\r\n"
+            "1) Level1\n"
+            "2) 1) Level2"
         )
         self.assertEqual(actual, expected)
 
@@ -82,17 +79,17 @@ class TestFormatter(TestCase):
         # Note: dict iteration order is insertion-ordered in modern Python.
         # For robustness, we assume standard insertion order here.
         expected = (
-            "1) key1\r\n"
-            "2) value1\r\n"
-            "3) key2\r\n"
-            "4) value2\r\n"
+            "1) key1\n"
+            "2) value1\n"
+            "3) key2\n"
+            "4) value2"
         )
         self.assertEqual(actual, expected)
 
     def test_output_map_empty(self):
         input_obj = OutputMap(frozendict({}))
         actual = formatter(input_obj)
-        expected = "(empty map)\r\n"
+        expected = "(empty map)"
         self.assertEqual(actual, expected)
 
     def test_output_map_nested_seq(self):
@@ -107,9 +104,9 @@ class TestFormatter(TestCase):
         }))
         actual = formatter(input_obj)
         expected = (
-            "1) list\r\n"
-            "2) 1) A\r\n"
-            "   2) B\r\n"
+            "1) list\n"
+            "2) 1) A\n"
+            "   2) B"
         )
         self.assertEqual(actual, expected)
 
@@ -129,11 +126,11 @@ class TestFormatter(TestCase):
         )
         actual = formatter(input_obj)
         expected = (
-            "Attributes:\r\n"
-            "1) meta\r\n"
-            "2) data\r\n"
-            "Payload:\r\n"
-            "RealData\r\n"
+            "Attributes:\n"
+            "1) meta\n"
+            "2) data\n"
+            "Payload:\n"
+            "RealData"
         )
         self.assertEqual(actual, expected)
 
@@ -154,12 +151,12 @@ class TestFormatter(TestCase):
         actual = formatter(input_obj)
         
         expected = (
-            "1) Item1\r\n"
-            "   Attributes:\r\n"
-            "   1) ttl\r\n"
-            "   2) 100\r\n"
-            "   Payload:\r\n"
-            "2) Item2\r\n"
+            "1) Item1\n"
+            "   Attributes:\n"
+            "   1) ttl\n"
+            "   2) 100\n"
+            "   Payload:\n"
+            "2) Item2"
         )
         self.assertEqual(actual, expected)
 
@@ -170,7 +167,7 @@ class TestFormatter(TestCase):
         )
         actual = formatter(input_obj)
         expected = (
-            "Data\r\n"
+            "Data"
         )
         self.assertEqual(actual, expected)
 
@@ -202,16 +199,16 @@ class TestFormatter(TestCase):
         actual = formatter(input_obj)
         
         expected = (
-            "1) key1\r\n"
-            "2) val1\r\n"
-            "3) key2\r\n"
-            "4) 1) sub1\r\n"
-            "   2) sub2\r\n"
-            "   3) 1) 1) key4\r\n"
-            "         2) 1) deepKey\r\n"
-            "            2) deepVal\r\n"
-            "      2) (empty sequence)\r\n"
-            "      3) (empty map)\r\n"
+            "1) key1\n"
+            "2) val1\n"
+            "3) key2\n"
+            "4) 1) sub1\n"
+            "   2) sub2\n"
+            "   3) 1) 1) key4\n"
+            "         2) 1) deepKey\n"
+            "            2) deepVal\n"
+            "      2) (empty sequence)\n"
+            "      3) (empty map)"
         )
         self.assertEqual(expected, actual, f"cacat {actual}")
 

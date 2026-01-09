@@ -1,4 +1,6 @@
-from .constants_resp import RespDataType, RESP_SYMB, CRLF
+from core.constants import CRLF
+
+from .constants_resp import RespDataType, RESP_SYMB
 
 def _encode_arg(arg: str) -> str:
     """
@@ -14,13 +16,13 @@ def encoder(cmd: str, argv: list[str]) -> str:
     Encodes the cmd and the arguments.
     Must be used after running the sanitizer.
 
-    Parameters:
+    Args:
         cmd (str): The command string (e.g. "GET").
         argv (list[str]): The argument values for the command.
 
     Returns:
         str: The entire encoded command and arguments,
-             all following the RESP specs.
+             all following the RESP Config.
     """
     argc = len(argv)
     # argc + 1 is necessary since we also send the command itself.

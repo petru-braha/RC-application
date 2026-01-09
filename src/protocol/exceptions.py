@@ -1,7 +1,7 @@
-from src.exceptions import RCException
+from core.exceptions import RCError
 
 #! parser errors
-class ParserError(RCException):
+class ParserError(RCError):
     MSG_PREFIX = "Parser exception"
 
 class SpaceError(ParserError):

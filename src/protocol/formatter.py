@@ -1,7 +1,6 @@
-from src.constants import EMPTY_STR, STR_TRAVERSAL_STRIDE
+from core.constants import EMPTY_STR, STR_TRAVERSAL_STRIDE
 
-from .constants_resp import CRLF
-from .output import Output, OutputStr, OutputSeq, OutputMap, OutputAtt
+from .output import Output, OutputStr, OutputErr, OutputSeq, OutputMap, OutputAtt
 
 def formatter(output: Output, prefix: str = EMPTY_STR) -> str:
     """
@@ -10,8 +9,8 @@ def formatter(output: Output, prefix: str = EMPTY_STR) -> str:
     Entry point for traversal.
     Dispatches aggregate types to their specific formatting methods.
 
-    Parameters:
-        output: The Output object (Str, Seq, Map, or Att) to format.
+    Args:
+        output (obj): The Output object (Str, Err, Seq, Map, or Att) to format.
         prefix (str): Optional indentation string. Defaults to empty string.
 
     Returns:
@@ -21,7 +20,7 @@ def formatter(output: Output, prefix: str = EMPTY_STR) -> str:
         AssertionError: If the output type is NOT one of the expected Output subclasses.
     """
     # Strings (leaf nodes). No recursive calls are performed here.
-    if isinstance(output, OutputStr):
+    if isinstance(output, (OutputStr, OutputErr)):
         return _format_str(output.value, prefix)
     
     # Aggregate types. Potentially contain recursive calls.
@@ -40,11 +39,24 @@ Defines the number of items in a key-value pair (key + value).
 Used for calculating indices in map formatting.
 """
 
+_LF: str = "\n"
+"""
+Internal constant.
+
+Represents a newline character used for line breaks in formatted output.
+"""
 _INDENT_CHAR: str = " "
 """
 Internal constant.
 
 Represents a single space character used for indentation padding.
+"""
+
+_FIRST_ITEM_PREFIX: str = "1) "
+"""
+Internal constant.
+
+Represents the prefix for the first item in an iterable.
 """
 
 _EMPTY_SEQ_MSG: str = "(empty sequence)"
@@ -75,13 +87,27 @@ Internal constant.
 Header text displayed before the payload section of an Attributed output.
 """
 
+def _is_first(prefix: str) -> bool:
+    """
+    Internal method.
+
+    Checks if the given prefix is for the first item in an iterable.
+
+    Args:
+        prefix (str): The indentation string to prepend.
+
+    Returns:
+        bool: True if the prefix is for the first item, False otherwise.
+    """
+    return prefix == EMPTY_STR or prefix.startswith(_FIRST_ITEM_PREFIX)
+
 def _set_prefix(prefix: str, idx: int) -> str:
     """
     Internal method.
 
     Constructs a numbered prefix string for list items.
 
-    Parameters:
+    Args:
         prefix (str): The existing indentation or parent prefix.
         idx (int): The current item index to display.
 
@@ -96,14 +122,16 @@ def _format_str(output: str, prefix: str) -> str:
 
     Formats a simple string output by appending a newline.
 
-    Parameters:
+    Args:
         output (str): The string content to format.
         prefix (str): The indentation string to prepend.
 
     Returns:
-        str: The indented string followed by CRLF.
+        str: The indented string followed by newline.
     """
-    return prefix + output + CRLF
+    if _is_first(prefix):
+        return prefix + output
+    return _LF + prefix + output
 
 def _format_seq(output: OutputSeq, prefix: str) -> str:
     """
@@ -112,7 +140,7 @@ def _format_seq(output: OutputSeq, prefix: str) -> str:
     Formats a sequence (Array/Set/Push) into a numbered list.
     Handles empty sequences by returning a specific empty message.
 
-    Parameters:
+    Args:
         output: The OutputSeq object containing the list of values.
         prefix (str): The indentation string for the current level.
 
@@ -146,7 +174,7 @@ def _format_map(output: OutputMap, prefix: str) -> str:
     Formats a Map into a flattened key-value list structure.
     Iterates through dictionary items and presents them as sequential numbered entries.
 
-    Parameters:
+    Args:
         output: The OutputMap object containing key-value pairs.
         prefix (str): The indentation string for the current level.
 
@@ -188,7 +216,7 @@ def _format_att(output: OutputAtt, prefix: str) -> str:
     It is formed out of an attribute map and a payload,
     which can be any output type.
 
-    Parameters:
+    Args:
         output: The OutputAtt object containing attributes and payload.
         prefix (str): The indentation string for the current level.
 
@@ -200,10 +228,15 @@ def _format_att(output: OutputAtt, prefix: str) -> str:
         return formatter(output.payload, prefix)
 
     indent_padding = _INDENT_CHAR * len(prefix)
+    optional_lf = EMPTY_STR
+    if _is_first(indent_padding):
+        optional_lf = _LF
+
     formatted = _format_str(_ATTR_HEADER, indent_padding)
-    formatted += _format_map(output.attributes, indent_padding)
-    formatted += _format_str(_PAYLOAD_HEADER, indent_padding)
+    formatted += optional_lf + _format_map(output.attributes, indent_padding)
+
+    formatted += optional_lf + _format_str(_PAYLOAD_HEADER, indent_padding)
     # All of the above strings are considered additional.
     # It should not use the actual prefix.
-    formatted += formatter(output.payload, prefix)
+    formatted += optional_lf + formatter(output.payload, prefix)
     return formatted

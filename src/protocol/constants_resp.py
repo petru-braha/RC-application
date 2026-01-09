@@ -63,7 +63,6 @@ It treats null values as either bulk strings or arrays, both with length -1.
 SPACE = " "
 QUOTE_DOUBLE = "\""
 QUOTE_SINGLE = "\'"
-CRLF = "\r\n"
 NULL = "null"
 """
 Standard RESP encoded data suffix.

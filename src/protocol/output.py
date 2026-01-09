@@ -1,6 +1,3 @@
-from dataclasses import dataclass
-from frozendict import frozendict
-
 """
 Output classes for representing decoded Redis RESP3/RESP2 data.
 
@@ -11,6 +8,10 @@ nature of the responses.
 OutputType = str | list[OutputType] | dict[OutputType, OutputType] | OutputType, OutputType
 """
 
+from dataclasses import dataclass
+from frozendict import frozendict
+from typing import Callable
+
 class Output:
     """
     Base class for all decoded Redis output types.
@@ -19,12 +20,25 @@ class Output:
 
     Note: The stored data is immutable.
     """
-    pass
+    _callback: Callable | None = None
+
+    def __str__(self) -> str:
+        if Output._callback == None:
+            from .formatter import formatter
+            Output._callback = formatter
+        return Output._callback(self)
 
 @dataclass(frozen=True)
 class OutputStr(Output):
     """
     Represents a simple string or scalar value returned by Redis.
+    """
+    value: str
+
+@dataclass(frozen=True)
+class OutputErr(Output):
+    """
+    Represents a RESP error (simple or bulk).
     """
     value: str
 

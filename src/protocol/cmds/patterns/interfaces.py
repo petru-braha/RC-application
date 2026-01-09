@@ -1,4 +1,4 @@
-from src.immutable import Immutable
+from core.util import Immutable
 
 class RequiredPattern(Immutable):
     """
