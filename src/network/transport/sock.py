@@ -4,8 +4,6 @@ import core
 
 logger = core.get_logger(__name__)
 
-logger = Config.get_logger(__name__)
-
 class Sock:
     """
     Establishes a TCP connection to a Redis server instance.

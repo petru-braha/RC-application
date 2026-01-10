@@ -11,8 +11,6 @@ from .output import Output, OutputStr, OutputErr, OutputSeq, OutputMap, OutputAt
 
 logger = core.get_logger(__name__)
 
-logger = get_logger(__name__)
-
 def decoder(receiver: Receiver) -> Output:
     """
     Decodes a RESP-encoded Redis response using a Receiver instance.
