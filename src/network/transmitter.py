@@ -1,4 +1,4 @@
-from core.structs import Address
+import core
 
 from .transport import Receiver, Sender, Sock, Synchronizer
 
@@ -14,14 +14,14 @@ class Transmitter:
         synchronizer (obj): Manages the state of receival and sending.
     """
     
-    def __init__(self, addr: Address) -> None:
+    def __init__(self, addr: core.Addr) -> None:
         self.sock = Sock(addr)
         self.receiver = Receiver(self.sock._socket)
         self.sender = Sender(self.sock._socket)
         self.synchronizer = Synchronizer()
     
     @property
-    def addr(self) -> Address:
+    def addr(self) -> core.Addr:
         return self.sock.addr
 
     def close(self) -> None:

@@ -1,8 +1,8 @@
-from core.constants import EMPTY_STR, STR_TRAVERSAL_STRIDE
+import core
 
 from .output import Output, OutputStr, OutputErr, OutputSeq, OutputMap, OutputAtt
 
-def formatter(output: Output, prefix: str = EMPTY_STR) -> str:
+def formatter(output: Output, prefix: str = core.EMPTY_STR) -> str:
     """
     Formats a decoded RESP Output object into a human-readable string.
 
@@ -99,7 +99,7 @@ def _is_first(prefix: str) -> bool:
     Returns:
         bool: True if the prefix is for the first item, False otherwise.
     """
-    return prefix == EMPTY_STR or prefix.startswith(_FIRST_ITEM_PREFIX)
+    return prefix == core.EMPTY_STR or prefix.startswith(_FIRST_ITEM_PREFIX)
 
 def _set_prefix(prefix: str, idx: int) -> str:
     """
@@ -161,7 +161,7 @@ def _format_seq(output: OutputSeq, prefix: str) -> str:
     
     for idx in range(1, values_len):
         value = output.values[idx]
-        display_idx = idx + STR_TRAVERSAL_STRIDE
+        display_idx = idx + core.STR_TRAVERSAL_STRIDE
         val_prefix = _set_prefix(indent_padding, display_idx)
         formatted += formatter(value, val_prefix)
     
@@ -185,7 +185,7 @@ def _format_map(output: OutputMap, prefix: str) -> str:
     if values_len < 1:
         return _format_str(_EMPTY_MAP_MSG, prefix)
 
-    formatted = EMPTY_STR
+    formatted = core.EMPTY_STR
     # Indentation for all pairs except the first one.
     indent_padding = _INDENT_CHAR * len(prefix)
 
@@ -197,12 +197,12 @@ def _format_map(output: OutputMap, prefix: str) -> str:
         display_idx = idx * _PAIR_SIZE
 
         # Format Key.
-        display_idx += STR_TRAVERSAL_STRIDE
+        display_idx += core.STR_TRAVERSAL_STRIDE
         key_prefix = _set_prefix(key_prefix, display_idx)
         formatted += formatter(key, key_prefix)
 
         # Format Value.
-        display_idx += STR_TRAVERSAL_STRIDE
+        display_idx += core.STR_TRAVERSAL_STRIDE
         val_prefix = _set_prefix(indent_padding, display_idx)
         formatted += formatter(val, val_prefix)
 
@@ -228,7 +228,7 @@ def _format_att(output: OutputAtt, prefix: str) -> str:
         return formatter(output.payload, prefix)
 
     indent_padding = _INDENT_CHAR * len(prefix)
-    optional_lf = EMPTY_STR
+    optional_lf = core.EMPTY_STR
     if _is_first(indent_padding):
         optional_lf = _LF
 

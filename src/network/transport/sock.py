@@ -1,9 +1,8 @@
 import socket
 
-from core.config import get_logger
-from core.structs import Address
+import core
 
-logger = get_logger(__name__)
+logger = core.get_logger(__name__)
 
 class Sock:
     """
@@ -15,7 +14,7 @@ class Sock:
     Default integer value to enable socket options.
     """
     
-    def __init__(self, addr: Address) -> None:
+    def __init__(self, addr: core.Addr) -> None:
         """
         Iterates through the available address families (IPv4/IPv6) returned 
         by DNS resolution and attempts to connect to the first one available. 
@@ -23,7 +22,7 @@ class Sock:
         for optimal performance.
 
         Args:
-            addr (Address): The address (host, port) to connect to.
+            addr (obj): The address (host, port) to connect to.
 
         Raises:
             ConnectionError: If DNS resolution fails or
@@ -60,7 +59,7 @@ class Sock:
                     sock.close()
                 sock = None
 
-        if sock == None:
+        if sock is None:
             # No address available.
             logger.error(f"Could not establish connection to {addr} after trying all address families.")
             raise ConnectionError(f"Failed to connect to {addr}")

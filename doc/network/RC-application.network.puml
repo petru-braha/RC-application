@@ -1,0 +1,51 @@
+@startuml
+skinparam classAttributeIconSize 0
+set namespaceSeparator none
+
+class Sock {
+  +addr: Addr
+  
+}
+
+
+class Receiver {
+  
+}
+
+class Sender {
+}
+
+class Transmitter {
+  +sock: Sock
+  +receiver: Receiver
+  +sender: Sender
+  +synchronizer: Synchronizer
+}
+
+class Identification {
+  +initial_user: str
+  +initial_pasw: str
+}
+
+class DatabaseLink {
+}
+
+class Connection {
+}
+
+' --- Inheritance Relationships ---
+
+Sock <|-- Receiver
+Sock <|-- Sender
+Sock <|-- Selectable
+
+Archiver <|-- Identification
+Receiver <|-- Identification
+Sender <|-- Identification
+
+Identification <|-- DatabaseLink
+
+DatabaseLink <|-- Connection
+Selectable <|-- Connection
+
+@enduml

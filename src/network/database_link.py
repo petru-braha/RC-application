@@ -1,9 +1,8 @@
-from core.config import get_logger
-from core.constants import EMPTY_STR
+import core
 
 from .identification import Identification
 
-logger = get_logger(__name__)
+logger = core.get_logger(__name__)
 
 class DatabaseLink(Identification):
     """
@@ -27,7 +26,7 @@ class DatabaseLink(Identification):
 
     def __init__(self, host: str, port: str, user: str, pasw: str, db_idx: str) -> None:
         super().__init__(host, port, user, pasw)
-        if db_idx != DatabaseLink.DEFAULT_DB and db_idx != EMPTY_STR:
+        if db_idx != DatabaseLink.DEFAULT_DB and db_idx != core.EMPTY_STR:
             self._say_select(db_idx)
 
     def _say_select(self, db_idx: str) -> None:

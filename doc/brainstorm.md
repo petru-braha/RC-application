@@ -22,13 +22,13 @@ the overall purpose is to make indexing work and achieve constant time retrieval
 
 ## Modules
 
-0. frontend (gui for connecting, terminal, html, files)
+0. ui (gui for connecting, terminal, html, files)
 0. io (reading/writing)
 0. network (session managemnt)
 0. protocol (resp parser, encoder, decoder)
 0. transport (reading/write to socket)
 
-Workflow: frontend -> io.fronend.input.connecting -> network -> io.frontend.input -> protocol -> transport -> protocol -> io.fronend.output -> frontend
+Workflow: ui -> io.fronend.input.connecting -> network -> io.ui.input -> protocol -> transport -> protocol -> io.fronend.output -> ui
 
 ## Future
 
@@ -53,3 +53,10 @@ an issue is complete when the following items are achieved:
 0. tests
 0. errors
 0. documentation
+
+## Some random notes
+
+```ps1
+$env:PYTHONPATH='src'; python3.13.exe -m coverage run -m unittest discover -s tst -t .
+python3 -m coverage report -m
+```
