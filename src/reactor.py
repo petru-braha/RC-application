@@ -17,6 +17,7 @@ from typing import Callable
 
 import core
 from network import Connection
+from util import uninterruptible
 
 logger = core.get_logger(__name__)
 
@@ -37,13 +38,14 @@ def enque_close_connection(connection: Connection) -> None:
 
 # Calling these functions in the main thread provokes race-conditions.
 # Should only be used by the multiplexing thread.
-def close_selector() -> None:
+@uninterruptible
+def close_resources() -> None:
     """
-    Removes any active connections and closes the selector.
+    Removes any active connections and the selector.
 
     This function should be called right before exiting the application.
     """
-    logger.info("Closing resources.")
+    logger.info("Closing resources...")
 
     try:
         leftover_connections = set(_response_lambdas.keys())

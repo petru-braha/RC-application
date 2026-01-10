@@ -5,9 +5,11 @@ import core
 from frontend import Layout
 
 from multiplexing import loop_multiplexing
+from util import uninterruptible
 
 logger = core.get_logger(__name__)
 
+@uninterruptible
 async def close_page(multiplexing_event: Event, page: ft.Page) -> None:
     logger.info("Closing application...")
     try:
@@ -20,6 +22,7 @@ async def close_page(multiplexing_event: Event, page: ft.Page) -> None:
         await page.window.destroy()
         await page.window.close()
 
+@uninterruptible
 def build_page(page: ft.Page) -> None:
     try:
         multiplexing_event = Event()
@@ -47,11 +50,6 @@ def build_page(page: ft.Page) -> None:
     
     except Exception as e:
         logger.error(f"Application failed: {e}.", exc_info=True)
-        # Verify page is still open before closing? 
-        # For now, just try to close cleanly.
-        page.window.close()
-    except BaseException as e:
-        logger.error(f"Application forcely closed: {e}.", exc_info=True)
         page.window.close()
 
 if __name__ == "__main__":

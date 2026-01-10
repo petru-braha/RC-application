@@ -1,3 +1,5 @@
+from functools import wraps
+from typing import Callable
 from urllib.parse import urlparse
 
 import core
@@ -52,3 +54,22 @@ def process_redis_url(url: str, tls_enforced: bool = core.TLS_ENFORCED) -> tuple
     # Do not log the password, sensitive data.
     logger.debug(f"Url connection details: host={host}, port={port}, user={user}, db={db_idx}")
     return (host, port, user, pasw, db_idx)
+
+def uninterruptible(func: Callable) -> Callable:
+    """
+    Decorator to make a function uninterruptible.
+    Catches system signals (like KeyboardInterrupt) and retries the execution,
+    ensuring the operation completes unless a standard Exception occurs.
+    """
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        while True:
+            try:
+                return func(*args, **kwargs)
+            except Exception:
+                # Allow standard exceptions (ValueError, TypeError, etc.) to propagate.
+                raise
+            except BaseException as e:
+                # Catch signals (KeyboardInterrupt, SystemExit) and retry.
+                logger.error(f"func: {func.__name__} interrupted by {e!r}. Retrying...")
+    return wrapper
