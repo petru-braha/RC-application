@@ -18,15 +18,15 @@ class UrlConnect(ModalBase):
         Initialize the UrlConnect view.
 
         Args:
-            on_continue (Callable): Callback to proceed with connection.
-            switch_btn (ft.Button): Button to switch to manual mode.
-            close_btn (ft.Button): Button to close the modal.
+            on_continue (lambda): Callback to proceed with connection.
+            switch_btn (obj): Button to switch to manual mode.
+            close_btn (obj): Button to close the modal.
         """
         super().__init__()
         self._on_continue_callback = on_continue
         
         self.url_input = ft.TextField(
-            hint_text="redis://user:pass@host:port/db", 
+            hint_text="redis[s]://[[username][:password]@][host][:port][/db-number]", 
             text_align=ft.TextAlign.CENTER,
         )
         
