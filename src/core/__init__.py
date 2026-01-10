@@ -1,3 +1,11 @@
+"""
+Core package providing the foundational infrastructure for the application.
+
+This package serves as the base for the entire codebase and maintains zero
+dependencies on other internal modules. It provides essential utilities,
+constants, common interfaces, and application initialization logic.
+"""
+
 from .config import *
 from .constants import *
 from .exceptions import *

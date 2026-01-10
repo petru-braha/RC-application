@@ -3,15 +3,10 @@ skinparam classAttributeIconSize 0
 set namespaceSeparator none
 
 class Sock {
-  +address : Addr
+  +addr: Addr
+  
 }
 
-class Selectable {
-}
-
-class Archiver {
-  +history : History
-}
 
 class Receiver {
   
@@ -20,7 +15,16 @@ class Receiver {
 class Sender {
 }
 
+class Transmitter {
+  +sock: Sock
+  +receiver: Receiver
+  +sender: Sender
+  +synchronizer: Synchronizer
+}
+
 class Identification {
+  +initial_user: str
+  +initial_pasw: str
 }
 
 class DatabaseLink {
