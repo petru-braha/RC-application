@@ -52,6 +52,11 @@ def _handle_connection_queues() -> None:
         connection = reactor._connections_to_rem.popleft()
         reactor.rem_connection(connection)
 
+_DEFAULT_TIMEOUT: float = 1
+"""
+The default timeout for the event loop.
+"""
+
 def _sel_and_dispatch(timeout: float = _DEFAULT_TIMEOUT) -> None:
     """
     Polls for I/O events and dispatches them to the registered handlers.
@@ -140,8 +145,3 @@ def _sel_writable(connection: Connection, response_lambda: Callable[[str], None]
         # If the user makes an error, the error is both logged and printed on his screen as a response.
         response_lambda(str(e))
         logger.error(f"Error when encoding data to {connection.addr}: {e}.", exc_info=True)
-
-_DEFAULT_TIMEOUT: float = 1
-"""
-The default timeout for the event loop.
-"""
