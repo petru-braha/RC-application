@@ -14,14 +14,11 @@ from network import Connection
 import transmission
 
 import reactor
+from util import uninterruptible
 
 logger = core.get_logger(__name__)
 
-_DEFAULT_TIMEOUT: float = 1
-"""
-The default timeout for the event loop.
-"""
-
+@uninterruptible
 def loop_multiplexing(stay_alive: Event) -> None:
     """
     The socket selection loop.
@@ -41,7 +38,7 @@ def loop_multiplexing(stay_alive: Event) -> None:
     # The application prepares to completely shutdown.
     # Handle any remaining connections.
     _handle_connection_queues()
-    reactor.close_selector()
+    reactor.close_resources()
 
 def _handle_connection_queues() -> None:
     """
@@ -143,3 +140,8 @@ def _sel_writable(connection: Connection, response_lambda: Callable[[str], None]
         # If the user makes an error, the error is both logged and printed on his screen as a response.
         response_lambda(str(e))
         logger.error(f"Error when encoding data to {connection.addr}: {e}.", exc_info=True)
+
+_DEFAULT_TIMEOUT: float = 1
+"""
+The default timeout for the event loop.
+"""

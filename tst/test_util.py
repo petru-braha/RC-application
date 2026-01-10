@@ -1,6 +1,7 @@
 from unittest import TestCase
+from unittest.mock import MagicMock
 
-from src.util import process_redis_url
+from src.util import process_redis_url, uninterruptible
 
 class TestUtil(TestCase):
     
@@ -35,3 +36,32 @@ class TestUtil(TestCase):
     def test_process_url_invalid_db(self):
         with self.assertRaises(ValueError):
             process_redis_url("redis://localhost:6379/my_db")
+
+    # ------------------------------
+    # - uninterruptible decorator --
+    # ------------------------------
+
+    def test_uninterruptible_success(self):
+        func = MagicMock(return_value="OK")
+        decorated = uninterruptible(func)
+        result = decorated("arg")
+        self.assertEqual(result, "OK")
+        func.assert_called_with("arg")
+
+    def test_uninterruptible_retry_on_interrupt(self):
+        func = MagicMock(side_effect=[KeyboardInterrupt, SystemExit, GeneratorExit, "OK"])
+        func.__name__ = "mock_func"
+        
+        decorated = uninterruptible(func)
+        result = decorated("arg")
+        
+        self.assertEqual(result, "OK")
+        self.assertEqual(func.call_count, 4)
+        
+    def test_uninterruptible_exception(self):
+        func = MagicMock(side_effect=ValueError("fail"))
+        decorated = uninterruptible(func)
+        with self.assertRaises(ValueError):
+            decorated("arg")
+        self.assertEqual(func.call_count, 1)
+
