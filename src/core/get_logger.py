@@ -1,8 +1,8 @@
 import logging
 
-from .config import FILE_HANDLER, STDOUT_HANDLER, STDERR_HANDLER
+from .config import STAGE, FILE_HANDLER, STDOUT_HANDLER, STDERR_HANDLER
+from .constants import StageEnum
 
-# The method that should be used by client modules.
 def get_logger(name: str) -> logging.Logger:
     """
     Retrieves a configured logger instance.
@@ -13,10 +13,11 @@ def get_logger(name: str) -> logging.Logger:
         name (str): The name of the logger (usually __name__).
 
     Returns:
-        logging.Logger: The configured logger instance.
+        logger: The configured logger instance.
     """
     logger = logging.getLogger(name)
-    logger.setLevel(logging.DEBUG)
+    logging_level = logging.INFO if STAGE == StageEnum.PROD else logging.DEBUG
+    logger.setLevel(logging_level)
 
     logger.addHandler(FILE_HANDLER)
     logger.addHandler(STDOUT_HANDLER)
