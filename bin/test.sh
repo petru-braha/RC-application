@@ -3,5 +3,5 @@
 # Ensure that the virtual environment is activated.
 source ./.venv/bin/activate
 
-python3 -m coverage run -m unittest discover -s tst -t .
-python3 -m coverage report -m
+coverage run -m unittest discover -s ./tst -t ./
+coverage report
