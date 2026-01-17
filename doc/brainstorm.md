@@ -1,62 +1,39 @@
 # Overview
 
-The workflow of the application:
+This file contains personal notes.
+
+App workflow:
 
 - open_gui()
 - connect_redis()
 - send_hello()
-
-- read_gui()
-- encode_input()
-- send_tcp()
-- recv_tcp()
-- decode_output()
-- write_gui()
-
+- input_workflow()
 - close_redis()
 - close_gui()
 
-## Assumptions/Decisions
+User input workflow:
 
-the overall purpose is to make indexing work and achieve constant time retrieval of a variable
+- frontend
+- network
+- input
+- protocol
+- transmission
+- protocol
+- output
+
+Ideas for future development can be seen in the `Issues` section in of this GitHub repository.
 
 ## Modules
 
-0. ui (gui for connecting, terminal, html, files)
-0. io (reading/writing)
-0. network (session managemnt)
-0. protocol (resp parser, encoder, decoder)
-0. transport (reading/write to socket)
+0. core (common utilities used across the entire codebase)
+1. frontend (GUI)
+2. network (session managemnt)
+3. protocol (resp parser, encoder, decoder)
+4. transmission (reading/writing)
 
-Workflow: ui -> io.fronend.input.connecting -> network -> io.ui.input -> protocol -> transport -> protocol -> io.fronend.output -> ui
+A module is complete when the following items are achieved:
 
-## Future
-
-- i/o operations should be abstracted by a class (gui/cli/file)
-- future allow multiple connections
-- deploy it as a web app (html gui)
-- commands:
-  - run
-  - tst
-
-## Issues:
-
-0. RESP, CONN
-0. GUI
-0. CRUD Strings, Lists, Sets
-0. CRUD Hashes, Sorted Sets
-
-an issue is complete when the following items are achieved:
-
-0. code
-0. logs
-0. tests
-0. errors
-0. documentation
-
-## Some random notes
-
-```ps1
-$env:PYTHONPATH='src'; python3.13.exe -m coverage run -m unittest discover -s tst -t .
-python3 -m coverage report -m
-```
+0. implementation
+1. documentation
+2. tests
+3. logs
