@@ -1,19 +1,18 @@
 import core
 from network import Receiver
 
-from .processor import process_output, process_transmission
-from .exceptions import Resp3NotSupportedError
+from .processor import process_output, is_init_command, validate_init_cmd_output
 
 logger = core.get_logger(__name__)
 
-def handle_read(addr: core.Addr, receiver: Receiver, last_raw_input: str, all_sent: bool) -> str:
+def handle_read(addr: core.Addr, receiver: Receiver, last_raw_cmd: str, all_sent: bool) -> str:
     """
     Reads from the socket, decodes data, and updates history.
 
     Args:
         addr (obj): The address of the client.
         receiver (obj): The receiver object.
-        last_raw_input (str): The last raw input.
+        last_raw_cmd (str): The last raw user input.
         all_sent (bool): Whether the request is completely sent.
 
     Returns:
@@ -35,9 +34,9 @@ def handle_read(addr: core.Addr, receiver: Receiver, last_raw_input: str, all_se
     try:
         initial_buf_idx = receiver._idx
         output = process_output(receiver)
-        process_transmission(last_raw_input, output)
-        output_str = str(output)
-        return output_str
+        if is_init_command(last_raw_cmd):
+            validate_init_cmd_output(last_raw_cmd, output)
+        return str(output)
     
     # When a partial response is encountered, 
     # the buffer index is restored to the initial position, 
