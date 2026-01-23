@@ -53,6 +53,8 @@ Main development time: 02.12.2025 - 06.01.2026
 - **Conversational Interface**: Interaction with Redis instances via a clean, chat-inspired dialogue view.
 - **Smart Data Handling**: Efficient byte-level buffering and decoding tailored for Redis payloads.
 - **Infinite Scrolling**: Optimized list views for browsing many connections and deep command histories.
+- **Suggestive logs**: Planned diverse log levels, to easily track any network action, or potential bugs.
+- **Auto-resource cleanup**: No fault should result in memory leaks, uncleaned data, or opened leftovers.
 
 ### 📷 Screenshots
 
