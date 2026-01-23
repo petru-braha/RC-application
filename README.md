@@ -54,6 +54,19 @@ Main development time: 02.12.2025 - 06.01.2026
 - **Smart Data Handling**: Efficient byte-level buffering and decoding tailored for Redis payloads.
 - **Infinite Scrolling**: Optimized list views for browsing many connections and deep command histories.
 
+### 📷 Screenshots
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; justify-content: center; gap: 20px;"> 
+<img src="doc/ss/Screenshot 2026-01-23 182612.png" alt="meaningful-conversations"  />
+
+<img src="doc/ss/Screenshot 2026-01-23 175844.png" alt="main-screen"  />
+<img src="doc/ss/Screenshot 2026-01-23 181457.png" alt="multi-connection"  />
+<img src="doc/ss/Screenshot 2026-01-23 181515.png" alt="chat-bubbles"  />
+<img src="doc/ss/Screenshot 2026-01-23 182701.png" alt="logs"  />
+<img src="doc/ss/Screenshot 2026-01-23 182932.png" alt="debug-logs-file"  />
+
+</div>
+
 ---
 
 ## 🛠 Build Instructions
