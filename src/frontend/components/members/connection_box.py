@@ -7,11 +7,7 @@ class ConnectionBox(ft.Container):
     Allows selection and closing of the connection.
     """
 
-    def __init__(self, text: str, on_click: Callable, on_connection_close: Callable, on_agenda_rem: Callable) -> None:
-        def on_rem() -> None:
-            on_connection_close()
-            on_agenda_rem(self)
-        
+    def __init__(self, text: str, on_click: Callable, on_close: Callable) -> None:
         content=ft.Stack([
             ft.Text(text,
                 left=5, 
@@ -25,7 +21,7 @@ class ConnectionBox(ft.Container):
                 icon_size=20,
                 right=0,
                 top=0,
-                on_click=on_rem
+                on_click=on_close
             )
         ])
 

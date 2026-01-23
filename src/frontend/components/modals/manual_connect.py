@@ -66,5 +66,5 @@ class ManualConnect(ModalBase):
         user = self.user_input.value
         pasw = self.pass_input.value
         db_idx = self.db_input.value
-        connection_data = (host, port, user, pasw, db_idx)
-        self._on_continue_callback(connection_data)
+        conn_data = (host, port, user, pasw, db_idx)
+        self._on_continue_callback(conn_data)
