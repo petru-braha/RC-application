@@ -46,12 +46,9 @@ class ChatFrame(ft.Container):
         self.content = chat
         self.update()
 
-    def rem_chat(self, chat: Chat) -> None:
+    def rem_chat(self) -> None:
         """
         Removes the specified chat and reverts to the default layer.
-
-        Args:
-            chat (obj): The chat component to remove.
         """
         self.content = self.default_layer
         self.update()
