@@ -56,24 +56,25 @@ class _Multiplexer:
         """
         while self.stay_alive.is_set():
             try:
-                self.handle_connection_queues()
+                self.handle_conn_queues()
                 self.sel_and_dispatch()
             except Exception as e:
                 logger.critical(f"Multiplexing loop error: {e}.", exc_info=True)
+        # The event flag was cleared.
         # The application prepares to completely shutdown.
         self.reactor.close_resources()
 
-    def handle_connection_queues(self) -> None:
+    def handle_conn_queues(self) -> None:
         """
         Handles the interaction (add/removal) between the selector and enqueued connections.
         """
-        while self.reactor.connections_to_reg:
-            connection = self.reactor.connections_to_reg.popleft()
-            self.reactor.add_connection(connection)
+        while self.reactor.conns_to_reg:
+            conn = self.reactor.conns_to_reg.popleft()
+            self.reactor.add_conn(conn)
             
-        while self.reactor.connections_to_rem:
-            connection = self.reactor.connections_to_rem.popleft()
-            self.reactor.rem_connection(connection)
+        while self.reactor.conns_to_rem:
+            conn = self.reactor.conns_to_rem.popleft()
+            self.reactor.rem_conn(conn)
 
     def sel_and_dispatch(self) -> None:
         """
@@ -91,27 +92,26 @@ class _Multiplexer:
         events = self.reactor.selector.select(self.timeout)
         for key, mask in events:
             
-            connection = key.fileobj
-            assert isinstance(connection, Connection)
-            chat = self.reactor.conn_chat_dict[connection]
+            conn = key.fileobj
+            assert isinstance(conn, Connection)
             
             try:
                 if mask & EVENT_READ:
-                    self.sel_readable(connection, chat)
+                    self.sel_readable(conn)
                 if mask & EVENT_WRITE:
-                    self.sel_writable(connection, chat)
+                    self.sel_writable(conn)
         
             except ConnectionError as e:
-                logger.warning(f"The connection {connection.addr} was closed by peer: {e}.")
+                logger.warning(f"The connection {conn.addr} was closed by peer: {e}.")
                 logger.info("Removing the connection.")
-                self.reactor.rem_connection(connection)
+                self.reactor.rem_conn(conn)
                 continue
             
             except Exception as e:
-                logger.error(f"Failed to handle event for connection {connection.addr}: {e}.", exc_info=True)
+                logger.error(f"Failed to handle event for conn {conn.addr}: {e}.", exc_info=True)
                 continue
 
-    def sel_readable(self, connection: Connection, chat: Chat | None) -> None:
+    def sel_readable(self, conn: Connection) -> None:
         """
         Handles and processes readable sockets.
 
@@ -120,17 +120,19 @@ class _Multiplexer:
         in case the server does not support the newer version.
 
         Args:
-            connection (Connection): The connection to handle.
+            conn (Connection): The connection to handle.
             chat (Chat | None): The chat associated with the connection.
         """
         try:
+            assert conn.synchronizer.last_raw_input is not None
             output_str = transmission.handle_read(
-                connection.addr,
-                connection.receiver,
-                connection.synchronizer.last_raw_input,
-                connection.synchronizer.all_sent)
-            self.reactor.page.run_task(chat.add_res, output_str)
-            connection.synchronizer.all_recv = True
+                conn.addr,
+                conn.receiver,
+                conn.synchronizer.last_raw_input,
+                conn.synchronizer.all_sent)
+            
+            self.cond_render(conn, output_str)
+            conn.synchronizer.all_recv = True
     
         except core.PartialResponseError:
             logger.debug("The response is not completely received.")
@@ -139,28 +141,43 @@ class _Multiplexer:
         # todo what if it is an auth error?
         except transmission.Resp3NotSupportedError:
             logger.warning("RESP3 not supported; retrying with RESP2.")
-            connection.say_hello(connection.initial_user,
-                                 connection.initial_pasw,
+            conn.say_hello(conn.initial_user,
+                                 conn.initial_pasw,
                                  core.RespVer.RESP2)
 
-    def sel_writable(self, connection: Connection, chat: Chat | None) -> None:
+    def sel_writable(self, conn: Connection) -> None:
         """
         Handles and processes writable sockets and manages invalid input and partial response issues.
     
         Args:
-            connection (Connection): The connection to handle.
+            conn (Connection): The connection to handle.
             chat (Chat | None): The chat associated with the connection.
         """
         try:
             transmission.handle_write(
-                connection.addr,
-                connection.sender,
-                connection.synchronizer)
+                conn.addr,
+                conn.sender,
+                conn.synchronizer)
         except core.PartialResponseError:
             logger.debug("The last result was not completely received.")
         except ValueError as e:
             # If the user makes an error, the error is both logged and printed on his screen as a response.
-            logger.error(f"Error when encoding data to {connection.addr}: {e}.", exc_info=True)
-            if chat is None:
-                return
-            self.reactor.page.run_task(chat.add_res, str(e))
+            logger.error(f"Error when encoding data to {conn.addr}: {e}.", exc_info=True)
+            self.cond_render(conn, str(e))
+
+    def cond_render(self, conn: Connection, res: str) -> None:
+        """
+        If the application was lauched in the GUI mode, it renders the response on the GUI.
+
+        Args:
+            conn (obj): The connection object.
+            res (str): The response from either a network call or a client error.
+        """
+        if core.IS_CLI:
+            return
+        
+        chat = self.reactor.conn_chat_dict[conn]
+        assert chat is not None
+        
+        assert self.reactor.page is not None
+        self.reactor.page.run_task(chat.add_res, res)

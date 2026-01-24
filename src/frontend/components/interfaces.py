@@ -10,11 +10,11 @@ class PresenceChangeable(ft.Control):
         Makes the control visible and updates the page.
         """
         self.visible = True
-        self.page.update()
+        self.update()
     
     def hide(self):
         """
         Makes the control invisible and updates the page.
         """
         self.visible = False
-        self.page.update()
+        self.update()

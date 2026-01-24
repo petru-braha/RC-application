@@ -1,6 +1,9 @@
-from .components import Agenda, Chat, ChatFrame, ConnectionBox, ModalController
+from .components import Agenda, Chat, ConnBox
+from .agenda_frame import AgendaFrame
+from .chat_frame import ChatFrame
 from .layout import Layout
-from .left_panel import LeftPanel
+from .modal_controller import ModalController
 
-__all__ = ["Agenda", "Chat", "ChatFrame", "ConnectionBox", "ModalController",
-           "Layout", "LeftPanel"]
+__all__ = ["Agenda", "Chat", "ConnBox",
+           "AgendaFrame", "ChatFrame", "Layout",
+           "ModalController"]

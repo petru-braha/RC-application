@@ -1,7 +1,7 @@
 import flet as ft
 from typing import Callable
 
-class ConnectionBox(ft.Container):
+class ConnBox(ft.Container):
     """
     A visual representation of an active connection in the agenda.
     Allows selection and closing of the connection.

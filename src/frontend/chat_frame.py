@@ -1,6 +1,6 @@
 import flet as ft
 
-from .members import Chat
+from .components import Chat
 
 class ChatFrame(ft.Container):
     """

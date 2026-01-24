@@ -4,8 +4,10 @@ from typing import Callable
 import core
 from network import Connection
 
-from .components import Agenda, ChatFrame, ModalController, ConnectionBox
-from .left_panel import LeftPanel
+from .components import Agenda, ConnBox
+from .agenda_frame import AgendaFrame
+from .chat_frame import ChatFrame
+from .modal_controller import ModalController
 
 logger = core.get_logger(__name__)
 
@@ -25,7 +27,7 @@ class Layout(ft.Stack):
         
         controls = [
             ft.Row(
-                [LeftPanel(agenda, connect_btn), chat_frame],
+                [AgendaFrame(agenda, connect_btn), chat_frame],
                 expand=True),
             modal_controller,
         ]
@@ -35,4 +37,4 @@ class Layout(ft.Stack):
         )
         self.agenda = agenda
         self.chat_frame = chat_frame
-        self.conn_boxes_dict: dict[Connection, ConnectionBox] = {}
+        self.conn_boxes_dict: dict[Connection, ConnBox] = {}
