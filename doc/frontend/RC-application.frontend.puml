@@ -2,18 +2,22 @@
 skinparam classAttributeIconSize 0
 set namespaceSeparator none
 
+interface PresenceChangeable {
+  +show()
+  +hide()
+}
+
+interface ModalBase {
+}
+
 class ConnBox {
 }
 
-class Agenda {
+class AgendaFrame {
   +conn_boxes: ListView
+  +connect_btn: Button
   +add_box(conn_box: ConnBox)
   +rem_box(conn_box: ConnBox)
-}
-
-class AgendaFrame {
-  +agenda: Agenda
-  +connect_btn: Button
 }
 
 class Chat {
@@ -30,36 +34,47 @@ class ChatFrame {
 }
 
 class Layout {
-  +agendaFrame: AgendaFrame
+  +agenda_frame: AgendaFrame
   +chat_frame: ChatFrame
-  +modal_controller: ModalController
+  +conn_boxes_dict: dict
 }
 
 class ManualView {
+  +host_input: TextField
+  +port_input: TextField
+  +user_input: TextField
+  +pass_input: TextField
+  +db_input: TextField
 }
 
 class UrlView {
+  +url_input: TextField
 }
 
-class ModalController {
+class Modal {
   +url_view: UrlView
   +manual_view: ManualView
   +switch_view()
 }
 
+' --- Inheritance Relationships ---
+
+PresenceChangeable <|.. Modal
+
+ModalBase <|.. ManualView
+ModalBase <|.. UrlView
+
 ' --- Aggregation Relationships ---
 
-Agenda o-up- "*" ConnBox
-
-AgendaFrame o-up- "*" Agenda
+AgendaFrame o-up- "*" ConnBox
 
 ChatFrame o-up- "*" Chat
 
 Layout o-up- "*" AgendaFrame
 Layout o-up- "*" ChatFrame
-Layout o-up- "*" ModalController
+Layout o-up- "*" Modal
 
-ModalController o-up- "*" ManualView
-ModalController o-up- "*" UrlView
+Modal o-up- "*" ManualView
+Modal o-up- "*" UrlView
 
 @enduml
