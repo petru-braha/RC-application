@@ -3,8 +3,6 @@ from typing import Callable
 
 import core
 
-from .interfaces import PresenceChangeable
-
 logger = core.get_logger(__name__)
 
 class Chat(ft.Container):

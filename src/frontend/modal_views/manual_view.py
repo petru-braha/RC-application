@@ -1,7 +1,7 @@
 import flet as ft
 from typing import Callable
 
-from .interfaces import ModalBase
+from frontend import ModalBase
 
 class ManualView(ModalBase):
     """
