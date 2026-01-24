@@ -11,175 +11,124 @@ Thread-safety was ensured by applying the queue pattern.
 The client interface threads enques operations to be performed by the common selector.
 The multiplexing loop thread dequeues and processes these operations.
 """
-import flet as ft
 from collections import deque
 import selectors
+from typing import Callable
 
 import core
-from frontend import Chat
 from network import Connection
+from util import uninterruptible
 
 logger = core.get_logger(__name__)
 
-# Directly using instances of Reactor provokes race-conditions.
+# Client modules should only call these functions.
+def enque_new_connection(connection: Connection, on_response: Callable[[str], None]) -> None:
+    """
+    Enqueues a new connection to be added to the selector.
+    """
+    logger.info(f"Enqueuing connection {connection.addr} to be added.")
+    _connections_to_add.append((connection, on_response))
+
+def enque_close_connection(connection: Connection) -> None:
+    """
+    Enqueues a connection to be removed from the selector.
+    """
+    logger.info(f"Enqueuing connection {connection.addr} to be removed.")
+    _connections_to_rem.append(connection)
+
+# Calling these functions in the main thread provokes race-conditions.
 # Should only be used by the multiplexing thread.
-class Reactor:
+@uninterruptible
+def close_resources() -> None:
     """
-    Attributes:
-        page (obj): The frontend page, if the application was launched in GUI mode.
-                    It servers as a context for running async tasks i.e. printing output.
-        conn_chat_dict (dict): A dictionary of connections and their corresponding chats.
+    Removes any active connections and the selector.
 
-        selector (obj): The selector used by the application.
-        conns_to_reg (deque): A queue of connections to be added to the selector.
-        conns_to_rem (deque): A queue of connections to be removed from the selector.
-    
-    In GUI mode, the chats are mandatory.
-    They provide the possibility to print to the user's screen the network outputs.
+    This function should be called right before exiting the application.
     """
-    
-    def __init__(self, page: ft.Page | None = None) -> None:
-        """
-        Args:
-            page (obj): The frontend page, if the application was launched in GUI mode.
-        
-        Raises:
-            TypeError: if the application was launched in GUI mode and the page was not provided.
-        """
-        # Both must be of the same value.
-        # i.e. CLI and no page / GUI and page.
-        if core.IS_CLI != page is None:
-            raise TypeError("The page must be provided (only) in GUI mode")
-        
-        self.page = page
+    logger.info("Closing resources...")
 
-        self.conn_chat_dict: dict[Connection, Chat | None] = {}
+    try:
+        leftover_connections = set(_response_lambdas.keys())
+        if leftover_connections:
+            logger.warning("Removing leftover active connections.")
+            logger.debug(f"Leftover connections: {leftover_connections}.")
+            for connection in leftover_connections:
+                rem_connection(connection)
     
-        self.selector = selectors.DefaultSelector()
-        self.conns_to_reg: deque[Connection] = deque()
-        self.conns_to_rem: deque[Connection] = deque()
-        
-    def add_conn(self, conn: Connection) -> None:
-        """
-        Registers a connection to the selector.
-        https://docs.python.org/3/library/selectors.html#selectors.BaseSelector.register
-        
-        Closes the connection if it fails to be registered.
+        connections_to_add_len = len(_connections_to_add)
+        if connections_to_add_len:
+            logger.warning(f"Ignoring and closing {connections_to_add_len} connections enqueued to be added.")
+            logger.debug(f"Leftover connections to be added: {_connections_to_add}.")
+            for connection, _ in _connections_to_add:
+                connection.close()
     
-        Args:
-            conn (obj): The connection to register.
-        """
-        try:
-            self.selector.register(conn, selectors.EVENT_READ | selectors.EVENT_WRITE)
-        except KeyError as e:
-            logger.error(f"Failed to register connection {conn.addr}: {e}.")
-            conn.close()
-            logger.info(f"Closed connection {conn.addr}.")
-        else:
-            logger.info(f"Added connection {conn.addr} to selector.")
-
-    def rem_conn(self, conn: Connection) -> None:
-        """
-        Removes a connection from the selector.
-        "A file object shall be unregistered prior to being closed."
-        https://docs.python.org/3/library/selectors.html#selectors.BaseSelector.unregister
+        connections_to_rem_len = len(_connections_to_rem)
+        if connections_to_rem_len:
+            logger.warning(f"Removing {connections_to_rem_len} connections enqueued to be removed.")
+            logger.debug(f"Leftover connections to be removed: {_connections_to_rem}.")
+            for connection in _connections_to_rem:
+                rem_connection(connection)
     
-        Args:
-            conn (obj): The connection to remove.
-        """
-        try:
-            self.selector.unregister(conn)
-            self.conn_chat_dict.pop(conn)
-        except (KeyError, ValueError) as e:
-            logger.error(f"Failed to remove connection {conn.addr}: {e}.")
-        else:
-            logger.info(f"Removed connection {conn.addr} from selector.")
-        finally:
-            conn.close()
-            logger.info(f"Closed connection {conn.addr}.")
+        _selector.close()
+        logger.info("Resources closed.")
 
-    # See main.py --- `close_page()`.
-    # Doing `multiplexing_event.clear()` sends a signal to the multiplexing thread.
-    # It will elegantly finish its last iteration before running the below function.
-    # After all resources are cleared then the page is closed and destroyed.
-    @core.uninterruptible
-    def close_resources(self) -> None:
-        """
-        Removes any active connections and the selector.
+    except Exception as e:
+        logger.critical(f"Failed to close resources: {e}.", exc_info=True)
 
-        This function should be called right before exiting the application.
-        """
-        logger.info("Closing resources...")
-
-        try:
-            leftover_conns = set(self.conn_chat_dict.keys())
-            if leftover_conns:
-                logger.warning("Removing leftover active connections.")
-            for conn in leftover_conns:
-                logger.debug(f"Leftover connection: {conn}.")
-                self.rem_conn(conn)
-    
-            conns_to_add_len = len(self.conns_to_reg)
-            if conns_to_add_len > 0:
-                logger.warning(f"Ignoring and closing {conns_to_add_len} conns enqueued to be added.")
-            for conn in self.conns_to_reg:
-                logger.debug(f"Ignoring connection: {conn}.")
-                conn.close()
-    
-            conns_to_rem_len = len(self.conns_to_rem)
-            if conns_to_rem_len > 0:
-                logger.warning(f"Removing {conns_to_rem_len} conns enqueued to be removed.")
-            for conn in self.conns_to_rem:
-                logger.debug(f"Removing connection: {conn}.")
-                self.rem_conn(conn)
-    
-            self.selector.close()
-            logger.info("Resources closed.")
-
-        except Exception as e:
-            logger.critical(f"Failed to close resources: {e}.", exc_info=True)
-
-class ReactorClient:
+def add_connection(connection: Connection, on_response: Callable) -> None:
     """
-    Client interface for the Reactor.
+    Registers a connection to the selector.
+    https://docs.python.org/3/library/selectors.html#selectors.BaseSelector.register
     
-    This class provides a thread-safe way for the frontend to interact with the reactor (e.g. enqueue connections/commands).
+    Closes the connection if it fails to be registered.
+    
+    Args:
+        connection (obj): The connection to register.
+        on_response (lambda): The callback function to be called when a response is received.
     """
+    try:
+        _selector.register(connection, selectors.EVENT_READ | selectors.EVENT_WRITE)
+        _response_lambdas[connection] = on_response
+    except KeyError as e:
+        logger.error(f"Failed to register connection {connection.addr}: {e}.")
+        connection.close()
+        logger.info(f"Closed connection {connection.addr}.")
+    else:
+        logger.info(f"Added connection {connection.addr} to selector.")
 
-    def __init__(self, reactor: Reactor):
-        self._reactor = reactor
-
-    def enqueue_new_conn(self, conn_data: tuple) -> Connection:
-        """
-        Enqueues a new connection to be added to the selector.
-        
-        Raises:
-            ConnectionCountError: If the maximum number of connections is reached.
-        """
-        conn = Connection(*conn_data)
-        logger.info(f"Enqueuing connection {conn.addr} to be added.")
-        self._reactor.conns_to_reg.append(conn)
-        return conn
+def rem_connection(connection: Connection) -> None:
+    """
+    Removes a connection from the selector.
+    "A file object shall be unregistered prior to being closed."
+    https://docs.python.org/3/library/selectors.html#selectors.BaseSelector.unregister
     
-    # The below two methods are separated.
-    # The Chat can not be created before the connection is,
-    # and the bind is performed after the chat is created.
-    def enqueue_cmd(self, conn: Connection, cmd: str) -> None:
-        """
-        Enqueues a command to be sent over the connection.
-        """
-        conn.sender.add_pending(cmd)
+    Args:
+        connection (obj): The connection to remove.
+    """
+    try:
+        _selector.unregister(connection)
+        _response_lambdas.pop(connection)
+    except (KeyError, ValueError) as e:
+        logger.error(f"Failed to remove connection {connection.addr}: {e}.")
+    else:
+        logger.info(f"Removed connection {connection.addr} from selector.")
+    finally:
+        connection.close()
+        logger.info(f"Closed connection {connection.addr}.")
 
-    def bind_chat(self, conn: Connection, chat: Chat) -> None:
-        """
-        Binds a Chat instance to a Connection.
-        """
-        self._reactor.conn_chat_dict[conn] = chat
-    
-    def enqueue_close_conn(self, conn: Connection) -> None:
-        """
-        Enqueues a connection to be closed and removed from the selector.
-        """
-        logger.info(f"Enqueuing connection {conn.addr} to be removed.")
-        assert conn in self._reactor.conn_chat_dict.keys()
-        self._reactor.conns_to_rem.append(conn)
+_selector = selectors.DefaultSelector()
+"""
+The unique selector used by the application.
+"""
+_response_lambdas: dict[Connection, Callable[[str], None]] = {}
+"""
+Lambda functions for each connection to be called when a full response is received.
+"""
+_connections_to_add: deque[tuple[Connection, Callable[[str], None]]] = deque()
+"""
+A queue of connections to be added to the selector.
+"""
+_connections_to_rem: deque[Connection] = deque()
+"""
+A queue of connections to be removed from the selector.
+"""

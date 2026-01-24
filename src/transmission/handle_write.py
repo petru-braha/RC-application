@@ -45,8 +45,7 @@ def handle_write(addr: core.Addr, sender: Sender, synchronizer: Synchronizer) ->
         try:
             encoded = process_input(pending)
         except ValueError as e:
-            logger.error(f"Input processing failed: {e}.")
-            logger.info("Unsyncing and removing the input from pending commands to send.")
+            logger.debug(f"Unsyncing and removing the input from pending commands to send.")
             synchronizer.unsync()
             sender.rem_first_pending()
             raise
