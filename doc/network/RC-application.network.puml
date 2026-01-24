@@ -2,50 +2,87 @@
 skinparam classAttributeIconSize 0
 set namespaceSeparator none
 
-class Sock {
-  +addr: Addr
-  
+package "network.transport" {
+    
+    class Sock {
+        + addr: Addr
+        + close()
+        + fileno(): int
+    }
+    
+    interface Communicator {
+    }
+
+    class Receiver {
+        + empty_buf(): bool
+        + consume(bufsize: int): str
+        + consume_crlf(): str
+        + restore_buf(idx: int)
+        + recv(bufsize: int): int
+        + cleanup()
+    }
+
+    class Sender {
+        + add_pending(pending: str)
+        + has_pending(): bool
+        + get_first_pending(): str | bytes | None
+        + rem_first_pending()
+        + shrink_first_pending(remaining: bytes)
+        + send(data: bytes): int
+    }
+
+    class Synchronizer {
+        + last_raw_input: str | None
+        + all_sent: bool | None
+        + all_recv: bool | None
+        + sync_input(pending: str)
+        + unsync()
+    }
 }
 
+package "network" {
+    class Transmitter {
+        + sock: Sock
+        + receiver: Receiver
+        + sender: Sender
+        + synchronizer: Synchronizer
+        + addr: Addr
+        + close()
+        + fileno(): int
+    }
 
-class Receiver {
-  
+    class Identification {
+        + {static} DEFAULT_HOST: str
+        + {static} DEFAULT_PORT: str
+        + {static} DEFAULT_USER: str
+        + {static} HELLO_CMD: str
+        + initial_user: str
+        + initial_pasw: str
+        + say_hello(user: str, pasw: str, protver: int)
+    }
+
+    class DatabaseLink {
+        + {static} DEFAULT_DB: str
+        + {static} SELECT_CMD: str
+    }
+
+    class Connection {
+        + {static} count: int
+        + close()
+    }
 }
 
-class Sender {
-}
+' Relationships
+Communicator <|-- Receiver
+Communicator <|-- Sender
 
-class Transmitter {
-  +sock: Sock
-  +receiver: Receiver
-  +sender: Sender
-  +synchronizer: Synchronizer
-}
+Transmitter *-- Sock
+Transmitter *-- Receiver
+Transmitter *-- Sender
+Transmitter *-- Synchronizer
 
-class Identification {
-  +initial_user: str
-  +initial_pasw: str
-}
-
-class DatabaseLink {
-}
-
-class Connection {
-}
-
-' --- Inheritance Relationships ---
-
-Sock <|-- Receiver
-Sock <|-- Sender
-Sock <|-- Selectable
-
-Archiver <|-- Identification
-Receiver <|-- Identification
-Sender <|-- Identification
-
+Transmitter <|-- Identification
 Identification <|-- DatabaseLink
-
 DatabaseLink <|-- Connection
-Selectable <|-- Connection
 
 @enduml
