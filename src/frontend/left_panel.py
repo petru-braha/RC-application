@@ -7,11 +7,11 @@ class LeftPanel(ft.Container):
     Groups the agenda and the connect button under a unitary panel.
     """
 
-    def __init__(self, agenda: Agenda, connect_button: ft.Button) -> None:
+    def __init__(self, agenda: Agenda, connect_btn: ft.Button) -> None:
         content = ft.Column([
             agenda,
             ft.Divider(),
-            ft.Row([connect_button], alignment=ft.MainAxisAlignment.CENTER),
+            ft.Row([connect_btn], alignment=ft.MainAxisAlignment.CENTER),
         ], expand=True)
 
         super().__init__(

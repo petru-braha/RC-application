@@ -4,6 +4,7 @@ from threading import Event
 import core
 from frontend import Layout
 
+from reactor import Reactor, ReactorClient
 from multiplexing import loop_multiplexing
 from util import uninterruptible
 
@@ -25,11 +26,12 @@ async def close_page(multiplexing_event: Event, page: ft.Page) -> None:
 @uninterruptible
 def build_page(page: ft.Page) -> None:
     try:
+        reactor = Reactor(page)
         multiplexing_event = Event()
         multiplexing_event.set()
         
         # Run the multiplexing loop in a background thread managed by Flet.
-        page.run_thread(loop_multiplexing, multiplexing_event)
+        page.run_thread(loop_multiplexing, multiplexing_event, reactor)
         logger.info("Multiplexing thread started.")
         
         async def handle_close(event: ft.WindowEvent | None = None) -> None:
@@ -44,7 +46,9 @@ def build_page(page: ft.Page) -> None:
 
         # Handles OS intrusions gracefully.
         # Similar to a regular container.
-        safe_area = ft.SafeArea(Layout(), expand=True)
+        reactor_client = ReactorClient(reactor)
+        layout = Layout(reactor_client)
+        safe_area = ft.SafeArea(layout, expand=True)
         page.add(safe_area)
         logger.info("Flet app window initialized.")
     
