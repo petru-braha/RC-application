@@ -1,7 +1,7 @@
 import flet as ft
 from typing import Callable
 
-from .members import PresenceChangeable
+from .components import PresenceChangeable
 from .modals import ManualConnect, UrlConnect
 
 class ModalController(ft.Container, PresenceChangeable):

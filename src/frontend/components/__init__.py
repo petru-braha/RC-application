@@ -1,6 +1,6 @@
-from .members import Chat, ConnectionBox
 from .agenda import Agenda
-from .chat_frame import ChatFrame
-from .modal_controller import ModalController
+from .chat import Chat
+from .conn_box import ConnBox
+from .interfaces import PresenceChangeable
 
-__all__ = ["Agenda", "Chat", "ChatFrame", "ConnectionBox", "ModalController"]
+__all__ = ["Agenda", "Chat", "ConnBox", "PresenceChangeable"]

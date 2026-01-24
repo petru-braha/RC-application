@@ -2,7 +2,7 @@ import flet as ft
 from threading import Event
 
 import core
-from frontend import Chat, ConnectionBox, Layout
+from frontend import Chat, ConnBox, Layout
 from network import Connection
 from reactor import ReactorClient
 
@@ -28,7 +28,7 @@ async def close_page(multiplexing_event: Event, page: ft.Page) -> None:
 def add_conn(conn_data: tuple, reactor_client: ReactorClient, layout: Layout) -> None:
     """
     Receives the connection details and creates a new Connection.
-    Sets up UI components (Chat, ConnectionBox), and enqueues the connection to the reactor.
+    Sets up UI components (Chat, ConnBox), and enqueues the connection to the reactor.
     
     Args:
         conn_data (arr): A tuple containing connection arguments (host, port, user, pass, db).
@@ -47,12 +47,12 @@ def add_conn(conn_data: tuple, reactor_client: ReactorClient, layout: Layout) ->
     conn_host = conn_data[0]
     rem_conn_callback = lambda: rem_conn(conn, reactor_client, layout)
 
-    connection_box = ConnectionBox(
+    conn_box = ConnBox(
         text=conn_host,
         on_click=lambda: layout.chat_frame.sel_chat(chat),
         on_close=rem_conn_callback)
-    layout.agenda.add_box(connection_box)
-    layout.conn_boxes_dict[conn] = connection_box
+    layout.agenda.add_box(conn_box)
+    layout.conn_boxes_dict[conn] = conn_box
 
     chat = Chat(
         text=conn_host,
@@ -61,16 +61,16 @@ def add_conn(conn_data: tuple, reactor_client: ReactorClient, layout: Layout) ->
     layout.chat_frame.sel_chat(chat)
     reactor_client.bind_chat(conn, chat)
 
-def rem_conn(connection: Connection, reactor_client: ReactorClient, layout: Layout) -> None:
+def rem_conn(conn: Connection, reactor_client: ReactorClient, layout: Layout) -> None:
     """
     Enqueues a connection to be unregistered, closed, and removed from the UI.
 
     Args:
-        connection (obj): The connection to be removed.
+        conn (obj): The connection to be removed.
         reactor_client (obj): The enqueuer of the connection creation.
         layout (obj): The application layout.
     """
-    reactor_client.enqueue_close_conn(connection)
-    conn_box = layout.conn_boxes_dict[connection]
+    reactor_client.enqueue_close_conn(conn)
+    conn_box = layout.conn_boxes_dict[conn]
     layout.agenda.rem_box(conn_box)
     layout.chat_frame.rem_chat()

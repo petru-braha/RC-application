@@ -1,6 +1,6 @@
 import flet as ft
 
-from .members import ConnectionBox
+from .conn_box import ConnBox
 
 class Agenda(ft.Column):
     """
@@ -24,29 +24,29 @@ class Agenda(ft.Column):
         )
         self.list_view = list_view
 
-    def add_box(self, connection_box: ConnectionBox) -> None:
+    def add_box(self, conn_box: ConnBox) -> None:
         """
         Adds a connection box to the agenda.
         
         Note: this method is forwarded to the connection creation handlers.
 
         Args:
-            connection_box (obj): The connection box to add.
+            conn_box (obj): The connection box to add.
         """
-        self.list_view.controls.append(connection_box)
+        self.list_view.controls.append(conn_box)
         self.update()
 
-    def rem_box(self, connection_box: ConnectionBox) -> None:
+    def rem_box(self, conn_box: ConnBox) -> None:
         """
         Remove first occurrence of presentation.
         
         Note: this method is forwarded to the connection removal handlers.
 
         Args:
-            connection_box (obj): The connection box to remove.
+            conn_box (obj): The connection box to remove.
 
         Raises:
             ValueError: If the value is not present.
         """
-        self.list_view.controls.remove(connection_box)
+        self.list_view.controls.remove(conn_box)
         self.update()

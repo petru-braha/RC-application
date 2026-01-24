@@ -31,8 +31,8 @@ class Reactor:
         conn_chat_dict (dict): A dictionary of connections and their corresponding chats.
 
         selector (obj): The selector used by the application.
-        connections_to_reg (deque): A queue of connections to be added to the selector.
-        connections_to_rem (deque): A queue of connections to be removed from the selector.
+        conns_to_reg (deque): A queue of connections to be added to the selector.
+        conns_to_rem (deque): A queue of connections to be removed from the selector.
     
     In GUI mode, the chats are mandatory.
     They provide the possibility to print to the user's screen the network outputs.
@@ -56,10 +56,10 @@ class Reactor:
         self.conn_chat_dict: dict[Connection, Chat | None] = {}
     
         self.selector = selectors.DefaultSelector()
-        self.connections_to_reg: deque[Connection] = deque()
-        self.connections_to_rem: deque[Connection] = deque()
+        self.conns_to_reg: deque[Connection] = deque()
+        self.conns_to_rem: deque[Connection] = deque()
         
-    def add_connection(self, connection: Connection) -> None:
+    def add_conn(self, conn: Connection) -> None:
         """
         Registers a connection to the selector.
         https://docs.python.org/3/library/selectors.html#selectors.BaseSelector.register
@@ -67,36 +67,36 @@ class Reactor:
         Closes the connection if it fails to be registered.
     
         Args:
-            connection (obj): The connection to register.
+            conn (obj): The connection to register.
         """
         try:
-            self.selector.register(connection, selectors.EVENT_READ | selectors.EVENT_WRITE)
+            self.selector.register(conn, selectors.EVENT_READ | selectors.EVENT_WRITE)
         except KeyError as e:
-            logger.error(f"Failed to register connection {connection.addr}: {e}.")
-            connection.close()
-            logger.info(f"Closed connection {connection.addr}.")
+            logger.error(f"Failed to register connection {conn.addr}: {e}.")
+            conn.close()
+            logger.info(f"Closed connection {conn.addr}.")
         else:
-            logger.info(f"Added connection {connection.addr} to selector.")
+            logger.info(f"Added connection {conn.addr} to selector.")
 
-    def rem_connection(self, connection: Connection) -> None:
+    def rem_conn(self, conn: Connection) -> None:
         """
         Removes a connection from the selector.
         "A file object shall be unregistered prior to being closed."
         https://docs.python.org/3/library/selectors.html#selectors.BaseSelector.unregister
     
         Args:
-            connection (obj): The connection to remove.
+            conn (obj): The connection to remove.
         """
         try:
-            self.selector.unregister(connection)
-            self.conn_chat_dict.pop(connection)
+            self.selector.unregister(conn)
+            self.conn_chat_dict.pop(conn)
         except (KeyError, ValueError) as e:
-            logger.error(f"Failed to remove connection {connection.addr}: {e}.")
+            logger.error(f"Failed to remove connection {conn.addr}: {e}.")
         else:
-            logger.info(f"Removed connection {connection.addr} from selector.")
+            logger.info(f"Removed connection {conn.addr} from selector.")
         finally:
-            connection.close()
-            logger.info(f"Closed connection {connection.addr}.")
+            conn.close()
+            logger.info(f"Closed connection {conn.addr}.")
 
     # See main.py --- `close_page()`.
     # Doing `multiplexing_event.clear()` sends a signal to the multiplexing thread.
@@ -112,26 +112,26 @@ class Reactor:
         logger.info("Closing resources...")
 
         try:
-            leftover_connections = set(self.conn_chat_dict.keys())
-            if leftover_connections:
+            leftover_conns = set(self.conn_chat_dict.keys())
+            if leftover_conns:
                 logger.warning("Removing leftover active connections.")
-            for connection in leftover_connections:
-                logger.debug(f"Leftover connection: {connection}.")
-                self.rem_connection(connection)
+            for conn in leftover_conns:
+                logger.debug(f"Leftover connection: {conn}.")
+                self.rem_conn(conn)
     
-            connections_to_add_len = len(self.connections_to_reg)
-            if connections_to_add_len > 0:
-                logger.warning(f"Ignoring and closing {connections_to_add_len} connections enqueued to be added.")
-            for connection in self.connections_to_reg:
-                logger.debug(f"Ignoring connection: {connection}.")
-                connection.close()
+            conns_to_add_len = len(self.conns_to_reg)
+            if conns_to_add_len > 0:
+                logger.warning(f"Ignoring and closing {conns_to_add_len} conns enqueued to be added.")
+            for conn in self.conns_to_reg:
+                logger.debug(f"Ignoring connection: {conn}.")
+                conn.close()
     
-            connections_to_rem_len = len(self.connections_to_rem)
-            if connections_to_rem_len > 0:
-                logger.warning(f"Removing {connections_to_rem_len} connections enqueued to be removed.")
-            for connection in self.connections_to_rem:
-                logger.debug(f"Removing connection: {connection}.")
-                self.rem_connection(connection)
+            conns_to_rem_len = len(self.conns_to_rem)
+            if conns_to_rem_len > 0:
+                logger.warning(f"Removing {conns_to_rem_len} conns enqueued to be removed.")
+            for conn in self.conns_to_rem:
+                logger.debug(f"Removing connection: {conn}.")
+                self.rem_conn(conn)
     
             self.selector.close()
             logger.info("Resources closed.")
@@ -156,10 +156,10 @@ class ReactorClient:
         Raises:
             ConnectionCountError: If the maximum number of connections is reached.
         """
-        connection = Connection(*conn_data)
-        logger.info(f"Enqueuing connection {connection.addr} to be added.")
-        self._reactor.connections_to_reg.append(connection)
-        return connection
+        conn = Connection(*conn_data)
+        logger.info(f"Enqueuing connection {conn.addr} to be added.")
+        self._reactor.conns_to_reg.append(conn)
+        return conn
     
     # The below two methods are separated.
     # The Chat can not be created before the connection is,
@@ -176,10 +176,10 @@ class ReactorClient:
         """
         self._reactor.conn_chat_dict[conn] = chat
     
-    def enqueue_close_conn(self, connection: Connection) -> None:
+    def enqueue_close_conn(self, conn: Connection) -> None:
         """
         Enqueues a connection to be closed and removed from the selector.
         """
-        logger.info(f"Enqueuing connection {connection.addr} to be removed.")
-        assert connection in self._reactor.conn_chat_dict.keys()
-        self._reactor.connections_to_rem.append(connection)
+        logger.info(f"Enqueuing connection {conn.addr} to be removed.")
+        assert conn in self._reactor.conn_chat_dict.keys()
+        self._reactor.conns_to_rem.append(conn)
