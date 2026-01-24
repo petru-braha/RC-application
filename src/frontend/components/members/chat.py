@@ -12,6 +12,11 @@ class Chat(ft.Container, PresenceChangeable):
     A chat Interface container that displays the command history in a request-response format.
     """
 
+    CLEAR_CMD: str = "CLEAR"
+    """
+    Client-side command used to clear the visual chat history.
+    """
+
     def __init__(self, text: str, on_enter: Callable[[str], None]) -> None:
         """
         Initialize the Chat interface.
@@ -71,12 +76,17 @@ class Chat(ft.Container, PresenceChangeable):
         req = self.cmd_input.value
         if not req:
             return
+        
+        self.cmd_input.value = ""
+        await self.cmd_input.focus()
+        
+        if req.upper() == Chat.CLEAR_CMD:
+            self.history_box.controls.clear()
+            logger.debug("Cleaned chat history.")
+            return
 
         logger.debug(f"Frontend printing of the request: {req}.")
         self._on_enter(req)
-        await self.cmd_input.focus()
-        self.cmd_input.value = ""
-
         bubble = self._add_msg_bubble(req, ft.MainAxisAlignment.END, ft.Colors.BLUE_600)
         self.history_box.controls.append(bubble)
         logger.debug("Request printed.")
