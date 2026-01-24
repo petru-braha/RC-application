@@ -10,6 +10,14 @@ package "network.transport" {
         + fileno(): int
     }
     
+    class Synchronizer {
+        + last_raw_input: str | None
+        + all_sent: bool | None
+        + all_recv: bool | None
+        + sync_input(pending: str)
+        + unsync()
+    }
+
     interface Communicator {
     }
 
@@ -29,14 +37,6 @@ package "network.transport" {
         + rem_first_pending()
         + shrink_first_pending(remaining: bytes)
         + send(data: bytes): int
-    }
-
-    class Synchronizer {
-        + last_raw_input: str | None
-        + all_sent: bool | None
-        + all_recv: bool | None
-        + sync_input(pending: str)
-        + unsync()
     }
 }
 
