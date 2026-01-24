@@ -1,66 +1,13 @@
-from logging import Formatter
-from typing import Any
+from typing import Any, Callable
+from functools import wraps
+from urllib.parse import urlparse
 
+from .config import TLS_ENFORCED
+from .constants import EMPTY_STR, SCHEME_LIST
 from .exceptions import AssignmentError
+from .get_logger import get_logger
 
-class LogCompressor(Formatter):
-    """
-    Custom formatter that truncates messages longer than a specified byte limit.
-    """
-
-    DEFAULT_MAX_BYTES: int = 256
-    """
-    Default maximum byte limit for message truncation.
-    """
-    TRUNCATION_SUFFIX: bytes = "...".encode()
-    """
-    Suffix added to truncated messages.
-    """
-    MINIMUM_REQUIRED_BYTES: int = 3
-    """
-    Minimum required byte limit for message truncation.
-    """
-
-    def __init__(self, fmt=None, datefmt=None, max_bytes: int = DEFAULT_MAX_BYTES):
-        """
-        Initializes the formatter with the specified format, date format, and maximum byte limit.
-
-        Args:
-            fmt: The format string for the formatter.
-            datefmt: The date format string for the formatter.
-            max_bytes: The maximum byte limit for message truncation.
-
-        Raises:
-            ValueError: If max_bytes is less than the minimum required bytes.
-        """
-        super().__init__(fmt, datefmt)
-        if max_bytes < LogCompressor.MINIMUM_REQUIRED_BYTES:
-            raise ValueError("Invalid number of maximum bytes; must be at least 3")
-        self.max_bytes = max_bytes
-
-    def format(self, record) -> str:
-        """
-        Formats the log record by truncating the message if it exceeds the byte limit.
-
-        Args:
-            record: The log record to format.
-
-        Returns:
-            str: The formatted log record.
-        """
-        msg = record.getMessage()
-        msg_bytes = msg.encode()
-        
-        if len(msg_bytes) > self.max_bytes:
-            # Truncate and add indicator.
-            suffix_bytes = len(LogCompressor.TRUNCATION_SUFFIX)
-            truncated_bytes = msg_bytes[:self.max_bytes - suffix_bytes] + LogCompressor.TRUNCATION_SUFFIX
-            truncated_msg = truncated_bytes.decode()
-            record.msg = truncated_msg
-            # Clear args so getMessage() doesn't try to re-format.
-            record.args = ()
-
-        return super().format(record)
+logger = get_logger(__name__)
 
 class Immutable:
     """
@@ -104,3 +51,71 @@ class Immutable:
             # If __getattribute__ raises AttributeError, the attribute is missing.
             # Therefore allow the construction of the object.
             super().__setattr__(name, value)
+
+def uninterruptible(callback: Callable) -> Callable:
+    """
+    Decorator to make a function uninterruptible.
+    Catches system signals (like KeyboardInterrupt) and retries the execution,
+    ensuring the operation completes unless a standard Exception occurs.
+    """
+    @wraps(callback)
+    def wrapper(*args, **kwargs):
+        while True:
+            try:
+                return callback(*args, **kwargs)
+            except Exception:
+                # Allow standard exceptions (ValueError, TypeError, etc.) to propagate.
+                raise
+            except BaseException as e:
+                # Catch signals (KeyboardInterrupt, SystemExit) and retry.
+                logger.error(f"func: {callback.__name__} interrupted by {e!r}. Retrying...")
+    return wrapper
+
+def process_redis_url(url: str, tls_enforced: bool = TLS_ENFORCED) -> tuple[str, str, str, str, str]:
+    """
+    Processes and extracts data from a Redis URL string.
+    
+    Format: redis[s]://[[username][:password]@][host][:port][/db-number]
+    See more: https://docs.python.org/3/library/urllib.parse.html#url-parsing
+
+    Args:
+        url (str): A string representing the Redis connection URL.
+    
+    Returns:
+        arr: A five-string tuple contaning the connection information.
+
+    Raises:
+        ValueError: For invalid URL scheme or malformed URL.
+        ConnecterError: If the connection to the server fails.
+    """
+    logger.debug(f"Processing Redis URL: {url}.")
+    parsed = urlparse(url)
+
+    if parsed.scheme not in SCHEME_LIST:
+        raise ValueError(f"Invalid url scheme: '{parsed.scheme}'")
+    if tls_enforced and parsed.scheme == SCHEME_LIST[0]:
+        raise ValueError("TLS is enforced, and an invalid scheme was provided.")
+
+    host = parsed.hostname if parsed.hostname else EMPTY_STR
+    port = str(parsed.port) if parsed.port else EMPTY_STR
+    user = parsed.username if parsed.username else EMPTY_STR
+    pasw = parsed.password if parsed.password else EMPTY_STR
+
+    # Extraction of logical database index (the path segment).
+    # Redis URLs typically use /0, /1, etc.
+    db_idx = EMPTY_STR
+    if parsed.path:
+        # Strip leading slash, and check if the integer is valid.
+        db_idx = parsed.path.lstrip('/')
+        
+    if db_idx != EMPTY_STR:
+        try:
+            int(db_idx)
+        except ValueError:
+            raise ValueError(
+                f"Invalid database index: '{parsed.path}'; must be an integer"
+            )
+    
+    # Do not log the password, sensitive data.
+    logger.debug(f"Url connection details: host={host}, port={port}, user={user}, db={db_idx}")
+    return (host, port, user, pasw, db_idx)
