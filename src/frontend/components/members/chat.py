@@ -84,17 +84,7 @@ class Chat(ft.Container, PresenceChangeable):
         self.history_box.controls.append(bubble)
         logger.debug("Request printed.")
 
-    def on_response(self, res: str) -> None:
-        """
-        Called by the reactor to display a server response.
-        Updates the UI thread-safely.
-
-        Args:
-            res (str): The response string from the server.
-        """
-        self.page.run_task(self._auto_add_res, res)
-
-    async def _auto_add_res(self, res: str) -> None:
+    async def add_res(self, res: str) -> None:
         """
         Adds a response to the chat history box automaticallly when it is ready.
 
