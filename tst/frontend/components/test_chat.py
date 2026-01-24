@@ -1,49 +1,48 @@
-from unittest import TestCase
-from unittest.mock import MagicMock, patch, AsyncMock, PropertyMock
 import asyncio
+from unittest import TestCase
+from unittest.mock import MagicMock, AsyncMock, PropertyMock, patch
 
-from src.frontend.components.members.chat import Chat
+from src.frontend.components.chat import Chat
 
 class TestChat(TestCase):
     
     def setUp(self):
         self.on_enter = MagicMock()
-        self.chat = Chat("my_chat", self.on_enter)
+        self.on_exit = MagicMock()
+        self.chat = Chat("my_chat", self.on_enter, self.on_exit)
         
-        # Patch page property on Chat class to avoid RuntimeError
         self.page_patcher = patch.object(Chat, 'page', new_callable=PropertyMock)
         self.mock_page_val = MagicMock()
         self.mock_page_prop = self.page_patcher.start()
         self.mock_page_prop.return_value = self.mock_page_val
         self.addCleanup(self.page_patcher.stop)
-        self.chat._page = self.mock_page_val # Keep consistency if needed
         self.mock_page_val.run_task = MagicMock()
         
         # Mock internals for interaction verification
         self.chat.history_box = MagicMock()
         self.chat.history_box.update = MagicMock()
+        self.chat.history_box.controls = MagicMock()
+        self.chat.history_box.controls.clear = MagicMock()
+        self.chat.history_box.controls.append = MagicMock()
+        
         self.chat.cmd_input = MagicMock()
         self.chat.cmd_input.value = ""
+        self.chat.cmd_input.focus = AsyncMock()
 
     def test_init(self):
-        # Real init check
         self.assertTrue(self.chat.content)
-        # We can't check assert_called on real classes easily.
-        # Verify structure setup
-        pass
 
     def test_on_submit_empty(self):
         self.chat.cmd_input.value = ""
         
-        asyncio.run(self.chat.on_submit(None))
+        asyncio.run(self.chat.add_req(None))
         
         self.on_enter.assert_not_called()
 
     def test_on_submit_valid(self):
         self.chat.cmd_input.value = "GET key"
-        self.chat.cmd_input.focus = AsyncMock()
         
-        asyncio.run(self.chat.on_submit(None))
+        asyncio.run(self.chat.add_req(None))
         
         self.on_enter.assert_called_with("GET key")
         self.chat.cmd_input.focus.assert_called()
@@ -51,13 +50,26 @@ class TestChat(TestCase):
         
         self.chat.history_box.controls.append.assert_called()
     
-    def test_on_response(self):
-        self.chat.on_response("OK")
+    def test_on_submit_clear(self):
+        self.chat.cmd_input.value = "CLEAR"
         
-        self.mock_page_val.run_task.assert_called()
+        asyncio.run(self.chat.add_req(None))
         
-        task_func = self.mock_page_val.run_task.call_args[0][0]
-        asyncio.run(task_func("OK"))
+        self.chat.history_box.controls.clear.assert_called()
+        self.on_enter.assert_not_called()
+        self.chat.cmd_input.focus.assert_called()
+
+    def test_on_submit_exit(self):
+        self.chat.cmd_input.value = "EXIT"
+        
+        asyncio.run(self.chat.add_req(None))
+        
+        self.on_exit.assert_called()
+        self.on_enter.assert_not_called()
+        self.chat.cmd_input.focus.assert_called()
+
+    def test_add_res(self):
+        asyncio.run(self.chat.add_res("OK"))
         
         self.chat.history_box.controls.append.assert_called()
         self.chat.history_box.update.assert_called()
