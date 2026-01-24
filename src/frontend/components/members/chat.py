@@ -16,8 +16,12 @@ class Chat(ft.Container, PresenceChangeable):
     """
     Client-side command used to clear the visual chat history.
     """
+    EXIT_CMD: str = "EXIT"
+    """
+    Command used to enqueue the connection closing, the UI is updated synchronously.
+    """
 
-    def __init__(self, text: str, on_enter: Callable[[str], None]) -> None:
+    def __init__(self, text: str, on_enter: Callable[[str], None], exit_cmd_callback: Callable) -> None:
         """
         Initialize the Chat interface.
 
@@ -62,9 +66,10 @@ class Chat(ft.Container, PresenceChangeable):
             padding=10,
             expand=True,
         )
-        self._on_enter = on_enter
         self.cmd_input = cmd_input
         self.history_box = history_box
+        self._on_enter = on_enter
+        self._exit_cmd_callback = exit_cmd_callback
 
     async def on_submit(self, event) -> None:
         """
@@ -73,18 +78,24 @@ class Chat(ft.Container, PresenceChangeable):
         Args:
             event (obj): The event object.
         """
-        req = self.cmd_input.value
-        if not req:
+        req = self.cmd_input.value.strip()
+        if req == core.EMPTY_STR:
             return
         
-        self.cmd_input.value = ""
+        self.cmd_input.value = core.EMPTY_STR
         await self.cmd_input.focus()
         
+        # Handle special cases.
         if req.upper() == Chat.CLEAR_CMD:
             self.history_box.controls.clear()
             logger.debug("Cleaned chat history.")
             return
+        
+        if req.upper() == Chat.EXIT_CMD:
+            self._exit_cmd_callback()
+            return
 
+        # Was not a special case, forwards the request to the network layer.
         logger.debug(f"Frontend printing of the request: {req}.")
         self._on_enter(req)
         bubble = self._add_msg_bubble(req, ft.MainAxisAlignment.END, ft.Colors.BLUE_600)
