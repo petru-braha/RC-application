@@ -41,7 +41,7 @@ package "network.transport" {
 }
 
 package "network" {
-    class Transmitter {
+    abstract class Transmitter {
         + sock: Sock
         + receiver: Receiver
         + sender: Sender
@@ -51,7 +51,7 @@ package "network" {
         + fileno(): int
     }
 
-    class Identification {
+    abstract class Identification {
         + {static} DEFAULT_HOST: str
         + {static} DEFAULT_PORT: str
         + {static} DEFAULT_USER: str
@@ -61,7 +61,7 @@ package "network" {
         + say_hello(user: str, pasw: str, protver: int)
     }
 
-    class DatabaseLink {
+    abstract class DatabaseLink {
         + {static} DEFAULT_DB: str
         + {static} SELECT_CMD: str
     }
@@ -72,17 +72,20 @@ package "network" {
     }
 }
 
-' Relationships
-Communicator <|-- Receiver
-Communicator <|-- Sender
+' --- Inheritance Relationships ---
 
-Transmitter *-- Sock
-Transmitter *-- Receiver
-Transmitter *-- Sender
-Transmitter *-- Synchronizer
+Communicator <|.. Receiver
+Communicator <|.. Sender
 
 Transmitter <|-- Identification
 Identification <|-- DatabaseLink
 DatabaseLink <|-- Connection
+
+' --- Aggregation Relationships ---
+
+Transmitter o-up- "1" Sock
+Transmitter o-up- "1" Receiver
+Transmitter o-up- "1" Sender
+Transmitter o-up- "1" Synchronizer
 
 @enduml
