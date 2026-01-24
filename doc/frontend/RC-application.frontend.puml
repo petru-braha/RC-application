@@ -67,7 +67,7 @@ ModalBase <|.. UrlView
 
 ' --- Aggregation Relationships ---
 
-AgendaFrame o-up- "1" ConnBox
+AgendaFrame o-up- "*" ConnBox
 
 ChatFrame o-up- "1" Chat
 
