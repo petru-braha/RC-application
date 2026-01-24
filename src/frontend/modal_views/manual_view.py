@@ -3,14 +3,14 @@ from typing import Callable
 
 from .interfaces import ModalBase
 
-class ManualConnect(ModalBase):
+class ManualView(ModalBase):
     """
     A view for manually inputting Redis connection details (host, port, auth).
     """
 
     def __init__(self, on_continue: Callable, switch_btn: ft.Button, close_btn: ft.IconButton):
         """
-        Initialize the ManualConnect view with input fields.
+        Initialize the ManualView view with input fields.
 
         Args:
             on_continue (lambda): Callback to proceed with connection.

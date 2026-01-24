@@ -2,31 +2,25 @@ import flet as ft
 from typing import Callable
 
 from .components import PresenceChangeable
-from .modals import ManualConnect, UrlConnect
+from .modal_views import ManualView, UrlView
 
-class ModalController(ft.Container, PresenceChangeable):
+class Modal(ft.Container, PresenceChangeable):
     """
-    Handles the creation and the deletion of connections through the reactor.
-    Manages switching between Manual and URL connection modes.
-    ACTS as an overlay container (modal).
+    Though text field(s) takes connection creation details and forwards them to the reactor.
+    - url view - only one text field for the url
+    - manual view - the user has to insert the host, port, and other data
     """
 
     def __init__(self, add_conn_callback: Callable[[tuple], None]) -> None:
-        """
-        Initializes the modal controller with views for manual and URL connection modes.
-
-        Args:
-            add_conn_callback (lambda): To be called when user enters connection data and **continues**.
-        """        
         close_btn = ft.IconButton(ft.Icons.CLOSE, on_click=self.hide, tooltip="Close")
-        url_view = UrlConnect(
+        url_view = UrlView(
             on_continue=self.on_continue,
-            switch_btn=ft.Button("Switch to manual mode", on_click=self.switch_modal),
+            switch_btn=ft.Button("Switch to manual mode", on_click=self.switch_view),
             close_btn=close_btn
         )
-        manual_view = ManualConnect(
+        manual_view = ManualView(
             on_continue=self.on_continue,
-            switch_btn=ft.Button("Switch to URL mode", on_click=self.switch_modal),
+            switch_btn=ft.Button("Switch to URL mode", on_click=self.switch_view),
             close_btn=close_btn
         )
         
@@ -38,10 +32,10 @@ class ModalController(ft.Container, PresenceChangeable):
             alignment=ft.Alignment.CENTER,
             visible=False
         )
+        self.url_view = url_view
+        self.manual_view = manual_view
         self._add_conn_callback = add_conn_callback
         self._is_manual = False
-        self._url_view = url_view
-        self._manual_view = manual_view
 
     def on_continue(self, conn_data: tuple) -> None:
         """
@@ -53,16 +47,16 @@ class ModalController(ft.Container, PresenceChangeable):
         self._add_conn_callback(conn_data)
         self.hide()
     
-    def switch_modal(self, event) -> None:
+    def switch_view(self, event) -> None:
         """
-        Switches between manual and URL connection views.
+        Switches between manual and url connection views.
         
         Args:
             event (obj): The event object.
         """
         if self._is_manual:
-            self.content = self._url_view
+            self.content = self.url_view
         else:
-            self.content = self._manual_view
+            self.content = self.manual_view
         self._is_manual = not self._is_manual
         self.update()

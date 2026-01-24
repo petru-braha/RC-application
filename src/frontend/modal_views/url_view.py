@@ -7,14 +7,14 @@ from .interfaces import ModalBase
 
 logger = core.get_logger(__name__)
 
-class UrlConnect(ModalBase):
+class UrlView(ModalBase):
     """
     A view for connecting to a Redis server using a connection URL.
     """
 
     def __init__(self, on_continue: Callable, switch_btn: ft.Button, close_btn: ft.IconButton):
         """
-        Initialize the UrlConnect view.
+        Initialize the UrlView view.
 
         Args:
             on_continue (lambda): Callback to proceed with connection.

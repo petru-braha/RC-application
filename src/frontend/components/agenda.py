@@ -22,7 +22,7 @@ class Agenda(ft.Column):
             controls=[list_view],
             expand=True,
         )
-        self.list_view = list_view
+        self.conn_boxes = list_view
 
     def add_box(self, conn_box: ConnBox) -> None:
         """
@@ -33,7 +33,7 @@ class Agenda(ft.Column):
         Args:
             conn_box (obj): The connection box to add.
         """
-        self.list_view.controls.append(conn_box)
+        self.conn_boxes.controls.append(conn_box)
         self.update()
 
     def rem_box(self, conn_box: ConnBox) -> None:
@@ -48,5 +48,5 @@ class Agenda(ft.Column):
         Raises:
             ValueError: If the value is not present.
         """
-        self.list_view.controls.remove(conn_box)
+        self.conn_boxes.controls.remove(conn_box)
         self.update()

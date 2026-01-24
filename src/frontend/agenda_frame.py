@@ -16,7 +16,7 @@ class AgendaFrame(ft.Container):
         )
         super().__init__(
             content=content,
-            width=350,
+            width=250,
             bgcolor=ft.Colors.BLUE_GREY_900,
             padding=10,
         )
