@@ -5,7 +5,7 @@ from .processor import process_output, is_init_command, validate_init_cmd_output
 
 logger = core.get_logger(__name__)
 
-def handle_read(addr: core.Addr, receiver: Receiver, last_raw_cmd: str, all_sent: bool) -> str:
+def handle_read(addr: core.Addr, receiver: Receiver, last_raw_cmd: str, all_sent: bool | None) -> str:
     """
     Reads from the socket, decodes data, and updates history.
 
@@ -31,8 +31,8 @@ def handle_read(addr: core.Addr, receiver: Receiver, last_raw_cmd: str, all_sent
     if all_sent != True:
         raise core.PartialRequestError("The request is not completely sent")
     
+    initial_buf_idx = receiver._idx
     try:
-        initial_buf_idx = receiver._idx
         output = process_output(receiver)
         if is_init_command(last_raw_cmd):
             validate_init_cmd_output(last_raw_cmd, output)
@@ -57,5 +57,5 @@ def _handle_recv(receiver: Receiver, addr: core.Addr) -> None:
     except BlockingIOError:
         logger.warning("Receiving would block.")
     except ConnectionError as e:
-        logger.error(f"Error receiving data from {connection.addr}: {e}.")
+        logger.error(f"Error receiving data from {addr}: {e}.")
         raise

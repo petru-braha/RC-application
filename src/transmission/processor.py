@@ -34,7 +34,7 @@ def process_input(input_str: str) -> bytes:
     encoded = encoder(cmd, argv)
     return encoded.encode(core.ASCII_ENC)
 
-def process_output(receiver: Receiver) -> str:
+def process_output(receiver: Receiver) -> Output:
     """
     Processes the output string by decoding it and formatting it.
     
