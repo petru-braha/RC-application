@@ -1,7 +1,7 @@
 import flet as ft
 from typing import Callable
 
-from .components import PresenceChangeable
+from .interfaces import PresenceChangeable
 from .modal_views import ManualView, UrlView
 
 class Modal(ft.Container, PresenceChangeable):

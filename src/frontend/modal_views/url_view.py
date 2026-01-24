@@ -2,8 +2,7 @@ import flet as ft
 from typing import Callable
 
 import core
-
-from .interfaces import ModalBase
+from frontend import ModalBase
 
 logger = core.get_logger(__name__)
 
