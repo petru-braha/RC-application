@@ -7,7 +7,7 @@ from network import Connection
 from .components import Agenda, ConnBox
 from .agenda_frame import AgendaFrame
 from .chat_frame import ChatFrame
-from .modal_controller import ModalController
+from .modal import Modal
 
 logger = core.get_logger(__name__)
 
@@ -18,11 +18,11 @@ class Layout(ft.Stack):
     
     def __init__(self, add_conn_callback: Callable[[tuple], None]) -> None:
         """
-        Initializes the layout controls, including Agenda, ChatFrame, and ModalController.
+        Initializes the layout controls, including Agenda, ChatFrame, and Modal.
         """
         agenda = Agenda()
         chat_frame = ChatFrame()
-        modal_controller = ModalController(add_conn_callback=add_conn_callback)
+        modal_controller = Modal(add_conn_callback=add_conn_callback)
         connect_btn = ft.Button("Connect", on_click=modal_controller.show)
         
         controls = [

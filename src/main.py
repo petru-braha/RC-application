@@ -31,9 +31,12 @@ def build_page(page: ft.Page) -> None:
         
         page.window.on_event = handle_close
         page.window.prevent_close = True
+        page.window.width = 800
+        page.window.height = 600
+        page.window.resizable = False
         page.theme_mode = ft.ThemeMode.DARK
         page.title = "RC-application"
-
+        
         # Handles OS intrusions gracefully.
         # Similar to a regular container.
         reactor_client = ReactorClient(reactor)

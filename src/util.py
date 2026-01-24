@@ -48,7 +48,7 @@ def add_conn(conn_data: tuple, reactor_client: ReactorClient, layout: Layout) ->
     rem_conn_callback = lambda: rem_conn(conn, reactor_client, layout)
 
     conn_box = ConnBox(
-        text=conn_host,
+        text=conn_host.split(".")[0],
         on_click=lambda: layout.chat_frame.sel_chat(chat),
         on_close=rem_conn_callback)
     layout.agenda.add_box(conn_box)

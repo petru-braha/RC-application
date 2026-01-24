@@ -32,7 +32,7 @@ class Chat(ft.Container, PresenceChangeable):
         cmd_input = ft.TextField(
             hint_text="Type a command.",
             autofocus=True,
-            on_submit=self.on_submit)
+            on_submit=self.add_req)
         
         history_box = ft.ListView(
             expand=True,
@@ -71,7 +71,7 @@ class Chat(ft.Container, PresenceChangeable):
         self._on_enter = on_enter
         self._exit_cmd_callback = exit_cmd_callback
 
-    async def on_submit(self, event) -> None:
+    async def add_req(self, event) -> None:
         """
         Handles the submission of a new command from the input field.
 
@@ -137,7 +137,7 @@ class Chat(ft.Container, PresenceChangeable):
                 padding=10,
                 border_radius=10,
                 bgcolor=bgcolor,
-                width=400,
+                width=300,
                 ink=True
             )],
             alignment=alignment,
