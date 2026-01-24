@@ -32,10 +32,10 @@ class Modal(ft.Container, PresenceChangeable):
             alignment=ft.Alignment.CENTER,
             visible=False
         )
+        self.is_manual = False
         self.url_view = url_view
         self.manual_view = manual_view
         self._add_conn_callback = add_conn_callback
-        self._is_manual = False
 
     def on_continue(self, conn_data: tuple) -> None:
         """
@@ -54,9 +54,9 @@ class Modal(ft.Container, PresenceChangeable):
         Args:
             event (obj): The event object.
         """
-        if self._is_manual:
+        if self.is_manual:
             self.content = self.url_view
         else:
             self.content = self.manual_view
-        self._is_manual = not self._is_manual
+        self.is_manual = not self.is_manual
         self.update()
