@@ -1,0 +1,65 @@
+@startuml
+skinparam classAttributeIconSize 0
+set namespaceSeparator none
+
+class ConnBox {
+}
+
+class Agenda {
+  +conn_boxes: ListView
+  +add_box(conn_box: ConnBox)
+  +rem_box(conn_box: ConnBox)
+}
+
+class AgendaFrame {
+  +agenda: Agenda
+  +connect_btn: Button
+}
+
+class Chat {
+  +cmd_input: TextField
+  +history_box: Container
+  +add_req()
+  +add_res(res: str)
+}
+
+class ChatFrame {
+  +default_layer: Column
+  +sel_chat(chat: Chat)
+  +rem_chat()
+}
+
+class Layout {
+  +agendaFrame: AgendaFrame
+  +chat_frame: ChatFrame
+  +modal_controller: ModalController
+}
+
+class ManualView {
+}
+
+class UrlView {
+}
+
+class ModalController {
+  +url_view: UrlView
+  +manual_view: ManualView
+  +switch_view()
+}
+
+' --- Aggregation Relationships ---
+
+Agenda o-up- "*" ConnBox
+
+AgendaFrame o-up- "*" Agenda
+
+ChatFrame o-up- "*" Chat
+
+Layout o-up- "*" AgendaFrame
+Layout o-up- "*" ChatFrame
+Layout o-up- "*" ModalController
+
+ModalController o-up- "*" ManualView
+ModalController o-up- "*" UrlView
+
+@enduml
