@@ -31,5 +31,5 @@ class Connection(DatabaseLink):
         self.sock.close()
         Connection.count -= 1
     
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.addr)

@@ -38,7 +38,7 @@ class Reactor:
     They provide the possibility to print to the user's screen the network outputs.
     """
     
-    def __init__(self, page: ft.Page | None = None):
+    def __init__(self, page: ft.Page | None = None) -> None:
         """
         Args:
             page (obj): The frontend page, if the application was launched in GUI mode.
@@ -46,14 +46,14 @@ class Reactor:
         Raises:
             TypeError: if the application was launched in GUI mode and the page was not provided.
         """
-        ChatType = None
-        if not core.IS_CLI:
-            ChatType = Chat
-            if page is None:
-                raise TypeError("The page must be provided in GUI mode")
+        # Both must be of the same value.
+        # i.e. CLI and no page / GUI and page.
+        if core.IS_CLI != page is None:
+            raise TypeError("The page must be provided (only) in GUI mode")
         
         self.page = page
-        self.conn_chat_dict: dict[Connection, ChatType] = {}
+
+        self.conn_chat_dict: dict[Connection, Chat | None] = {}
     
         self.selector = selectors.DefaultSelector()
         self.connections_to_reg: deque[Connection] = deque()
