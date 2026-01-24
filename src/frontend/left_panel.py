@@ -11,9 +11,9 @@ class LeftPanel(ft.Container):
         content = ft.Column([
             agenda,
             ft.Divider(),
-            ft.Row([connect_btn], alignment=ft.MainAxisAlignment.CENTER),
-        ], expand=True)
-
+            ft.Row([connect_btn], alignment=ft.MainAxisAlignment.CENTER)],
+            expand=True
+        )
         super().__init__(
             content=content,
             width=350,

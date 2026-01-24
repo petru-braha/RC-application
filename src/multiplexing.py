@@ -14,11 +14,10 @@ from network import Connection
 import transmission
 
 from reactor import Reactor
-from util import uninterruptible
 
 logger = core.get_logger(__name__)
 
-@uninterruptible
+@core.uninterruptible
 def loop_multiplexing(stay_alive: Event, reactor: Reactor, timeout: float | None = None) -> None:
     """
     The socket selection loop.
@@ -91,11 +90,12 @@ class _Multiplexer:
 
         events = self.reactor.selector.select(self.timeout)
         for key, mask in events:
-            try:
-                connection = key.fileobj
-                assert isinstance(connection, Connection)
-                chat = self.reactor.conn_chat_dict[connection]
             
+            connection = key.fileobj
+            assert isinstance(connection, Connection)
+            chat = self.reactor.conn_chat_dict[connection]
+            
+            try:
                 if mask & EVENT_READ:
                     self.sel_readable(connection, chat)
                 if mask & EVENT_WRITE:
@@ -106,6 +106,7 @@ class _Multiplexer:
                 logger.info("Removing the connection.")
                 self.reactor.rem_connection(connection)
                 continue
+            
             except Exception as e:
                 logger.error(f"Failed to handle event for connection {connection.addr}: {e}.", exc_info=True)
                 continue

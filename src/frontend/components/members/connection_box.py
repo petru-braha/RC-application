@@ -24,7 +24,6 @@ class ConnectionBox(ft.Container):
                 on_click=on_close
             )
         ])
-
         super().__init__(
             content=content,
             width=200,

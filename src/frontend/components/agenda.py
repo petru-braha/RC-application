@@ -11,7 +11,7 @@ class Agenda(ft.Column):
         """
         Initialize the Agenda with a scrollable list view.
         """
-        self.list_view = ft.ListView(
+        list_view = ft.ListView(
             expand=True,
             spacing=10,
             padding=10,
@@ -19,9 +19,10 @@ class Agenda(ft.Column):
             scroll=ft.ScrollMode.AUTO,
         )
         super().__init__(
-            controls=[self.list_view],
+            controls=[list_view],
             expand=True,
         )
+        self.list_view = list_view
 
     def add_box(self, connection_box: ConnectionBox) -> None:
         """

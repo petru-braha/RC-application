@@ -18,7 +18,6 @@ import selectors
 import core
 from frontend import Chat
 from network import Connection
-from util import uninterruptible
 
 logger = core.get_logger(__name__)
 
@@ -90,6 +89,7 @@ class Reactor:
         """
         try:
             self.selector.unregister(connection)
+            self.conn_chat_dict.pop(connection)
         except (KeyError, ValueError) as e:
             logger.error(f"Failed to remove connection {connection.addr}: {e}.")
         else:
@@ -102,7 +102,7 @@ class Reactor:
     # Doing `multiplexing_event.clear()` sends a signal to the multiplexing thread.
     # It will elegantly finish its last iteration before running the below function.
     # After all resources are cleared then the page is closed and destroyed.
-    @uninterruptible
+    @core.uninterruptible
     def close_resources(self) -> None:
         """
         Removes any active connections and the selector.
@@ -123,14 +123,14 @@ class Reactor:
             if connections_to_add_len > 0:
                 logger.warning(f"Ignoring and closing {connections_to_add_len} connections enqueued to be added.")
             for connection in self.connections_to_reg:
-                logger.debug(f"Leftover connection: {connection}.")
+                logger.debug(f"Ignoring connection: {connection}.")
                 connection.close()
     
             connections_to_rem_len = len(self.connections_to_rem)
             if connections_to_rem_len > 0:
                 logger.warning(f"Removing {connections_to_rem_len} connections enqueued to be removed.")
             for connection in self.connections_to_rem:
-                logger.debug(f"Leftover connection: {connection}.")
+                logger.debug(f"Removing connection: {connection}.")
                 self.rem_connection(connection)
     
             self.selector.close()

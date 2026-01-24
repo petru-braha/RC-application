@@ -2,7 +2,6 @@ import flet as ft
 from typing import Callable
 
 import core
-from util import process_redis_url
 
 from .interfaces import ModalBase
 
@@ -13,7 +12,7 @@ class UrlConnect(ModalBase):
     A view for connecting to a Redis server using a connection URL.
     """
 
-    def __init__(self, on_continue: Callable, switch_btn: ft.Button, close_btn: ft.Button):
+    def __init__(self, on_continue: Callable, switch_btn: ft.Button, close_btn: ft.IconButton):
         """
         Initialize the UrlConnect view.
 
@@ -63,7 +62,7 @@ class UrlConnect(ModalBase):
         url = self.url_input.value
         self.url_input.value = ""
         try:
-            components = process_redis_url(url)
+            components = core.process_redis_url(url)
         except ValueError as err:
             logger.error(f"Invalid url, {err}.")
             return
