@@ -7,7 +7,7 @@ from .interfaces import PresenceChangeable
 
 logger = core.get_logger(__name__)
 
-class Chat(ft.Container, PresenceChangeable):
+class Chat(ft.Container):
     """
     A chat Interface container that displays the command history in a request-response format.
     """

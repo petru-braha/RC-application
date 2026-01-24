@@ -51,7 +51,7 @@ def add_conn(conn_data: tuple, reactor_client: ReactorClient, layout: Layout) ->
         text=conn_host.split(".")[0],
         on_click=lambda: layout.chat_frame.sel_chat(chat),
         on_close=rem_conn_callback)
-    layout.agenda.add_box(conn_box)
+    layout.agenda_frame.add_box(conn_box)
     layout.conn_boxes_dict[conn] = conn_box
 
     chat = Chat(
@@ -72,5 +72,5 @@ def rem_conn(conn: Connection, reactor_client: ReactorClient, layout: Layout) ->
     """
     reactor_client.enqueue_close_conn(conn)
     conn_box = layout.conn_boxes_dict[conn]
-    layout.agenda.rem_box(conn_box)
+    layout.agenda_frame.rem_box(conn_box)
     layout.chat_frame.rem_chat()

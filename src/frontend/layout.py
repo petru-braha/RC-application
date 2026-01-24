@@ -4,7 +4,7 @@ from typing import Callable
 import core
 from network import Connection
 
-from .components import Agenda, ConnBox
+from .components import ConnBox
 from .agenda_frame import AgendaFrame
 from .chat_frame import ChatFrame
 from .modal import Modal
@@ -20,21 +20,20 @@ class Layout(ft.Stack):
         """
         Initializes the layout controls, including Agenda, ChatFrame, and Modal.
         """
-        agenda = Agenda()
+        modal = Modal(add_conn_callback=add_conn_callback)
+        agenda_frame = AgendaFrame(show_modal_callback=modal.show)
         chat_frame = ChatFrame()
-        modal_controller = Modal(add_conn_callback=add_conn_callback)
-        connect_btn = ft.Button("Connect", on_click=modal_controller.show)
         
         controls = [
             ft.Row(
-                [AgendaFrame(agenda, connect_btn), chat_frame],
+                [agenda_frame, chat_frame],
                 expand=True),
-            modal_controller,
+            modal,
         ]
         super().__init__(
             controls=controls,
             expand=True
         )
-        self.agenda = agenda
+        self.agenda_frame = agenda_frame
         self.chat_frame = chat_frame
         self.conn_boxes_dict: dict[Connection, ConnBox] = {}
