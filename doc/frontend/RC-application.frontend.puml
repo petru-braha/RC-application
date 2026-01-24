@@ -36,6 +36,7 @@ class ChatFrame {
 class Layout {
   +agenda_frame: AgendaFrame
   +chat_frame: ChatFrame
+  +modal: Modal
   +conn_boxes_dict: dict
 }
 
@@ -66,15 +67,15 @@ ModalBase <|.. UrlView
 
 ' --- Aggregation Relationships ---
 
-AgendaFrame o-up- "*" ConnBox
+AgendaFrame o-up- "1" ConnBox
 
-ChatFrame o-up- "*" Chat
+ChatFrame o-up- "1" Chat
 
-Layout o-up- "*" AgendaFrame
-Layout o-up- "*" ChatFrame
-Layout o-up- "*" Modal
+Layout o-up- "1" AgendaFrame
+Layout o-up- "1" ChatFrame
+Layout o-up- "1" Modal
 
-Modal o-up- "*" ManualView
-Modal o-up- "*" UrlView
+Modal o-up- "1" ManualView
+Modal o-up- "1" UrlView
 
 @enduml
