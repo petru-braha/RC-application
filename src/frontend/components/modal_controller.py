@@ -65,4 +65,4 @@ class ModalController(ft.Container, PresenceChangeable):
         else:
             self.content = self._manual_view
         self._is_manual = not self._is_manual
-        self.page.update()
+        self.update()

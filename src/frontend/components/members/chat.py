@@ -20,28 +20,24 @@ class Chat(ft.Container, PresenceChangeable):
             text (str): The initial text to display in the header (e.g. connection address).
             on_enter (lambda): Callback function to handle command submission.
         """
-        self._on_enter = on_enter
-        self.history_box = ft.ListView(
+        cmd_input = ft.TextField(
+            hint_text="Type a command.",
+            autofocus=True,
+            on_submit=self.on_submit)
+        
+        history_box = ft.ListView(
             expand=True,
             auto_scroll=True,
             spacing=10,
             scroll=ft.ScrollMode.AUTO,
         )
         
-        self.cmd_input = ft.TextField(
-            hint_text="Type a command.",
-            autofocus=True,
-            on_submit=self.on_submit)
-        
         header = ft.Container(
-            content=ft.Row(
-                [
-                    ft.Text(text, 
-                        color=ft.Colors.WHITE, 
-                        selectable=True,
-                        weight=ft.FontWeight.BOLD
-                    )
-                ],
+            content=ft.Row([
+                ft.Text(text, 
+                    color=ft.Colors.WHITE, 
+                    selectable=True,
+                    weight=ft.FontWeight.BOLD)],
                 alignment=ft.MainAxisAlignment.CENTER
             ),
             bgcolor=ft.Colors.BLUE_GREY_700,
@@ -49,20 +45,21 @@ class Chat(ft.Container, PresenceChangeable):
             border_radius=5,
         )
         content = ft.Column([
-                header,
-                self.history_box,
-                ft.Divider(),
-                ft.Row([self.cmd_input], alignment=ft.MainAxisAlignment.CENTER)
-            ],
+            header,
+            history_box,
+            ft.Divider(),
+            ft.Row([cmd_input], alignment=ft.MainAxisAlignment.CENTER)],
             expand=True
         )
-
         super().__init__(
             content=content,
             bgcolor=ft.Colors.BLUE_GREY_900,
             padding=10,
             expand=True,
         )
+        self._on_enter = on_enter
+        self.cmd_input = cmd_input
+        self.history_box = history_box
 
     async def on_submit(self, event) -> None:
         """
@@ -113,16 +110,14 @@ class Chat(ft.Container, PresenceChangeable):
         Returns:
             ft.Row: The formatted row containing the message bubble.
         """
-        return ft.Row(
-            [
-                ft.Container(
-                    content=ft.Text(text, color=ft.Colors.WHITE, selectable=True),
-                    padding=10,
-                    border_radius=10,
-                    bgcolor=bgcolor,
-                    width=400,
-                    ink=True
-                )
-            ],
+        return ft.Row([
+            ft.Container(
+                content=ft.Text(text, color=ft.Colors.WHITE, selectable=True),
+                padding=10,
+                border_radius=10,
+                bgcolor=bgcolor,
+                width=400,
+                ink=True
+            )],
             alignment=alignment,
         )

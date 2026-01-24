@@ -29,7 +29,6 @@ class ChatFrame(ft.Container):
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
             expand=True
         )
-    
         super().__init__(
             content=default_layer,
             expand=True
