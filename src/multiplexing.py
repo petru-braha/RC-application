@@ -17,7 +17,6 @@ from reactor import Reactor
 
 logger = core.get_logger(__name__)
 
-@core.uninterruptible
 def loop_multiplexing(stay_alive: Event, reactor: Reactor, timeout: float | None = None) -> None:
     """
     The socket selection loop.
@@ -50,6 +49,7 @@ class _Multiplexer:
         self.timeout = timeout if timeout is not None else _Multiplexer.DEFAULT_TIMEOUT
         self.loop()
 
+    @core.uninterruptible
     def loop(self) -> None:
         """
         Starts the event loop.

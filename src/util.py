@@ -9,17 +9,24 @@ from reactor import ReactorClient
 logger = core.get_logger(__name__)
 
 @core.uninterruptible
-async def close_page(multiplexing_event: Event, page: ft.Page) -> None:
+async def shutdown_app(multiplexing_event: Event, page: ft.Page | None = None) -> None:
     """
-    Handlers that closes the resources, and page.
+    Sends an event signal to the multiplexing loop to stop, and closes the page.
     
     Args:
-        multiplexing_event: Event
-        page
+        multiplexing_event (obj): The signalling event for the multiplexing loop.
+        page (obj): The page to destroy and close.
+    
+    Raises:
+        AssertionError: If the page is not provided in GUI mode.
     """
     logger.info("Closing application...")
     multiplexing_event.clear()
     
+    if core.IS_CLI:
+        return
+    
+    assert page is not None
     page.window.prevent_close = False
     page.window.on_event = None
     await page.window.destroy()
