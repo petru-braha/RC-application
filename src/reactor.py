@@ -98,7 +98,7 @@ class Reactor:
             conn.close()
             logger.info(f"Closed connection {conn.addr}.")
 
-    # See main.py --- `close_page()`.
+    # See main.py --- `shutdown_app()`.
     # Doing `multiplexing_event.clear()` sends a signal to the multiplexing thread.
     # It will elegantly finish its last iteration before running the below function.
     # After all resources are cleared then the page is closed and destroyed.

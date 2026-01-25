@@ -6,7 +6,7 @@ from frontend import Layout
 
 from reactor import Reactor, ReactorClient
 from multiplexing import loop_multiplexing
-from util import close_page, add_conn
+from util import shutdown_app, add_conn
 
 
 logger = core.get_logger(__name__)
@@ -27,7 +27,7 @@ def build_page(page: ft.Page) -> None:
         
         async def handle_close(event: ft.WindowEvent | None) -> None:
             if event is None or event.data == "close" or event.type == ft.WindowEventType.CLOSE:
-               await close_page(multiplexing_event, page)
+               await shutdown_app(multiplexing_event, page)
         
         page.window.on_event = handle_close
         page.window.prevent_close = True
