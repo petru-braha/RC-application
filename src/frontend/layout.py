@@ -1,34 +1,39 @@
-import flet as ft 
+import flet as ft
+from typing import Callable
 
-from .components import Agenda, ChatFrame, ModalController
-from .left_panel import LeftPanel
+import core
+from network import Connection
+
+from .components import ConnBox
+from .agenda_frame import AgendaFrame
+from .chat_frame import ChatFrame
+from .modal import Modal
+
+logger = core.get_logger(__name__)
 
 class Layout(ft.Stack):
     """
     Configures and arranges the main semantic sections of the application.
     """
     
-    def __init__(self) -> None:
+    def __init__(self, add_conn_callback: Callable[[tuple], None]) -> None:
         """
-        Initializes the layout controls, including Agenda, ChatFrame, and ModalController.
+        Initializes the layout controls, including Agenda, ChatFrame, and Modal.
         """
-
-        agenda = Agenda()
+        modal = Modal(add_conn_callback=add_conn_callback)
+        agenda_frame = AgendaFrame(show_modal_callback=modal.show)
         chat_frame = ChatFrame()
-        modal_controller = ModalController(
-            on_agenda_add=agenda.add_box,
-            on_agenda_rem=agenda.rem_box,
-            on_chat_sel=chat_frame.sel_chat,
-            on_chat_rem=chat_frame.rem_chat)
-        connect_button = ft.Button("Connect", on_click=modal_controller.show)
         
-        controls: list[ft.Control] = [
+        controls = [
             ft.Row(
-                [LeftPanel(agenda, connect_button), chat_frame],
+                [agenda_frame, chat_frame],
                 expand=True),
-            modal_controller,
+            modal,
         ]
         super().__init__(
             controls=controls,
             expand=True
         )
+        self.agenda_frame = agenda_frame
+        self.chat_frame = chat_frame
+        self.conn_boxes_dict: dict[Connection, ConnBox] = {}

@@ -1,21 +1,21 @@
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
-from src.frontend.components.modals.url_connect import UrlConnect
+from src.frontend.modal_views.url_view import UrlView
 
 class TestUrlConnect(TestCase):
     
+    process_patcher = patch("src.frontend.modal_views.url_view.core.process_redis_url")
+    
     def setUp(self):
-        self.process_patcher = patch("src.frontend.components.modals.url_connect.process_redis_url")
-        self.mock_process = self.process_patcher.start()
-        self.addCleanup(self.process_patcher.stop)
-        
+        self.mock_process = TestUrlConnect.process_patcher.start()
         self.on_continue = MagicMock()
         self.switch_btn = MagicMock()
         self.close_btn = MagicMock()
-        
-        self.modal = UrlConnect(self.on_continue, self.switch_btn, self.close_btn)
-        self.modal._page = MagicMock()
+        self.modal = UrlView(self.on_continue, self.switch_btn, self.close_btn)
+    
+    def tearDown(self) -> None:
+        TestUrlConnect.process_patcher.stop()
 
     def test_init(self):
         self.assertTrue(self.modal.content)

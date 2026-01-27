@@ -1,12 +1,12 @@
 from unittest import TestCase
 from unittest.mock import MagicMock, patch, PropertyMock
 
-from src.frontend.components.members.interfaces import PresenceChangeable
+from frontend.interfaces import PresenceChangeable
 
 class TestPresenceChangeable(TestCase):
     
     def test_show_hide(self):
-        # Create a dummy class inheriting from PresenceChangeable
+        # Create a dummy class inheriting from PresenceChangeable.
         class Dummy(PresenceChangeable):
             def __init__(self):
                 self._page = MagicMock()
@@ -17,12 +17,12 @@ class TestPresenceChangeable(TestCase):
 
         dummy = Dummy()
         
-        # Test show
+        # Test show.
         dummy.show()
         self.assertTrue(dummy.visible)
         dummy.page.update.assert_called()
         
-        # Test hide
+        # Test hide.
         dummy.hide()
         self.assertFalse(dummy.visible)
         dummy.page.update.assert_called()

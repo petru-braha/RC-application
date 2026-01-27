@@ -1,16 +1,16 @@
 import flet as ft
 from typing import Callable
 
-from .interfaces import ModalBase
+from frontend import ModalBase
 
-class ManualConnect(ModalBase):
+class ManualView(ModalBase):
     """
     A view for manually inputting Redis connection details (host, port, auth).
     """
 
-    def __init__(self, on_continue: Callable, switch_btn: ft.Control, close_btn: ft.Control):
+    def __init__(self, on_continue: Callable, switch_btn: ft.Button, close_btn: ft.IconButton):
         """
-        Initialize the ManualConnect view with input fields.
+        Initialize the ManualView view with input fields.
 
         Args:
             on_continue (lambda): Callback to proceed with connection.
@@ -66,5 +66,5 @@ class ManualConnect(ModalBase):
         user = self.user_input.value
         pasw = self.pass_input.value
         db_idx = self.db_input.value
-        connection_data = (host, port, user, pasw, db_idx)
-        self._on_continue_callback(connection_data)
+        conn_data = (host, port, user, pasw, db_idx)
+        self._on_continue_callback(conn_data)
