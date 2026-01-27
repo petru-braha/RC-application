@@ -10,7 +10,7 @@ import os
 import sys
 
 from .constants import StageEnum
-from .util import LogCompressor
+from .log_compressor import LogCompressor
 
 __all__ = ["IS_CLI", "STAGE", "TLS_ENFORCED", "MAX_CONNECTIONS",
            "FILE_HANDLER", "STDOUT_HANDLER", "STDERR_HANDLER"]

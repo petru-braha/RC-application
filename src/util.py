@@ -1,75 +1,83 @@
-from functools import wraps
-from typing import Callable
-from urllib.parse import urlparse
+import flet as ft
+from threading import Event
 
 import core
+from frontend import Chat, ConnBox, Layout
+from network import Connection
+from reactor import ReactorClient
 
 logger = core.get_logger(__name__)
 
-def process_redis_url(url: str, tls_enforced: bool = core.TLS_ENFORCED) -> tuple[str, str, str, str, str]:
+@core.uninterruptible
+async def shutdown_app(multiplexing_event: Event, page: ft.Page | None = None) -> None:
     """
-    Processes and extracts data from a Redis URL string.
+    Sends an event signal to the multiplexing loop to stop, and closes the page.
     
-    Format: redis[s]://[[username][:password]@][host][:port][/db-number]
-    See more: https://docs.python.org/3/library/urllib.parse.html#url-parsing
+    Args:
+        multiplexing_event (obj): The signalling event for the multiplexing loop.
+        page (obj): The page to destroy and close.
+    
+    Raises:
+        AssertionError: If the page is not provided in GUI mode.
+    """
+    logger.info("Closing application...")
+    multiplexing_event.clear()
+    
+    if core.IS_CLI:
+        return
+    
+    assert page is not None
+    page.window.prevent_close = False
+    page.window.on_event = None
+    await page.window.destroy()
+    await page.window.close()
+
+def add_conn(conn_data: tuple, reactor_client: ReactorClient, layout: Layout) -> None:
+    """
+    Receives the connection details and creates a new Connection.
+    Sets up UI components (Chat, ConnBox), and enqueues the connection to the reactor.
+    
+    Args:
+        conn_data (arr): A tuple containing connection arguments (host, port, user, pass, db).
+        reactor_client (obj): The enqueuer of the connection creation.
+        layout (obj): The application layout.
+    """
+    try:
+        # We get the connection object but it remains in read mode.
+        conn = reactor_client.enqueue_new_conn(conn_data)
+    except core.ConnectionCountError:
+        logger.error(
+            "Can not add a new connection.\n"
+            "Remove old connections or restart the application with a new \".env\" configuration.")
+        return
+    
+    conn_host = conn_data[0]
+    rem_conn_callback = lambda: rem_conn(conn, reactor_client, layout)
+
+    conn_box = ConnBox(
+        text=conn_host.split(".")[0],
+        on_click=lambda: layout.chat_frame.sel_chat(chat),
+        on_close=rem_conn_callback)
+    layout.agenda_frame.add_box(conn_box)
+    layout.conn_boxes_dict[conn] = conn_box
+
+    chat = Chat(
+        text=conn_host,
+        on_enter=lambda cmd: reactor_client.enqueue_cmd(conn, cmd),
+        exit_cmd_callback=rem_conn_callback)
+    layout.chat_frame.sel_chat(chat)
+    reactor_client.bind_chat(conn, chat)
+
+def rem_conn(conn: Connection, reactor_client: ReactorClient, layout: Layout) -> None:
+    """
+    Enqueues a connection to be unregistered, closed, and removed from the UI.
 
     Args:
-        url (str): A string representing the Redis connection URL.
-    
-    Returns:
-        arr: A five-string tuple contaning the connection information.
-
-    Raises:
-        ValueError: For invalid URL scheme or malformed URL.
-        ConnecterError: If the connection to the server fails.
+        conn (obj): The connection to be removed.
+        reactor_client (obj): The enqueuer of the connection creation.
+        layout (obj): The application layout.
     """
-    logger.debug(f"Processing Redis URL: {url}.")
-    parsed = urlparse(url)
-
-    if parsed.scheme not in core.SCHEME_LIST:
-        raise ValueError(f"Invalid url scheme: '{parsed.scheme}'")
-    if tls_enforced and parsed.scheme == core.SCHEME_LIST[0]:
-        raise ValueError("TLS is enforced, and an invalid scheme was provided.")
-
-    host = parsed.hostname if parsed.hostname else core.EMPTY_STR
-    port = str(parsed.port) if parsed.port else core.EMPTY_STR
-    user = parsed.username if parsed.username else core.EMPTY_STR
-    pasw = parsed.password if parsed.password else core.EMPTY_STR
-
-    # Extraction of logical database index (the path segment).
-    # Redis URLs typically use /0, /1, etc.
-    db_idx = core.EMPTY_STR
-    if parsed.path:
-        # Strip leading slash, and check if the integer is valid.
-        db_idx = parsed.path.lstrip('/')
-        
-    if db_idx != core.EMPTY_STR:
-        try:
-            int(db_idx)
-        except ValueError:
-            raise ValueError(
-                f"Invalid database index: '{parsed.path}'; must be an integer"
-            )
-    
-    # Do not log the password, sensitive data.
-    logger.debug(f"Url connection details: host={host}, port={port}, user={user}, db={db_idx}")
-    return (host, port, user, pasw, db_idx)
-
-def uninterruptible(func: Callable) -> Callable:
-    """
-    Decorator to make a function uninterruptible.
-    Catches system signals (like KeyboardInterrupt) and retries the execution,
-    ensuring the operation completes unless a standard Exception occurs.
-    """
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        while True:
-            try:
-                return func(*args, **kwargs)
-            except Exception:
-                # Allow standard exceptions (ValueError, TypeError, etc.) to propagate.
-                raise
-            except BaseException as e:
-                # Catch signals (KeyboardInterrupt, SystemExit) and retry.
-                logger.error(f"func: {func.__name__} interrupted by {e!r}. Retrying...")
-    return wrapper
+    reactor_client.enqueue_close_conn(conn)
+    conn_box = layout.conn_boxes_dict[conn]
+    layout.agenda_frame.rem_box(conn_box)
+    layout.chat_frame.rem_chat()
