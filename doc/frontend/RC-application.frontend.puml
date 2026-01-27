@@ -1,0 +1,81 @@
+@startuml
+skinparam classAttributeIconSize 0
+set namespaceSeparator none
+
+interface PresenceChangeable {
+  +show()
+  +hide()
+}
+
+interface ModalBase {
+}
+
+class ConnBox {
+}
+
+class AgendaFrame {
+  +conn_boxes: ListView
+  +connect_btn: Button
+  +add_box(conn_box: ConnBox)
+  +rem_box(conn_box: ConnBox)
+}
+
+class Chat {
+  +cmd_input: TextField
+  +history_box: Container
+  +add_req()
+  +add_res(res: str)
+}
+
+class ChatFrame {
+  +default_layer: Column
+  +sel_chat(chat: Chat)
+  +rem_chat()
+}
+
+class Layout {
+  +agenda_frame: AgendaFrame
+  +chat_frame: ChatFrame
+  +modal: Modal
+  +conn_boxes_dict: dict
+}
+
+class ManualView {
+  +host_input: TextField
+  +port_input: TextField
+  +user_input: TextField
+  +pass_input: TextField
+  +db_input: TextField
+}
+
+class UrlView {
+  +url_input: TextField
+}
+
+class Modal {
+  +url_view: UrlView
+  +manual_view: ManualView
+  +switch_view()
+}
+
+' --- Inheritance Relationships ---
+
+PresenceChangeable <|.. Modal
+
+ModalBase <|.. ManualView
+ModalBase <|.. UrlView
+
+' --- Aggregation Relationships ---
+
+AgendaFrame o-up- "*" ConnBox
+
+ChatFrame o-up- "1" Chat
+
+Layout o-up- "1" AgendaFrame
+Layout o-up- "1" ChatFrame
+Layout o-up- "1" Modal
+
+Modal o-up- "1" ManualView
+Modal o-up- "1" UrlView
+
+@enduml
