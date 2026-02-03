@@ -7,36 +7,47 @@
     A structured, quality-driven Redis GUI client built with rigourous planning, testing, and documentation in mind.
   </p>
 
-<p>
-  <a href="https://github.com/petru-braha/RC-application/graphs/contributors">
-    <img src="https://img.shields.io/github/contributors/petru-braha/RC-application" alt="contributors" />
-  </a>
-  <a href="">
-    <img src="https://img.shields.io/github/last-commit/petru-braha/RC-application" alt="last update" />
-  </a>
-  <a href="https://github.com/petru-braha/RC-application/network/members">
-    <img src="https://img.shields.io/github/forks/petru-braha/RC-application" alt="forks" />
-  </a>
-  <a href="https://github.com/petru-braha/RC-application/stargazers">
-    <img src="https://img.shields.io/github/stars/petru-braha/RC-application" alt="stars" />
-  </a>
-  <a href="https://github.com/petru-braha/RC-application/issues/">
-    <img src="https://img.shields.io/github/issues/petru-braha/RC-application" alt="open issues" />
-  </a>
-  <a href="https://github.com/petru-braha/RC-application/blob/master/LICENSE">
-    <img src="https://img.shields.io/github/license/petru-braha/RC-application.svg" alt="license" />
-  </a>
-</p>
+  <p>
+    <a href="https://github.com/petru-braha/RC-application/graphs/contributors">
+      <img src="https://img.shields.io/github/contributors/petru-braha/RC-application" alt="contributors" />
+    </a>
+    <a href="">
+      <img src="https://img.shields.io/github/last-commit/petru-braha/RC-application" alt="last update" />
+    </a>
+    <a href="https://github.com/petru-braha/RC-application/network/members">
+      <img src="https://img.shields.io/github/forks/petru-braha/RC-application" alt="forks" />
+    </a>
+    <a href="https://github.com/petru-braha/RC-application/stargazers">
+      <img src="https://img.shields.io/github/stars/petru-braha/RC-application" alt="stars" />
+    </a>
+    <a href="https://github.com/petru-braha/RC-application/issues/">
+      <img src="https://img.shields.io/github/issues/petru-braha/RC-application" alt="open issues" />
+    </a>
+    <a href="https://github.com/petru-braha/RC-application/blob/master/LICENSE">
+      <img src="https://img.shields.io/github/license/petru-braha/RC-application.svg" alt="license" />
+    </a>
+  </p>
    
-<h4>
-    <a href="./doc/demo.mp4">View Demo</a>
-  <span> · </span>
-    <a href="./doc/requirements.md">System requirments</a>
-  <span> · </span>
-    <a href="https://github.com/petru-braha/RC-application/issues/">Report Bug</a>
-  <span> · </span>
-    <a href="https://github.com/petru-braha/RC-application/issues/">Request Feature</a>
+  <h4>
+      <a href="./doc/requirements.md">System requirments</a>
+    <span> · </span>
+      <a href="https://github.com/petru-braha/RC-application/issues/">Report Bug</a>
+    <span> · </span>
+      <a href="https://github.com/petru-braha/RC-application/issues/">Request Feature</a>
   </h4>
+
+  <h4>Demo with Comments</h4>
+
+
+https://github.com/user-attachments/assets/cc458844-1e70-42fe-b1fe-92ea580b43c3
+
+
+  <h4>Demo</h4>
+
+
+https://github.com/user-attachments/assets/57948f16-d97a-4d5f-b905-879e05e57339
+
+
 </div>
 
 ---
