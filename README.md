@@ -36,9 +36,9 @@
       <a href="https://github.com/petru-braha/RC-application/issues/">Request Feature</a>
   </h4>
 
-  https://github.com/user-attachments/assets/cc458844-1e70-42fe-b1fe-92ea580b43c3
-  
-  https://github.com/user-attachments/assets/57948f16-d97a-4d5f-b905-879e05e57339
+https://github.com/user-attachments/assets/cc458844-1e70-42fe-b1fe-92ea580b43c3
+
+https://github.com/user-attachments/assets/57948f16-d97a-4d5f-b905-879e05e57339
 
 </div>
 
@@ -62,17 +62,17 @@ Main development time: 02.12.2025 - 06.01.2026
 ### 📷 Screenshots
 
 <div style="display: grid; grid-template-columns: 1fr 1fr; justify-content: center; gap: 20px;"> 
-<img src="doc/ss/Screenshot 2026-01-23 182612.png" alt="meaningful-conversations"  />
+<img src="doc/demo/ss/Screenshot 2026-01-23 182612.png" alt="meaningful-conversations"  />
 
-<img src="doc/ss/Screenshot 2026-01-23 175844.png" alt="main-screen"  />
+<img src="doc/demo/ss/Screenshot 2026-01-23 175844.png" alt="main-screen"  />
 
-<img src="doc/ss/Screenshot 2026-01-23 181457.png" alt="multi-connection"  />
+<img src="doc/demo/ss/Screenshot 2026-01-23 181457.png" alt="multi-connection"  />
 
-<img src="doc/ss/Screenshot 2026-01-23 181515.png" alt="chat-bubbles"  />
+<img src="doc/demo/ss/Screenshot 2026-01-23 181515.png" alt="chat-bubbles"  />
 
-<img src="doc/ss/Screenshot 2026-01-23 182701.png" alt="logs"  />
+<img src="doc/demo/ss/Screenshot 2026-01-23 182701.png" alt="logs"  />
 
-<img src="doc/ss/Screenshot 2026-01-23 182932.png" alt="debug-logs-file"  />
+<img src="doc/demo/ss/Screenshot 2026-01-23 182932.png" alt="debug-logs-file"  />
 
 </div>
 
