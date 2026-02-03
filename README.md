@@ -1,42 +1,45 @@
 <div align="center">
 
-  <img src="./doc/RC-application.logo.jpg" alt="logo" width="200" height="auto" />
+  <img src="./doc/RC-application.logo.png" alt="logo" width="200" height="auto" />
   <h1>RC-Application</h1>
   
   <p>
     A structured, quality-driven Redis GUI client built with rigourous planning, testing, and documentation in mind.
   </p>
 
-<p>
-  <a href="https://github.com/petru-braha/RC-application/graphs/contributors">
-    <img src="https://img.shields.io/github/contributors/petru-braha/RC-application" alt="contributors" />
-  </a>
-  <a href="">
-    <img src="https://img.shields.io/github/last-commit/petru-braha/RC-application" alt="last update" />
-  </a>
-  <a href="https://github.com/petru-braha/RC-application/network/members">
-    <img src="https://img.shields.io/github/forks/petru-braha/RC-application" alt="forks" />
-  </a>
-  <a href="https://github.com/petru-braha/RC-application/stargazers">
-    <img src="https://img.shields.io/github/stars/petru-braha/RC-application" alt="stars" />
-  </a>
-  <a href="https://github.com/petru-braha/RC-application/issues/">
-    <img src="https://img.shields.io/github/issues/petru-braha/RC-application" alt="open issues" />
-  </a>
-  <a href="https://github.com/petru-braha/RC-application/blob/master/LICENSE">
-    <img src="https://img.shields.io/github/license/petru-braha/RC-application.svg" alt="license" />
-  </a>
-</p>
+  <p>
+    <a href="https://github.com/petru-braha/RC-application/graphs/contributors">
+      <img src="https://img.shields.io/github/contributors/petru-braha/RC-application" alt="contributors" />
+    </a>
+    <a href="">
+      <img src="https://img.shields.io/github/last-commit/petru-braha/RC-application" alt="last update" />
+    </a>
+    <a href="https://github.com/petru-braha/RC-application/network/members">
+      <img src="https://img.shields.io/github/forks/petru-braha/RC-application" alt="forks" />
+    </a>
+    <a href="https://github.com/petru-braha/RC-application/stargazers">
+      <img src="https://img.shields.io/github/stars/petru-braha/RC-application" alt="stars" />
+    </a>
+    <a href="https://github.com/petru-braha/RC-application/issues/">
+      <img src="https://img.shields.io/github/issues/petru-braha/RC-application" alt="open issues" />
+    </a>
+    <a href="https://github.com/petru-braha/RC-application/blob/master/LICENSE">
+      <img src="https://img.shields.io/github/license/petru-braha/RC-application.svg" alt="license" />
+    </a>
+  </p>
    
-<h4>
-    <a href="./doc/demo.mp4">View Demo</a>
-  <span> · </span>
-    <a href="./doc/requirements.md">System requirments</a>
-  <span> · </span>
-    <a href="https://github.com/petru-braha/RC-application/issues/">Report Bug</a>
-  <span> · </span>
-    <a href="https://github.com/petru-braha/RC-application/issues/">Request Feature</a>
+  <h4>
+      <a href="./doc/requirements.md">System requirments</a>
+    <span> · </span>
+      <a href="https://github.com/petru-braha/RC-application/issues/">Report Bug</a>
+    <span> · </span>
+      <a href="https://github.com/petru-braha/RC-application/issues/">Request Feature</a>
   </h4>
+
+https://github.com/user-attachments/assets/cc458844-1e70-42fe-b1fe-92ea580b43c3
+
+https://github.com/user-attachments/assets/57948f16-d97a-4d5f-b905-879e05e57339
+
 </div>
 
 ---
@@ -53,6 +56,25 @@ Main development time: 02.12.2025 - 06.01.2026
 - **Conversational Interface**: Interaction with Redis instances via a clean, chat-inspired dialogue view.
 - **Smart Data Handling**: Efficient byte-level buffering and decoding tailored for Redis payloads.
 - **Infinite Scrolling**: Optimized list views for browsing many connections and deep command histories.
+- **Suggestive logs**: Planned diverse log levels, to easily track any network action, or potential bugs.
+- **Auto-resource cleanup**: No fault should result in memory leaks, uncleaned data, or opened leftovers.
+
+### 📷 Screenshots
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; justify-content: center; gap: 20px;"> 
+<img src="doc/demo/ss/Screenshot 2026-01-23 182612.png" alt="meaningful-conversations"  />
+
+<img src="doc/demo/ss/Screenshot 2026-01-23 175844.png" alt="main-screen"  />
+
+<img src="doc/demo/ss/Screenshot 2026-01-23 181457.png" alt="multi-connection"  />
+
+<img src="doc/demo/ss/Screenshot 2026-01-23 181515.png" alt="chat-bubbles"  />
+
+<img src="doc/demo/ss/Screenshot 2026-01-23 182701.png" alt="logs"  />
+
+<img src="doc/demo/ss/Screenshot 2026-01-23 182932.png" alt="debug-logs-file"  />
+
+</div>
 
 ---
 
