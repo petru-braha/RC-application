@@ -11,9 +11,9 @@ package "network.transport" {
     }
     
     class Synchronizer {
-        + last_raw_input: str | None
-        + all_sent: bool | None
-        + all_recv: bool | None
+        + last_raw_input: str
+        + all_sent: bool
+        + all_recv: bool
         + sync_input(pending: str)
         + unsync()
     }
@@ -33,7 +33,7 @@ package "network.transport" {
     class Sender {
         + add_pending(pending: str)
         + has_pending(): bool
-        + get_first_pending(): str | bytes | None
+        + get_first_pending(): str | bytes
         + rem_first_pending()
         + shrink_first_pending(remaining: bytes)
         + send(data: bytes): int
