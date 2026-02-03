@@ -1,6 +1,6 @@
 <div align="center">
 
-  <img src="./doc/RC-application.logo.jpg" alt="logo" width="200" height="auto" />
+  <img src="./doc/RC-application.logo.png" alt="logo" width="200" height="auto" />
   <h1>RC-Application</h1>
   
   <p>
