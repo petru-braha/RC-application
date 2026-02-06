@@ -1,6 +1,6 @@
 from frozendict import frozendict
 
-from .core.constants import *
+from .constants import *
 from .interfaces import *
 from .sections import *
 from .types import *
