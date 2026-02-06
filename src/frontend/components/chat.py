@@ -3,16 +3,23 @@ from typing import Callable
 
 import core
 
-from .interfaces import PresenceChangeable
-
 logger = core.get_logger(__name__)
 
-class Chat(ft.Container, PresenceChangeable):
+class Chat(ft.Container):
     """
     A chat Interface container that displays the command history in a request-response format.
     """
 
-    def __init__(self, text: str, on_enter: Callable[[str], None]) -> None:
+    CLEAR_CMD: str = "CLEAR"
+    """
+    Client-side command used to clear the visual chat history.
+    """
+    EXIT_CMD: str = "EXIT"
+    """
+    Command used to enqueue the connection closing, the UI is updated synchronously.
+    """
+
+    def __init__(self, text: str, on_enter: Callable[[str], None], exit_cmd_callback: Callable) -> None:
         """
         Initialize the Chat interface.
 
@@ -20,28 +27,24 @@ class Chat(ft.Container, PresenceChangeable):
             text (str): The initial text to display in the header (e.g. connection address).
             on_enter (lambda): Callback function to handle command submission.
         """
-        self._on_enter = on_enter
-        self.history_box = ft.ListView(
+        cmd_input = ft.TextField(
+            hint_text="Type a command.",
+            autofocus=True,
+            on_submit=self.add_req)
+        
+        history_box = ft.ListView(
             expand=True,
             auto_scroll=True,
             spacing=10,
             scroll=ft.ScrollMode.AUTO,
         )
         
-        self.cmd_input = ft.TextField(
-            hint_text="Type a command.",
-            autofocus=True,
-            on_submit=self.on_submit)
-        
         header = ft.Container(
-            content=ft.Row(
-                [
-                    ft.Text(text, 
-                        color=ft.Colors.WHITE, 
-                        selectable=True,
-                        weight=ft.FontWeight.BOLD
-                    )
-                ],
+            content=ft.Row([
+                ft.Text(text, 
+                    color=ft.Colors.WHITE, 
+                    selectable=True,
+                    weight=ft.FontWeight.BOLD)],
                 alignment=ft.MainAxisAlignment.CENTER
             ),
             bgcolor=ft.Colors.BLUE_GREY_700,
@@ -49,52 +52,55 @@ class Chat(ft.Container, PresenceChangeable):
             border_radius=5,
         )
         content = ft.Column([
-                header,
-                self.history_box,
-                ft.Divider(),
-                ft.Row([self.cmd_input], alignment=ft.MainAxisAlignment.CENTER)
-            ],
+            header,
+            history_box,
+            ft.Divider(),
+            ft.Row([cmd_input], alignment=ft.MainAxisAlignment.CENTER)],
             expand=True
         )
-
         super().__init__(
             content=content,
             bgcolor=ft.Colors.BLUE_GREY_900,
             padding=10,
             expand=True,
         )
+        self.cmd_input = cmd_input
+        self.history_box = history_box
+        self._on_enter = on_enter
+        self._exit_cmd_callback = exit_cmd_callback
 
-    async def on_submit(self, event) -> None:
+    async def add_req(self, event) -> None:
         """
         Handles the submission of a new command from the input field.
 
         Args:
             event (obj): The event object.
         """
-        req = self.cmd_input.value
-        if not req:
+        req = self.cmd_input.value.strip()
+        if req == core.EMPTY_STR:
+            return
+        
+        self.cmd_input.value = core.EMPTY_STR
+        await self.cmd_input.focus()
+        
+        # Handle special cases.
+        if req.upper() == Chat.CLEAR_CMD:
+            self.history_box.controls.clear()
+            logger.debug("Cleaned chat history.")
+            return
+        
+        if req.upper() == Chat.EXIT_CMD:
+            self._exit_cmd_callback()
             return
 
+        # Was not a special case, forwards the request to the network layer.
         logger.debug(f"Frontend printing of the request: {req}.")
         self._on_enter(req)
-        await self.cmd_input.focus()
-        self.cmd_input.value = ""
-
         bubble = self._add_msg_bubble(req, ft.MainAxisAlignment.END, ft.Colors.BLUE_600)
         self.history_box.controls.append(bubble)
         logger.debug("Request printed.")
 
-    def on_response(self, res: str) -> None:
-        """
-        Called by the reactor to display a server response.
-        Updates the UI thread-safely.
-
-        Args:
-            res (str): The response string from the server.
-        """
-        self.page.run_task(self._auto_add_res, res)
-
-    async def _auto_add_res(self, res: str) -> None:
+    async def add_res(self, res: str) -> None:
         """
         Adds a response to the chat history box automaticallly when it is ready.
 
@@ -123,16 +129,14 @@ class Chat(ft.Container, PresenceChangeable):
         Returns:
             ft.Row: The formatted row containing the message bubble.
         """
-        return ft.Row(
-            [
-                ft.Container(
-                    content=ft.Text(text, color=ft.Colors.WHITE, selectable=True),
-                    padding=10,
-                    border_radius=10,
-                    bgcolor=bgcolor,
-                    width=400,
-                    ink=True
-                )
-            ],
+        return ft.Row([
+            ft.Container(
+                content=ft.Text(text, color=ft.Colors.WHITE, selectable=True),
+                padding=10,
+                border_radius=10,
+                bgcolor=bgcolor,
+                width=300,
+                ink=True
+            )],
             alignment=alignment,
         )

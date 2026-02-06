@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest.mock import MagicMock
 
-from src.frontend.components.modals.manual_connect import ManualConnect
+from src.frontend.modal_views.manual_view import ManualView
 
 class TestManualConnect(TestCase):
     
@@ -9,15 +9,12 @@ class TestManualConnect(TestCase):
         self.on_continue = MagicMock()
         self.switch_btn = MagicMock()
         self.close_btn = MagicMock()
-        
-        self.modal = ManualConnect(self.on_continue, self.switch_btn, self.close_btn)
-        self.modal._page = MagicMock()
+        self.modal = ManualView(self.on_continue, self.switch_btn, self.close_btn)
 
     def test_init(self):
         self.assertTrue(self.modal.content)
 
     def test_on_process_manual(self):
-        # Setup input values on REAL TextFields
         self.modal.host_input.value = "host"
         self.modal.port_input.value = "port"
         self.modal.user_input.value = "user"
