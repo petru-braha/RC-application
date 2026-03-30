@@ -1,7 +1,7 @@
 <div align="center">
 
   <img src="./doc/RC-application.logo.png" alt="logo" width="200" height="auto" />
-  <h1>RC-Application</h1>
+  <h1>Redis Client Application</h1>
   
   <p>
     A structured, quality-driven Redis GUI client built with rigourous planning, testing, and documentation in mind.
