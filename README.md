@@ -36,8 +36,6 @@
       <a href="https://github.com/petru-braha/RC-application/issues/">Request Feature</a>
   </h4>
 
-https://github.com/user-attachments/assets/cc458844-1e70-42fe-b1fe-92ea580b43c3
-
 https://github.com/user-attachments/assets/57948f16-d97a-4d5f-b905-879e05e57339
 
 </div>
